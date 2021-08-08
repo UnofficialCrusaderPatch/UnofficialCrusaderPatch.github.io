@@ -1,0 +1,13 @@
+{
+    "ucp-contributing-title": "Learning the Code: A Contributor's Tutorial",
+    "ucp-contributing-credit": "An adaptation of <a href=\"https://github.com/Sh0wdown/UnofficialCrusaderPatch/wiki/Contributor-Tutorial:-Learn-the-code\">this tutorial</a> made by @LordHansCapon",
+    "ucp-contributing-prereq-note": "<i>Note: This tutorial assumes you are familiar with how to setup an environment, GIT, and other fundamentals</i>",
+    "ucp-contributing-prereq-title": "Prerequisites",
+    "ucp-contributing-prereq-body": "Environment setup is the first step. Below are three suggested development environments but feel free to use whatever suits your preferences.<ul><li>JetBrains Rider</li><li>Visual Studio Code</li><li>Visual Studio</li></ul>",
+    "ucp-contributing-first-steps-title": "First Steps",
+    "ucp-contributing-first-steps-body-step-1": "Download the repository by cloning, directly downloading or forking it.",
+    "ucp-contributing-first-steps-body-step-2": "Open the project, there are 4 projects in the solution, select the UnofficialCrusaderPatch one.",
+    "ucp-contributing-first-steps-body-step-3": "Setup your Run/Debug Configurations. In JetBrains, double tap Shift, then type in Edit Configurations. It will automatically create a Default .NET project run/debug configuration, you can press Apply & OK, the default should be fine. If it is not, then be sure the target framework is .NET v4.0.",
+    "ucp-contributing-first-steps-body-step-4": "To compile, you will need Evrey's AIV files, so head to this link: https://github.com/Evrey/SHC_AIV Download Evrey's SHC_AIV project as a ZIP, extract firefly_fixed, history, skirmish into the UnofficialCrusaderPatch/SHC_AIV folder. Yes, you have to create the SHC_AIV folder first.",
+    "ucp-contributing-first-steps-body-complete": "If everything is done correctly, you can compile and run the software. Now this is where the fun begins."
+}

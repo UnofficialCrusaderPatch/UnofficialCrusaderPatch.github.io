@@ -21,62 +21,67 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="index.html">Home</a>
+                        <a class="nav-link string-nav" data-string-id="ucp-home" href="index.html">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="getting-started.html">Getting Started</a>
+                        <a class="nav-link string-nav" data-string-id="ucp-getting-started" href="getting-started.html">Getting Started</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="features.html">Features</a>
+                        <a class="nav-link string-nav" data-string-id="ucp-features" href="features.html">Features</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        AI Character Introduction
-                      </a>
+                        <a class="nav-link dropdown-toggle string-nav" data-string-id="ucp-ai-intro" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            AI Character Introduction
+                        </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="aic/overview.html">Overview</a>
+                            <a class="dropdown-item string-nav" data-string-id="ucp-aic-overview" href="aic/overview.html">Overview</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="aic/detailed.html">AI Personality Values</a>
-                            <a class="dropdown-item" href="aic/field-values.html">AIC Field Values</a>
+                            <a class="dropdown-item string-nav" data-string-id="ucp-aic-personality" href="aic/detailed.html">AI Personality Values</a>
+                            <a class="dropdown-item string-nav" data-string-id="ucp-aic-fields" href="aic/field-values.html">AIC Field Values</a>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="aiv.html">AI Castle Introduction</a>
+                        <a class="nav-link string-nav" data-string-id="ucp-aiv-intro" href="aiv.html">AI Castle Introduction <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Contributing <span class="sr-only">(current)</span></a>
+                        <a class="nav-link string-nav" data-string-id="ucp-contributing" href="#">Contributing <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="faq.html">FAQ</a>
+                        <a class="nav-link string-nav" data-string-id="ucp-faq" href="faq.html">FAQ</a>
                     </li>
                 </ul>
             </div>
+
+            <select id="ucp-language-select" class="float-right" type="button">
+                <option class="string-nav" data-string-id="ucp-language-english" value="English">English</option>
+                <option class="string-nav" data-string-id="ucp-language-german" value="German">German</option>
+            </select>
         </nav>
         <div class="header">
-          <h4 class="text-center">Latest Version: UCP 2.15b 
+            <h4 class="text-center"><span class="string-nav" data-string-id="ucp-latest-version">Unofficial Crusader Patch Latest Version: UCP 2.15b </span>
                     <a href="https://github.com/Sh0wdown/UnofficialCrusaderPatch"><i class="fab fa-github"></i></a>
-                    <a class="latest-release" href="https://github.com/Sh0wdown/UnofficialCrusaderPatch/releases/tag/v2.15">changelog</a> 
-                    <a class="latest-release" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/download/v2.15/UnofficialCrusaderPatch_2.15b.zip">download</a>
+                    <a class="latest-release string-nav" data-string-id="ucp-changelog" href="https://github.com/Sh0wdown/UnofficialCrusaderPatch/releases/tag/v2.15">changelog</a> 
+                    <a class="latest-release string-nav" data-string-id="ucp-download" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/download/v2.15/UnofficialCrusaderPatch_2.15b.zip">download</a>
                     <a href="https://discord.gg/vmy7CBR"><img src="https://discordapp.com/api/guilds/426318193603117057/widget.png?style=shield"></a>
                 </h4>
-      </div>
+        </div>
         <hr class="header-divider">
         <div id="contributing-header">
-            <h4 class="text-center">Learning the Code: A Contributor's Tutorial</h4>
+            <h4 class="text-center string" data-string-id="ucp-contributing-title">Learning the Code: A Contributor's Tutorial</h4>
             <br>
-            <h5 class="text-center">An adaptation of <a href="https://github.com/Sh0wdown/UnofficialCrusaderPatch/wiki/Contributor-Tutorial:-Learn-the-code">this tutorial</a> made by @LordHansCapon</h5>
+            <h5 class="text-center string" data-string-id="ucp-contributing-credit">An adaptation of <a href="https://github.com/Sh0wdown/UnofficialCrusaderPatch/wiki/Contributor-Tutorial:-Learn-the-code">this tutorial</a> made by @LordHansCapon</h5>
         </div>
 
         <div id="contributing-content" class="">
 
-            <h5 class="text-center"><i>Note: This tutorial assumes you are familiar with how to setup an environment, GIT, and other fundamentals</i></h5>
+            <h5 class="text-center string" data-string-id="ucp-contributing-prereq-note"><i>Note: This tutorial assumes you are familiar with how to setup an environment, GIT, and other fundamentals</i></h5>
             <br>
             <br>
 
             <div class="card contributing-step">
-                <h5>Prerequisites</h5>
+                <h5 class="string" data-string-id="ucp-contributing-prereq-title">Prerequisites</h5>
                 <hr class="contributing-step-divider">
-                <div class="card-body contributing-step-body">
+                <div class="card-body contributing-step-body string" data-string-id="ucp-contributing-prereq-body">
                     Environment setup is the first step. Below are three suggested development environments but feel free to use whatever suits your preferences.
                     <ul>
                         <li>JetBrains Rider</li>
@@ -87,17 +92,17 @@
             </div>
 
             <div class="card contributing-step">
-                <h5>First Steps</h5>
+                <h5 class="string" data-string-id="ucp-contributing-first-steps-title">First Steps</h5>
                 <hr class="contributing-step-divider">
                 <div class="card-body contributing-step-body">
                     <ul>
-                        <li>Download the repository by cloning, directly downloading or forking it.</li>
-                        <li>Open the project, there are 4 projects in the solution, select the UnofficialCrusaderPatch one.</li>
-                        <li>Setup your Run/Debug Configurations. In JetBrains, double tap Shift, then type in Edit Configurations. It will automatically create a Default .NET project run/debug configuration, you can press Apply & OK, the default should be fine. If it is not, then be sure the target framework is .NET v4.0.</li>
-                        <li>To compile, you will need Evrey's AIV files, so head to this link: https://github.com/Evrey/SHC_AIV Download Evrey's SHC_AIV project as a ZIP, extract firefly_fixed, history, skirmish into the UnofficialCrusaderPatch/SHC_AIV folder. Yes, you have to create the SHC_AIV folder first.</li>
+                        <li class="string" data-string-id="ucp-contributing-first-steps-body-step-1">Download the repository by cloning, directly downloading or forking it.</li>
+                        <li class="string" data-string-id="ucp-contributing-first-steps-body-step-2">Open the project, there are 4 projects in the solution, select the UnofficialCrusaderPatch one.</li>
+                        <li class="string" data-string-id="ucp-contributing-first-steps-body-step-3">Setup your Run/Debug Configurations. In JetBrains, double tap Shift, then type in Edit Configurations. It will automatically create a Default .NET project run/debug configuration, you can press Apply & OK, the default should be fine. If it is not, then be sure the target framework is .NET v4.0.</li>
+                        <li class="string" data-string-id="ucp-contributing-first-steps-body-step-4">To compile, you will need Evrey's AIV files, so head to this link: https://github.com/Evrey/SHC_AIV Download Evrey's SHC_AIV project as a ZIP, extract firefly_fixed, history, skirmish into the UnofficialCrusaderPatch/SHC_AIV folder. Yes, you have to create the SHC_AIV folder first.</li>
                     </ul>
 
-                    If everything is done correctly, you can compile and run the software. Now this is where the fun begins.
+                    <span class="string" data-string-id="ucp-contributing-first-steps-body-complete">If everything is done correctly, you can compile and run the software. Now this is where the fun begins.</span>
                 </div>
             </div>
 
@@ -242,5 +247,6 @@
 <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="assets/js/translations.js"></script>
 
 </html>
