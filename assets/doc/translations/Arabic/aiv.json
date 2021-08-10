@@ -1,0 +1,14 @@
+{
+    "ucp-aiv-title": "مقدمة لقلاع الملوك (الذكاء الاصطناعي)",
+    "ucp-aiv-download-editor": "تحميل <a href=\"http://stronghold.heavengames.com/downloads/getfile.php?id=7534&dd=1&s=0d0177bca23f6e96037b2db2b895c38f\">أداة تعديل خرائط الملوك</a> من <i>Stronghold Heaven</i>",
+    "ucp-aiv-overview-title": "لمحة عن قلاع الملك (الذكاء الاصطناعي) ",
+    "ucp-aiv-overview-body": "Each AI character in Stronghold Crusader comes with a preinstalled set of 8 different castles. These provided castles apply to both Stronghold Crusader and Stronghold Crusader Extreme. The castle in a format known as aiv files, and these are stored in the <i>aiv</i> subfolder of your installation. They are named <i>&lt;aicharacter&gt;X.aiv</i> where <i>aicharacter</i> is the name of the character, and X is a number from 1 to 8 (ie snake1.aiv). When a match starts, the AI decides randomly (and also based on map size and terrain) which castle to build.",
+    "ucp-aiv-customize-title": "تخصيص قلاع الملوك",
+    "ucp-aiv-customize-body-lead": "من خلال استعمال محرر الخرائط من الممكن أن تصنع الخريطة بتصميم خاص بك للملك الذي تفضله<br>بعض الاشياء يجب أن تأخذها بعين الاعتبار",
+    "ucp-aiv-customize-body-item-1": "حاول جعل خطوات البناء قليلة لكي يصبح من الصعب للاعب الهجوم على الذكاء الاصطناعي في وقت مبكر",
+    "ucp-aiv-customize-body-item-2": "تأكد من وضع المباني الغالية و التي تحتاج موارد في بداية البناء حتى لا يقوم الذكاء الاصطناعي بأنفاق الموارد على أشياء أخرى و يصبح عاجز عن اكمال بناء القلعة و يكون من السهل هزيمته ",
+    "ucp-aiv-customize-body-item-3": "يمكن أن يكون وجود الكثير من المداخل في القلعة من زيادة أنتاج الموارد",
+    "ucp-aiv-customize-body-item-3-subitem-1": "على العمال ان يصلون الى مكان وضع الموارد بشكل أسرع",
+    "ucp-aiv-customize-body-item-3-subitem-2": "احرص على أن يتم انتاج الموارد في أثناء الحصار أو المعركة عن طريق أنشاء طرق أخرى للمرور من خلالها مثل البوابات",
+    "ucp-aiv-customize-body-item-4": "تأكد من وضع الدفاعات الكافية لكي يتمكن الذكاء الاصطناعي من الدفاع عن القلعة"
+}
