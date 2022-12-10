@@ -1,0 +1,14 @@
+{
+    "ucp-aiv-title": "An Introduction to AI Character Castles",
+    "ucp-aiv-download-editor": "Download <a href=\"http://stronghold.heavengames.com/downloads/getfile.php?id=7534&dd=1&s=0d0177bca23f6e96037b2db2b895c38f\">AIV Editor Tool</a> from <i>Stronghold Heaven</i>",
+    "ucp-aiv-overview-title": "AI Castles at a Glance",
+    "ucp-aiv-overview-body": "Each AI character in Stronghold Crusader comes with a preinstalled set of 8 different castles. These provided castles apply to both Stronghold Crusader and Stronghold Crusader Extreme. The castle in a format known as aiv files, and these are stored in the <i>aiv</i> subfolder of your installation. They are named <i>&lt;aicharacter&gt;X.aiv</i> where <i>aicharacter</i> is the name of the character, and X is a number from 1 to 8 (ie snake1.aiv). When a match starts, the AI decides randomly (and also based on map size and terrain) which castle to build.",
+    "ucp-aiv-customize-title": "Customizing the AI's castles",
+    "ucp-aiv-customize-body-lead": "By using the AIV Editor Tool it is possible to create your own customized castles for your favourite AI characters.<br>A few considerations to keep in mind:",
+    "ucp-aiv-customize-body-item-1": "Try and keep the number of build steps low to make it harder for players to rush the AI",
+    "ucp-aiv-customize-body-item-2": "Place more vital and more expensive buildings early in case the AI uses up the necessary resources and is therefore handicapped. An example of this is the cathedral - the AI should build this early when it has lots of gold else it may begin recruiting troops, never reach the required gold, and never finish building its castle.",
+    "ucp-aiv-customize-body-item-3": "Having multiple entrances to a castle can increase efficiency of resource production",
+    "ucp-aiv-customize-body-item-3-subitem-1": "Workers have to travel less to reach stockpile",
+    "ucp-aiv-customize-body-item-3-subitem-2": "Resource production can continue while under siege if it has an entrance on the opposite side",
+    "ucp-aiv-customize-body-item-4": "Be sure to include the necessary buildings for the AI's production chains (ie. breweries and inns for ale production)"
+}
