@@ -1,18 +1,18 @@
 [
     {
         "question":"Does this work in multiplayer?",
-        "answer":"Yes, multiplayer works fine with the UCP installed as long as everyone playing has the same options selected.<br>However, certain features such as changing Player 1's color or Activate Spectator Mode will cause crash or desync in multiplayer!"
+        "answer":"Yes, multiplayer works fine with the UCP installed as long as everyone playing has the same options selected.<br>However, certain features such as changing Player 1's colour or Activate Spectator Mode will cause crash or desync in multiplayer!"
     },
     {
         "question":"Can you change the map size?",
-        "answer":"No we are not able to change it. Firefly isn`t able to change it either, without a big amount of work."
+        "answer":"No, we are not able to change it. Firefly isn`t able to change it either, without a big amount of work."
     },
     {
         "question":"Can you include <i>&lt;insert feature name&gt;</i> feature?",
         "answer":"Search in the issue section, and if it hasn't been asked, ask away. If a developer likes the idea they may look into it, no promises though."
     },
     {
-        "question":"I'm a programmer how can I get involved?",
+        "question":"I'm a programmer, how can I get involved?",
         "answer":"Look through the issues and find ideas you want to fix or implement. Follow this <a href=\"contributing.html\">link</a> to a getting started article for our codebase."
     },
     {
