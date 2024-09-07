@@ -1,7 +1,7 @@
 [
     {
         "question":"Does this work in multiplayer?",
-        "answer":"Yes, multiplayer works fine with the UCP installed as long as everyone playing has the same options selected.<br>However, certain features such as changing Player 1's colour or Activate Spectator Mode will cause crash or desync in multiplayer!"
+        "answer":"Yes, multiplayer works fine with the UCP installed as long as everyone playing has the same options selected.<br>However, certain features such as changing Player 1's color or Activate Spectator Mode will cause crash or desync in multiplayer!"
     },
     {
         "question":"Can you change the map size?",
