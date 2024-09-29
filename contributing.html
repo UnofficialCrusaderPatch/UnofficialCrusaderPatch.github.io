@@ -203,7 +203,7 @@
         new BinSkip(4), // Skip 4 bytes
         new BinBytes(0x11, 0x00, 0x00, 0x00) // Write 4 more bytes
     },
-                  </pre> What if I want to jump between addresses? Well, you can create multiple BinaryEdit instances inside the DefaultHeader, so that's it. Create a new .block file to set the base address, then just write your bytes there! Example from my armoury/marketplace weapon order fix:
+                  </pre> What if I want to jump between addresses? Well, you can create multiple BinaryEdit instances inside the DefaultHeader, so that's it. Create a new .block file to set the base address, then just write your bytes there! Example from my armory/marketplace weapon order fix:
 
                     <pre class="prettyprint lang-cs">
     new BinaryEdit("o_armory_marketplace_weapon_order_fix1") // 217F50
