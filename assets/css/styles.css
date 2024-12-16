@@ -1,6 +1,16 @@
 html, .page {
-    background-color: lightgray;
     font-size: medium;
+}
+
+body {
+    background-image: url(../assets/img/index/bg_richard.webp);
+    background-size: cover; 
+    background-repeat: no-repeat;
+    background-position: center; 
+    min-height: 100%;
+    margin:0;
+    padding:0;
+
 }
 
 input {
@@ -10,13 +20,73 @@ input {
 hr.header-divider {
     border: 1.5px solid black;
 }
+    /* Flexbox navbar */
+    nav {
+        background-color: rgb(32, 32, 32); 
+        padding: 10px 15px; 
+    }
 
-.navbar {
-    margin-top: 10px;
-    margin-bottom: 10px;
-    border-radius: 20px;
-    cursor: pointer;
-}
+    /* Container for navigation items */
+    .nav-list {
+        display: flex;
+        justify-content: space-evenly; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Individual navigation items */
+    .nav-item {
+        position: relative; 
+        margin: 0 15px;
+    }
+
+    /* Navigation links */
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        padding: 8px 8px;
+    }
+
+    /* Hover effect on links */
+    .nav-link:hover {
+        background-color: #575757;
+        border-radius: 5px;
+    }
+
+    /* Dropdown content */
+    .dropdown-content {
+        display: none; /* Hidden by default */
+        position: absolute;
+        background-color: #444;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        min-width: 200px;
+        border-radius: 5px;
+        top: 100%; 
+        left: 0;
+    }
+
+    /* Dropdown items */
+    .dropdown-content a {
+        color: white;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #575757;
+    }
+
+/*Show the dropdown on hover*/
+    .nav-item:hover .dropdown-content {
+        display: block; 
+    }
+    
+
+
 
 .latest-release {
     font-size: large;
@@ -42,10 +112,6 @@ hr.header-divider {
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-.card.aic-field .card-header .mb-0 .btn.btn-link {
-    text-decoration: none;
 }
 
 #accordion, #accordion-instructions {
@@ -76,7 +142,8 @@ h5.mb-0 a#features-link:hover {
 }
 
 .card-header .mb-0 .btn.btn-link {
-    color: white;
+    text-decoration: none;
+    color: rgb(32, 32, 32);
     font-size: large;
 }
 
@@ -85,7 +152,10 @@ h5.mb-0 a#features-link:hover {
 }
 
 .fa-github {
-    color: black
+    color: rgb(255, 255, 255)
+    width: 90%;
+    padding: 5px;
+    margin: 5px;
 }
 
 #content {

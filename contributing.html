@@ -24,6 +24,9 @@
                         <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="getting-started.html">Getting Started</a>
                     </li>
                     <li class="nav-item">
@@ -53,12 +56,12 @@
             </div>
         </nav>
         <div class="header">
-          <h4 class="text-center">Latest Version: UCP 3
-                <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch"><i class="fab fa-github"></i></a>
-                <a class="latest-release" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases">releases</a> 
-                <a class="latest-release" href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases/download/v1.0.6/UCP3-GUI_1.0.6_x64-setup.exe">download</a>
-                <a href="https://discord.gg/P9dkF38Q2t"><img src="https://discordapp.com/api/guilds/426318193603117057/widget.png?style=shield"></a>
-            </h4>
+          <h4 class="text-center">Latest Version: UCP 2.15b 
+                    <a href="https://github.com/Sh0wdown/UnofficialCrusaderPatch"><i class="fab fa-github"></i></a>
+                    <a class="latest-release" href="https://github.com/Sh0wdown/UnofficialCrusaderPatch/releases/tag/v2.15">changelog</a> 
+                    <a class="latest-release" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/download/v2.15/UnofficialCrusaderPatch_2.15b.zip">download</a>
+                    <a href="https://discord.gg/anzCpnTGxY"><img src="https://discordapp.com/api/guilds/426318193603117057/widget.png?style=shield"></a>
+                </h4>
       </div>
         <hr class="header-divider">
         <div id="contributing-header">
@@ -105,7 +108,7 @@
                 <h5>Getting to know the code</h5>
                 <hr class="contributing-step-divider">
                 <div class="card-body contributing-step-body">
-                    The patcher operates with CodeBlocks. Every CodeBlock is an array of byte which will be scanned in the exe. These CodeBlocks are used to identify (ident) the correct part of the exe. To simplify it, you are not saying you want to override 4 bytes on address 0x6B90E8, you say search for these bytes then we are saying write some bytes then skip X bytes then write some bytes again. You can see every change applied in the patcher in the changes list in Version.cs. These changes will be rendered as Options in the patcher in their corresponding tab set by their ChangeType.
+                    The patcher operates with CodeBlocks. Every CodeBlock is an array of byte which will be scanned in the exe. These CodeBlocks are use to identify (ident) the correct part of the exe. To simplify it, you are not saying you want to override 4 bytes on address 0x6B90E8, you say search for these bytes then we are saying write some bytes then skip X bytes then write some bytes again. You can see every change applied in the patcher in the changes list in Version.cs. These changes will be rendered as Options in the patcher in their correspondig tab set by their ChangeType.
                 </div>
             </div>
 
@@ -113,7 +116,7 @@
                 <h5>Making a change</h5>
                 <hr class="contributing-step-divider">
                 <div class="card-body contributing-step-body">
-                    Let's look at one of the simplest changes in this patcher, search for 0x004CBCD5 in Version.cs. This is the Disable sleeping mode for lack of resources option under AI lords tab. Let's take a look at its structure. We create a new Change instance, set its titleIdent to ai_nosleep, now this titleIdent will be the change's title, you can edit this in the Localization/English.txt or german/polish/russian etc. If you open the localization and search for ai_nosleep, you can find the title and its description which will be used when generating the option. The second parameter of the Change constructor is the type of the change, this determines the tab this option gets on, then we have enabledDefault and exclusive. Inside the Change, we have a DefaultHeader instantiated, which is used to create the header of the option. This also gets a descrIdent which will be our description when the option is expanded. If you want to create an option where it has suboptions such as the AI Attack target change one, you can take a look at how to do this if you search for ai_attacktarget in Version.cs. Any binary command you add under the header will be applied when the option is selected and the patcher starts installing.
+                    Let's look at one of the simplest changes in this patcher, search for 0x004CBCD5 in Version.cs. This is the Disable sleeping mode for lack of resources option under AI lords tab. Let's take a look at its structure. We create a new Change instance, set its titleIdent to ai_nosleep, now this titleIdent will be the change's title, you can edit this in the Localization/English.txt or german/polish/russian etc. If you open the localization and search for ai_nosleep, you can find the title and its description which will be used when generating the option. The second parameter of the Change constructor is the type of the change, this determines the tab this option gets on, then we have enabledDefault and exclusive. Inside the Change, we have a DefaultHeader instantiated, which is used to create the header of the option. This also gets a descrIdent which will be our description when the option is expanded. If you want to create an option where it has suboptions such as the AI Attack target change one, you can take a look on how to do that at if you search for ai_attacktarget in Version.cs. Any binary command you add under the header will be applied when the option is selected and the patcher starts installing.
                 </div>
             </div>
 
@@ -194,7 +197,7 @@
 
         }
     },
-                  </pre> Great, now we have overridden the whole array of bytes. You can now compile it and run it. But what if we need to override X bytes every Y bytes? To do that, you can use BinSkip which will skip X amount of bytes. Like so:
+                  </pre> Great, now we overriden the whole array of bytes. You can now compile it and run it. But what if we need to override X bytes every Y bytes? To do that, you can use BinSkip which will skip X amount of bytes. Like so:
 
                     <pre class="prettyprint lang-cs">
     new BinaryEdit("o_mychange1") // 6B90E8
@@ -228,7 +231,7 @@
                 <h5>Summary</h5>
                 <hr class="contributing-step-divider">
                 <div class="card-body contributing-step-body">
-                    You can create custom assembly codes and inject them as well, just take a look at the Healer change (o_healer), it allocates new data, uses labels, references, variables etc. Once you master the tools provided by Sh0wdown in this repo, you can translate any change and write it into an option. This tutorial was not meant to teach you everything there is to know about this repository and how to contribute to it, it is more a getting started, first steps guide. Thank you for reading, we are hoping to have a full, official guide for this repository because it deserves it!
+                    You can create custom assembly codes and inject them aswell, just take a look at the Healer change (o_healer), it allocates new data, uses labels, references, variables etc. Once you master the tools provided by Sh0wdown in this repo, you can translate any change and write it into an option. This tutorial was not meant to teach you everything there is to know about this repository and how to contribute to it, it is more a getting started, first steps guide. Thank you for reading, we are hoping to have a full, official guide for this repository because it deserves it!
                 </div>
             </div>
 
