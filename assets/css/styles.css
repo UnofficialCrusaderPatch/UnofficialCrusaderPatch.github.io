@@ -23,13 +23,15 @@ hr.header-divider {
     /* Flexbox navbar */
     nav {
         background-color: rgb(32, 32, 32); 
-        padding: 10px 15px; 
+        padding: 10px 0px; 
+        height: 50px;
     }
 
     /* Container for navigation items */
     .nav-list {
         display: flex;
         justify-content: space-evenly; 
+        align-items: center;
         list-style: none; 
         margin: 0;
         padding: 0;
@@ -38,7 +40,8 @@ hr.header-divider {
     /* Individual navigation items */
     .nav-item {
         position: relative; 
-        margin: 0 15px;
+        display: inline-block;
+        margin: 15px;
     }
 
     /* Navigation links */
@@ -47,6 +50,10 @@ hr.header-divider {
         text-decoration: none;
         font-size: 18px;
         padding: 8px 8px;
+    }
+
+    .github-item a {
+        color: #ffffff9e
     }
 
     /* Hover effect on links */
