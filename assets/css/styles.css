@@ -1,10 +1,11 @@
-html, .page {
+html {
     font-size: medium;
 }
 
 body {
     background-image: url(../assets/img/index/bg_richard.webp);
     background-size: cover; 
+    background-position: center;
     background-repeat: no-repeat;
     background-position: center; 
     min-height: 100%;
@@ -20,28 +21,31 @@ input {
 hr.header-divider {
     border: 1.5px solid black;
 }
-    /* Flexbox navbar */
+    /* navbar */
     nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         background-color: rgb(32, 32, 32); 
-        padding: 10px 0px; 
-        height: 50px;
+        padding: 10px 10px; 
+        height: 60px;
     }
 
-    /* Container for navigation items */
+    /* navigation items */
     .nav-list {
         display: flex;
-        justify-content: space-evenly; 
-        align-items: center;
+        justify-content: flex-end; 
         list-style: none; 
         margin: 0;
         padding: 0;
+        flex-grow: 1;
     }
 
     /* Individual navigation items */
     .nav-item {
         position: relative; 
         display: inline-block;
-        margin: 15px;
+        margin: 50px
     }
 
     /* Navigation links */
@@ -56,6 +60,15 @@ hr.header-divider {
         color: #ffffff9e
     }
 
+    .github-item a:hover{
+        color: aliceblue;
+    }
+
+    .fab.fa-github {
+        font-size: 24px;
+        transition: color 0.3 ease;
+    }
+    
     /* Hover effect on links */
     .nav-link:hover {
         background-color: #575757;
