@@ -27,10 +27,28 @@ hr.header-divider {
         justify-content: space-between;
         align-items: center;
         background-color: rgb(32, 32, 32); 
-        padding: 10px 10px; 
+        padding: 10px 20px; 
         height: 60px;
     }
 
+    @media (max-width: 768px) {
+        nav {
+            flex-direction: column; 
+            height: auto;
+        }
+    
+        .nav-list {
+            flex-direction: column; 
+            width: 100%;
+        }
+    
+        .nav-item {
+            margin: 10px 0; 
+        }
+    }
+
+
+  
     /* navigation items */
     .nav-list {
         display: flex;
@@ -38,14 +56,14 @@ hr.header-divider {
         list-style: none; 
         margin: 0;
         padding: 0;
-        flex-grow: 1;
+        align-items: center;
     }
 
     /* Individual navigation items */
     .nav-item {
         position: relative; 
         display: inline-block;
-        margin: 50px
+        margin: 30px
     }
 
     /* Navigation links */
@@ -54,6 +72,12 @@ hr.header-divider {
         text-decoration: none;
         font-size: 18px;
         padding: 8px 8px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background-color: #575757;
     }
 
     .github-item a {
@@ -67,13 +91,15 @@ hr.header-divider {
     .fab.fa-github {
         font-size: 24px;
         transition: color 0.3 ease;
+        padding: 5px;
+        margin: 5px;
     }
-    
-    /* Hover effect on links */
-    .nav-link:hover {
-        background-color: #575757;
-        border-radius: 5px;
-    }
+
+
+
+
+/* Archived content */
+
 
     /* Dropdown content */
     .dropdown-content {
@@ -171,12 +197,7 @@ h5.mb-0 a#features-link:hover {
     background-color: lightgray;
 }
 
-.fa-github {
-    color: rgb(255, 255, 255)
-    width: 90%;
-    padding: 5px;
-    margin: 5px;
-}
+
 
 #content {
     margin-top: 50px;
