@@ -1,0 +1,329 @@
+html {
+    font-size: medium;
+}
+
+body {
+    background-image: url(../assets/img/index/bg_richard.webp);
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    background-position: center; 
+    min-height: 100%;
+    margin:0;
+    padding:0;
+
+}
+
+input {
+    width: 100px;
+}
+
+hr.header-divider {
+    border: 1.5px solid black;
+}
+    /* navbar */
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgb(32, 32, 32); 
+        padding: 10px 20px; 
+        height: 60px;
+    }
+
+    @media (max-width: 768px) {
+        nav {
+            flex-direction: column; 
+            height: auto;
+        }
+    
+        .nav-list {
+            flex-direction: column; 
+            width: 100%;
+        }
+    
+        .nav-item {
+            margin: 10px 0; 
+        }
+    }
+
+
+  
+    /* navigation items */
+    .nav-list {
+        display: flex;
+        justify-content: flex-end; 
+        list-style: none; 
+        margin: 0;
+        padding: 0;
+        align-items: center;
+    }
+
+    /* Individual navigation items */
+    .nav-item {
+        position: relative; 
+        display: inline-block;
+        margin: 30px
+    }
+
+    /* Navigation links */
+    .nav-link {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        padding: 8px 8px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .nav-link:hover {
+        background-color: #575757;
+    }
+
+    .github-item a {
+        color: #ffffff9e
+    }
+
+    .github-item a:hover{
+        color: aliceblue;
+    }
+
+    .fab.fa-github {
+        font-size: 24px;
+        transition: color 0.3 ease;
+        padding: 5px;
+        margin: 5px;
+    }
+
+
+
+
+/* Archived content */
+
+
+    /* Dropdown content */
+    .dropdown-content {
+        display: none; /* Hidden by default */
+        position: absolute;
+        background-color: #444;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        min-width: 200px;
+        border-radius: 5px;
+        top: 100%; 
+        left: 0;
+    }
+
+    /* Dropdown items */
+    .dropdown-content a {
+        color: white;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #575757;
+    }
+
+/*Show the dropdown on hover*/
+    .nav-item:hover .dropdown-content {
+        display: block; 
+    }
+    
+
+
+
+.latest-release {
+    font-size: large;
+    text-decoration: underline;
+    text-decoration-style: solid;
+}
+
+.card.feature {
+    width: 90%;
+    padding: 5px;
+    margin: 5px;
+}
+
+.card.aic-gen,
+.card.aic-field {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.card.aic-gen .card-header,
+.card.aic-field .card-header {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#accordion, #accordion-instructions {
+    margin-top: 45px;
+    margin-bottom: 30px;
+}
+
+h5.mb-0 a#features-link:hover {
+    color: blue;
+}
+
+.card.instruction, .card.feature, 
+.card.aic-gen {
+    cursor: pointer;
+}
+
+.card.feature,
+.card.aic-gen,
+.card.aic-field {
+    background-color: gray;
+}
+
+.card.instruction {
+    background-color: gray;
+    width: 90%;
+    padding: 5px;
+    margin: 5px;
+}
+
+.card-header .mb-0 .btn.btn-link {
+    text-decoration: none;
+    color: rgb(32, 32, 32);
+    font-size: large;
+}
+
+.feature-highlight {
+    background-color: lightgray;
+}
+
+
+
+#content {
+    margin-top: 50px;
+}
+
+.img-installation#language-select {
+    width: 50%;
+}
+
+.img-installation {
+    width: 90%;
+    margin-bottom: 50px;
+}
+
+#contributing-header, 
+#faq-header,
+#feature-header {
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+#contributing-content,
+#faq-content {
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+#feature-content {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.contributing-step, .contributing-step-body, 
+.faq-question, .faq-question-body, 
+.install-step, .feature-highlight,
+.feature-description, .feature-body,
+.feature-title {
+    background-color: white;
+}
+
+.contributing-step, 
+.faq-question {
+    padding: 15px;
+}
+
+.card.feature-title {
+    padding: 15px;
+    height: 100%;
+}
+
+#feature-content .row {
+    margin-bottom: 15px;
+}
+
+.contributing-step-divider, 
+.faq-question-divider,
+.feature-divider {
+    border: 1px solid black;
+}
+
+.aob {
+    background-color: white;
+    color: green;
+    font-weight: bold;
+    font-size: medium;
+    margin: 5px;
+}
+
+.prettyprint {
+    background-color: white;
+    margin-top: 15px;
+    font-size: medium;
+}
+
+td.text-left ul {
+    margin-left: 5%;
+}
+
+.aic-table-divider {
+    border: 5px solid white;
+}
+
+button, .btn {
+    word-break: normal;
+    white-space: normal !important;
+    word-wrap: break-word;
+}
+
+.list-group.list-group-horizontal .list-group-item {
+    margin-bottom: 15px;
+}
+
+.ai-selector {
+    width: 60%;
+    margin-left: 15%;
+    margin-right: 25%;
+}
+
+.ai-selector ul.list-group.list-group-horizontal {
+    cursor: pointer;
+    flex-direction: row;
+}
+
+#aic-content{
+    margin-left: auto;
+}
+
+.feature-filter.dropdown-menu {
+    padding: 0;
+    margin: 0;
+}
+
+.feature-filter.dropdown-menu .dropdown-item {
+    padding: 5px;
+    width: 100%;
+}
+
+.feature-filter.dropdown-menu label.dropdown-item input[type="checkbox"] {
+    padding: 0;
+    width: 10px;
+}
+
+.feature-highlight #changelog {
+    background-color: white;
+}
+
+.feature-highlight #changelog div.card {
+    width: 80%;
+}
