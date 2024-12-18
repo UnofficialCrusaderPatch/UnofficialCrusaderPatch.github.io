@@ -1,9 +1,9 @@
-import './styles.css'
+import "../styles.css";
 
 export function Index() {
   return (
     <div className="container-fluid page">
-      <nav className="navbar navbar-expand-lg">
+      {/* <nav className="navbar navbar-expand-lg">
         <a className="navbar-brand" href="index.html">
           <img src="assets/img/icon6.ico" />
         </a>
@@ -92,7 +92,7 @@ export function Index() {
             </li>
           </ul>
         </div>
-      </nav>
+      </nav> */}
 
       <div id="content" className="row">
         <div className="col-lg-6 feature-highlights">
