@@ -1,7 +1,7 @@
 import "./App.css";
-import { Index } from "./pages/PortedIndex";
+import { Index } from "../pages/PortedIndex";
 import { Route, Routes } from "react-router-dom";
-import { Navbar } from "./Navbar";
+import Navbar from "../Navbar";
 
 function App() {
   return (
