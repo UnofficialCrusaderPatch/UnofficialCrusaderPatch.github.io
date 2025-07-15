@@ -92,24 +92,27 @@ function fetchCredits() {
 
 /* -------------------------------------------------------------
    STORE (YAML) HELPERS
-   ----------------------------------------------------------- */
-
+------------------------------------------------------------- */
 function fetchStoreYaml(version) {
-    // 1️⃣ first try release asset   /releases/download/v3.0.7/store.yml
-    const relUrl =
-        "https://github.com/UnofficialCrusaderPatch/UCP3-extensions-store" +
-        "/releases/download/v" + version + "/store.yml";
-
-    // 2️⃣ fallback: raw branch file   .../raw/v3.0.7/recipe.yml
+    // Primary: raw file from the tag
     const rawUrl =
-        GITHUB_RAW_BASE +
-        "UnofficialCrusaderPatch/UCP3-extensions-store/v" +
-        version +
-        "/recipe.yml";
+        `${GITHUB_RAW_BASE}UnofficialCrusaderPatch/` +
+        `UCP3-extensions-store/v${version}/recipe.yml`;
 
-    return fetchWithCache("storeYaml_" + version, relUrl, false)
-        .catch(() => fetchWithCache("storeYaml2_" + version, rawUrl, false))
-        .then(text => YAML.parse(text));             // → JS object
+    // Fallback: jsDelivr CDN (always CORS‑enabled)
+    const cdnUrl =
+        `https://cdn.jsdelivr.net/gh/UnofficialCrusaderPatch/` +
+        `UCP3-extensions-store@v${version}/recipe.yml`;
+
+    return fetchWithCache(`storeYaml_${version}`, rawUrl, false)
+        .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
+        .then(text => {
+            if (!text) throw new Error("no YAML");
+            if (typeof YAML === "undefined") {
+                throw new ReferenceError("YAML lib not loaded");
+            }
+            return YAML.parse(text);
+        });
 }
 
 /* chooses best description block for the language the page is in */
@@ -136,11 +139,12 @@ function fetchDefinitionYaml(ext) {
     const loc   = ext.contents.source.location
                     ? ext.contents.source.location + "/"
                     : "";
+
     const url =
-      GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc + "definition.yml";
+        GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc + "definition.yml";
 
     return fetchWithCache("def_" + repo + "_" + ref + "_" + loc, url, false)
-           .then(text => YAML.parse(text));
+        .then(text => (typeof YAML !== "undefined" ? YAML.parse(text) : {}));
 }
 
 /*  build the URL for description‑<lang>.md, fall back to en → default */
