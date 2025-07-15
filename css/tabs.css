@@ -2,7 +2,7 @@
 .top-bar::after {
     content: '';
     position: absolute;
-    bottom: 10px; /* Corrected: Added 'px' unit */
+    bottom: 10px;
     left: 0;
     right: 0;
     height: 8px;
@@ -13,8 +13,7 @@
     border-top: none;
     border-left: none;
     border-right: none;
-    /* FIX: Lower z-index so it's behind the tabs */
-    z-index: 5; 
+    z-index: 15; /* This ensures the border is ON TOP of the tabs */
 }
 
 /* --- TAB BAR & TABS --- */
@@ -22,8 +21,7 @@
     display: flex;
     padding: 0 2rem;
     position: relative;
-    /* FIX: Higher z-index to ensure tabs are on top */
-    z-index: 10; 
+    z-index: 10; /* Behind the separator */
     align-items: flex-end; /* Align to bottom */
 }
 
@@ -51,7 +49,6 @@
 }
 
 .ucp-tab > span {
-    /* FIX: Make sure the text inside the button doesn't steal clicks */
     pointer-events: none;
 }
 
@@ -62,5 +59,5 @@
 .ucp-tab.active {
     height: 60px;
     margin-top: -10px;
-    color: var(--ucp-button-text);
+    color: var(--ucp-button-text); /* CORRECTED: Text color is now consistent */
 }
