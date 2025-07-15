@@ -30,7 +30,7 @@
                 <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io" target="_blank" class="ucp-button-small"><i class="fab fa-github mr-1"></i> GitHub</a>
                 <button id="creditsBtn" class="ucp-button-small"><i class="fas fa-users mr-1"></i> Credits</button>
             </div>
-            <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download"><i class="fas fa-download mr-2"></i> Download Now</a>
+            <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download">Download Now</a>
             <div class="header-right">
                 <i class="fas fa-globe"></i>
                 <select id="languageSelector" class="ucp-select">
@@ -39,19 +39,27 @@
             </div>
         </header>
 
-        <!-- TABS NAVIGATION -->
-        <nav id="tab-nav" class="tab-nav">
-            <button data-tab="overview" class="ucp-tab active">Overview</button>
-            <button data-tab="news" class="ucp-tab">News</button>
-            <button data-tab="store" class="ucp-tab">Content</button>
-            <button data-tab="ai-format" class="ucp-tab">AI Format</button>
-            <button data-tab="faq" class="ucp-tab">FAQ</button>
-        </nav>
+        <!-- Main content section including tabs and tab content -->
+        <div class="main-content-wrapper">
+            <!-- TABS NAVIGATION -->
+            <nav id="tab-nav" class="tab-nav">
+                <button data-tab="overview" class="ucp-tab active">Overview</button>
+                <button data-tab="news" class="ucp-tab">News</button>
+                <button data-tab="store" class="ucp-tab">Content</button>
+                <button data-tab="ai-format" class="ucp-tab">AI Format</button>
+                <button data-tab="faq" class="ucp-tab">FAQ</button>
+            </nav>
 
-        <!-- TAB CONTENT AREA -->
-        <main id="tab-content-area" class="ucp-tab-content">
-            <!-- Content will be injected here by JavaScript -->
-        </main>
+            <!-- TAB CONTENT AREA -->
+            <main id="tab-content-area" class="ucp-tab-content">
+                <!-- Content will be injected here by JavaScript -->
+            </main>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="ucp-footer">
+            <span id="footer-version-info">GUI 1.0.13 | UCP 3.0.7 | Developer</span>
+        </footer>
     </div>
     
     <!-- Credits Modal -->
