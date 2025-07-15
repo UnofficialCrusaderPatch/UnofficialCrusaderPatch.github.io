@@ -74,39 +74,6 @@ function fetchUcpVersion() {
 }
 
 /* -------------------------------------------------------------
-   STORE HELPERS (branch‑aware)
-------------------------------------------------------------- */
-function branchRef(branch) {
-    return branch ? "?ref=" + branch : "";
-}
-
-function fetchStoreItems(branch = "") {
-    const url = GITHUB_API_BASE + REPOS.STORE +
-                "/contents/" + PATHS.STORE + branchRef(branch);
-    const key = "storeList_" + (branch || "root");
-
-    return fetchWithCache(key, url, true).then(data => {
-        if (data?.message === "Not Found" && branch) {
-            return fetchStoreItems("");
-        }
-        return data;
-    });
-}
-
-function fetchDirectoryContents(path, branch = "") {
-    const url = GITHUB_API_BASE + REPOS.STORE +
-                "/contents/" + path + branchRef(branch);
-    const key = "dir_" + path + "_" + (branch || "root");
-
-    return fetchWithCache(key, url, true).then(data => {
-        if (data?.message === "Not Found" && branch) {
-            return fetchDirectoryContents(path, "");
-        }
-        return data;
-    });
-}
-
-/* -------------------------------------------------------------
    NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */
 function fetchNewsMarkdown() {
@@ -124,18 +91,41 @@ function fetchCredits() {
 }
 
 /* -------------------------------------------------------------
-   DEFINITION / YAML TAG UTILITIES
-------------------------------------------------------------- */
-function parseTagsFromYaml(yamlContent) {
-    try {
-        const doc  = YAML.parse(yamlContent);
-        const tags = doc?.tags;
-        return Array.isArray(tags) ? tags.map(t => String(t)) : [];
-    } catch (e) {
-        console.warn("YAML parse failed", e);
-        return [];
-    }
+   STORE (YAML) HELPERS
+   ----------------------------------------------------------- */
+
+function fetchStoreYaml(version) {
+    // 1️⃣ first try release asset   /releases/download/v3.0.7/store.yml
+    const relUrl =
+        "https://github.com/UnofficialCrusaderPatch/UCP3-extensions-store" +
+        "/releases/download/v" + version + "/store.yml";
+
+    // 2️⃣ fallback: raw branch file   .../raw/v3.0.7/recipe.yml
+    const rawUrl =
+        GITHUB_RAW_BASE +
+        "UnofficialCrusaderPatch/UCP3-extensions-store/v" +
+        version +
+        "/recipe.yml";
+
+    return fetchWithCache("storeYaml_" + version, relUrl, false)
+        .catch(() => fetchWithCache("storeYaml2_" + version, rawUrl, false))
+        .then(text => YAML.parse(text));             // → JS object
 }
+
+/* chooses best description block for the language the page is in */
+function pickDescription(descArr, lang) {
+    if (!Array.isArray(descArr) || !descArr.length) return "";
+    const exact = descArr.find(d => d.language === lang);
+    const en    = descArr.find(d => d.language === "en");
+    const deflt = descArr.find(d => d.language === "default");
+    return exact || en || deflt || descArr[0];
+}
+
+/* export for main.js */
+Object.assign(window, {
+    fetchStoreYaml,
+    pickDescription
+});
 
 /* -------------------------------------------------------------
    PUBLIC API – expose selected helpers globally so main.js and ui.js
@@ -152,13 +142,11 @@ Object.assign(window, {
     // versions
     fetchGuiVersion,
     fetchUcpVersion,
-    // store
-    fetchStoreItems,
-    fetchDirectoryContents,
     // news / credits
     fetchNewsMarkdown,
     fetchCredits,
-    // yaml util
-    parseTagsFromYaml,
-    fetchFileContentByUrl
+    // yaml utils
+    fetchFileContentByUrl,
+    fetchStoreYaml,
+    pickDescription
 });

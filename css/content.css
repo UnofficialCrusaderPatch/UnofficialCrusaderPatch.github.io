@@ -59,3 +59,13 @@
 .modal-close-btn { background: none; border: none; font-size: 2rem; line-height: 1; cursor: pointer; color: var(--ucp-brown); }
 .modal-body { overflow-y: auto; }
 .hidden { display: none; }
+
+/* --- content split layout (store tab only) ------------------- */
+.ucp-store-split { display:flex; gap:20px; height:100%; }
+.ucp-store-list  { overflow-y:auto; max-height:70vh; }
+.ucp-store-row   { padding:4px 6px; cursor:pointer; }
+.ucp-store-row:hover { background:rgba(0,0,0,.1); }
+.ucp-store-row.sel   { background:rgba(255,255,0,.35); }
+.ucp-store-desc { overflow-y:auto; flex:1; max-height:70vh; }
+.ucp-store-search{ width:100%; margin-bottom:8px; }
+

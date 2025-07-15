@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         faqData: {},
         aiData: {},
         store: {
-            items: [], // The raw list of directories from GitHub
-            definitions: {}, // A cache for fetched definitions: { 'itemName': definitionObject }
+            items: [],
             allTags: [],
             selectedTags: [],
             searchQuery: ''
@@ -46,13 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
         else alert("Could not fetch installer link");
     });
 
-    function normalizeStoreBranch(raw) {
-        // grab first x.y.z group
-        const m = raw.match(/(\\d+\\.\\d+\\.\\d+)/);
-        return m ? m[1] : "";
-    }
-
-
     /**
      * Translates a key using the loaded language file.
      * @param {string} key - The key from the translation file.
@@ -81,63 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * A simple YAML parser to extract a list of tags.
-     * @param {string} yamlContent - The string content of the definition.yml file.
-     * @returns {Array<string>} - An array of tags.
-     */
-    function parseTagsFromYaml(yamlContent) {
-        try {
-            const doc = YAML.parse(yamlContent);
-            const tags = doc?.tags;
-            if (Array.isArray(tags)) return tags.map(t => String(t));
-        } catch (e) {
-            console.warn("YAML parse failed", e);
-        }
-        return [];
-    }
-    
-    /**
-     * Renders the store tab, applying current filters.
-     */
-    function renderFilteredStore() {
-        const { items, definitions, allTags, selectedTags, searchQuery } = appState.store;
-        const query = searchQuery.toLowerCase();
-
-        const filteredItems = items.filter(item => {
-            const definition = definitions[item.name] || {};
-            const nameMatch = item.name.toLowerCase().includes(query);
-            const itemTags = definition.tags || [];
-            const tagMatch = selectedTags.length === 0 || selectedTags.every(t => itemTags.includes(t));
-            return nameMatch && tagMatch;
-        });
-
-        const itemsWithDefs = filteredItems.map(item => ({...item, definition: definitions[item.name] }));
-        tabContentArea.innerHTML = renderStore(itemsWithDefs, T, allTags, selectedTags, searchQuery);
-        
-        // Re-attach event listeners for the new filter UI
-        document.getElementById('store-search')?.addEventListener('input', (e) => {
-            appState.store.searchQuery = e.target.value;
-            renderFilteredStore();
-        });
-        
-        const tagBtn = document.getElementById('tag-filter-btn');
-        const tagDropdown = document.getElementById('tag-filter-dropdown');
-        tagBtn?.addEventListener('click', () => tagDropdown.classList.toggle('hidden'));
-        
-        document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const tag = e.target.value;
-                if (e.target.checked) {
-                    appState.store.selectedTags.push(tag);
-                } else {
-                    appState.store.selectedTags = appState.store.selectedTags.filter(t => t !== tag);
-                }
-                renderFilteredStore();
-            });
-        });
-    }
-
-    /**
      * Handles switching between tabs.
      * @param {string} tabId - The ID of the tab to switch to.
      */
@@ -159,35 +94,137 @@ document.addEventListener('DOMContentLoaded', () => {
                     T
                 );
                 break;
-            case 'store':
-                const branch = normalizeStoreBranch(appState.versions.ucp);
-                if (appState.store.items.length === 0) {
-                    const storeDirs = await fetchStoreItems(branch);
-                    if (storeDirs && Array.isArray(storeDirs)) {
-                        appState.store.items = storeDirs.filter(item => item.type === 'dir');
-                        
-                        const definitionsPromises = appState.store.items.map(async (item) => {
-                            const dirContents = await fetchDirectoryContents(item.path, branch);
-                            const defFile =
-                                dirContents?.find(f => f.name === "definition.yml") ||
-                                dirContents?.find(f => f.name === "definition.yaml");
-                            if (defFile) {
-                                const yamlContent = await fetchFileContentByUrl(defFile.download_url);
-                                appState.store.definitions[item.name] = { tags: parseTagsFromYaml(yamlContent) };
-                            }
+            case "store": {
+                /* -------------------------------------------------- LOAD ONCE */
+                if (!appState.store.raw) {
+                    try {
+                        const storeObj = await fetchStoreYaml(appState.versions.ucp);  // api.js helper
+                        appState.store.raw = storeObj;
+                        appState.store.items = storeObj.extensions.list;
+                        // collect tags (deduplicate + sort)
+                        const tagSet = new Set();
+                        storeObj.extensions.list.forEach(ext => {
+                            (ext.definition.tags || []).forEach(t => tagSet.add(t));
                         });
-                        await Promise.all(definitionsPromises);
-                        
-                        const allTags = new Set();
-                        Object.values(appState.store.definitions).forEach(def => {
-                            def?.tags?.forEach(tag => allTags.add(tag));
-                        });
-                        appState.store.allTags = Array.from(allTags).sort();
-                        appState.store.selectedTags = [];
+                        appState.store.allTags = Array.from(tagSet).sort();
+                        if (!Array.isArray(appState.store.selectedTags) ||
+                            appState.store.selectedTags.length === 0)
+                            appState.store.selectedTags = [];   // none selected ⇒ show all
+                    } catch (e) {
+                        console.error("Store fetch failed", e);
+                        tabContentArea.innerHTML = createParchmentBox(
+                            `<p style="color:red">Could not load content store.</p>`
+                        );
+                        break;
                     }
-                }
-                renderFilteredStore();
+                }                
+
+                /* ---------------------------------------------- build tag dropdown */
+                const tagDropdown = appState.store.allTags
+                    .map(
+                        tag =>
+                            `<label><input type="checkbox" class="ucp-tag-cb"
+                                    value="${tag}" ${appState.store.selectedTags.includes(tag) ? "checked":""}>
+                            ${tag}</label>`
+                    )
+                    .join("<br>");
+
+                const tagButton = `<button id="tag-btn" class="ucp-button-small"
+                                    style="margin-left:8px">Tags ▼</button>
+                                <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>`;
+
+                /* -------------------------------------------------- SEARCH + FILTER */
+                const query = appState.store.searchQuery.toLowerCase();
+
+                const filtered = appState.store.items.filter(ext => {
+                    const nameMatch = ext.definition["display-name"]
+                        .toLowerCase()
+                        .includes(query);
+
+                    const tagsOK =
+                        appState.store.selectedTags.length === 0 ||
+                        (ext.definition.tags || []).some(t =>
+                            appState.store.selectedTags.includes(t)
+                        );
+
+                    return nameMatch && tagsOK;
+                });
+
+                /* -------------------------------------------------- BUILD HTML */
+                const rows = filtered
+                    .map(
+                        (ext, i) =>
+                            `<div class="ucp-store-row" data-idx="${i}">
+                                ${ext.definition["display-name"]}
+                            </div>`
+                    )
+                    .join("");
+
+                const listPane = `
+                    <div style="display:flex; align-items:center; gap:6px">
+                        <input type="search" id="store-search"
+                            placeholder="Search…" value="${appState.store.searchQuery}"
+                            class="ucp-store-search">
+                        ${tagButton}
+                    </div>
+                    <div class="ucp-store-list">${rows}</div>`;
+
+                const rightPane = `<div id="store-desc" class="ucp-store-desc">
+                                    <p>Select an item…</p>
+                                </div>`;
+
+                tabContentArea.innerHTML = createParchmentBox(
+                    `<div class="ucp-store-split">${listPane}${rightPane}</div>`
+                );
+
+                /* -------------------------------------------------- WIRE EVENTS */
+                document
+                    .getElementById("store-search")
+                    .addEventListener("input", e => {
+                        appState.store.searchQuery = e.target.value;
+                        switchTab("store");         // re‑render
+                    });
+
+                document.querySelectorAll(".ucp-store-row").forEach(row => {
+                    row.addEventListener("click", async () => {
+                        document
+                            .querySelectorAll(".ucp-store-row")
+                            .forEach(r => r.classList.remove("sel"));
+                        row.classList.add("sel");
+
+                        const ext = filtered[Number(row.dataset.idx)];
+                        const descObj = pickDescription(
+                            ext.contents.description,
+                            appState.currentLang
+                        );
+
+                        let md = "";
+                        if (descObj.method === "inline") md = descObj.content;
+                        else if (descObj.method === "online")
+                            md = await fetchRawText(descObj.url);
+
+                        document.getElementById("store-desc").innerHTML =
+                            `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2>` +
+                            `<div class="prose">${marked.parse(md)}</div>`;
+                    });
+                });
+
+                document.getElementById("tag-btn").onclick = () =>
+                    document.getElementById("tag-menu").classList.toggle("hidden");
+
+                document.querySelectorAll(".ucp-tag-cb").forEach(cb => {
+                    cb.onchange = e => {
+                        const val = e.target.value;
+                        if (e.target.checked)
+                            appState.store.selectedTags.push(val);
+                        else
+                            appState.store.selectedTags =
+                                appState.store.selectedTags.filter(t => t !== val);
+                        switchTab("store");      // rerender
+                    };
+                });
                 break;
+            }
             case 'ai-format':
                 let aiData = appState.aiData[appState.currentLang] || await fetchLocalJson(`lang/aic-${appState.currentLang}.json`);
                 if (!aiData) { // Fallback to English
@@ -277,15 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
         closeCreditsBtn.addEventListener('click', toggleCreditsModal);
         creditsModal.addEventListener('click', (e) => {
             if (e.target === creditsModal) toggleCreditsModal();
-        });
-        
-        // Hide tag dropdown if clicked outside
-        document.addEventListener('click', (e) => {
-            const tagDropdown = document.getElementById('tag-filter-dropdown');
-            const tagBtn = document.getElementById('tag-filter-btn');
-            if (tagDropdown && !tagDropdown.contains(e.target) && !tagBtn?.contains(e.target)) {
-                tagDropdown.classList.add('hidden');
-            }
         });
 
         // Initial load
