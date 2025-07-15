@@ -90,6 +90,21 @@ function fetchCredits() {
     return fetchRawText(url);
 }
 
+/* --- make sure window.YAML is ready ------------------------------------ */
+function ensureYamlReady() {
+    if (typeof YAML !== "undefined" && typeof YAML.parse === "function") {
+        return Promise.resolve();               // already there
+    }
+    return new Promise((resolve, reject) => {
+        const tag = document.createElement("script");
+        tag.src   = "https://cdn.jsdelivr.net/npm/yaml@2.4.5/dist/yaml.min.js";
+        tag.onload = () => (typeof YAML !== "undefined" ? resolve() :
+                            reject(new Error("YAML failed to load")));
+        tag.onerror = () => reject(new Error("YAML network error"));
+        document.head.appendChild(tag);
+    });
+}
+
 /* -------------------------------------------------------------
    STORE (YAML) HELPERS
 ------------------------------------------------------------- */
@@ -107,11 +122,8 @@ function fetchStoreYaml(version) {
     return fetchWithCache(`storeYaml_${version}`, rawUrl, false)
         .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
         .then(text => {
-            if (!text) throw new Error("no YAML");
-            if (typeof YAML === "undefined") {
-                throw new ReferenceError("YAML lib not loaded");
-            }
-            return YAML.parse(text);
+            if (!text) throw new Error("empty YAML");
+            return ensureYamlReady().then(() => YAML.parse(text));
         });
 }
 
