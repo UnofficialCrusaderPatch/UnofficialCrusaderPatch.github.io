@@ -61,8 +61,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* FIX: Diagonal gradient that fades across the middle of the screen */
-    background: linear-gradient(135deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0) 75%);
+    background: linear-gradient(115deg, rgba(0,0,0,0.95) 15%, rgba(0,0,0,0) 60%);
 }
 
 .footer-bar {
@@ -78,6 +77,23 @@ body {
 /* --- GLOBAL FONT STYLES --- */
 .ucp-header-font {
     font-family: 'RiverAvenue', cursive;
-    /* FIX: Default header color is now dark. Specific headers will be overridden. */
-    color: var(--ucp-text);
+    color: var(--ucp-text); /* Default to dark text */
+}
+
+/* --- CUSTOM SEARCH INPUT --- */
+.ucp-search-input {
+    background-color: rgba(12, 12, 12, 0.8);
+    color: rgb(155, 155, 155);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+    height: 35px;
+    border-radius: 2px;
+    transition: all 0.2s ease-in-out;
+}
+
+.ucp-search-input:focus {
+    outline: none;
+    border-color: var(--ucp-gold);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: rgb(248, 255, 188);
 }

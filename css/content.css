@@ -2,7 +2,7 @@
 .main-content {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 0.5rem;
+    padding: 1.5rem;
     scrollbar-gutter: stable;
 }
 
@@ -21,6 +21,10 @@
     min-height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.parchment-box {
+    color: var(--ucp-text);
 }
 
 .parchment-box a {

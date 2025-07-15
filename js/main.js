@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const controlsHTML = `
             <div class="store-controls">
-                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-store-search" style="width: 200px;">
+                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-search-input">
                 <div style="position: relative; display: inline-block;">
                     <button id="tag-btn" class="ucp-button-small">Tags ▼</button>
                     <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
@@ -178,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // FIX: Use display-name, but fall back to name if it's missing.
         const rows = filteredItems.map(ext =>
             `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"] || ext.definition.name}</div>`
         ).join("");
@@ -220,10 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 descContainer.innerHTML = `<p>${T('loading')}</p>`;
 
                 try {
-                    // Lazy load definition if not already fetched
                     if (!ext.definition.tags_fetched) {
                         const def = await fetchDefinitionYaml(ext);
-                        // Merge fetched definition properties into the existing one
                         Object.assign(ext.definition, def);
                         (def.tags || []).forEach(t => appState.store.allTags.add(t));
                         ext.definition.tags_fetched = true;
@@ -237,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (!md) md = "_No description available._";
                     
-                    // NEW: Create header with metadata
                     const descriptionHeader = `
                         <div class="description-header">
                             <h2 class="ucp-header-font">${ext.definition["display-name"] || ext.definition.name}</h2>
