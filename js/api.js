@@ -97,12 +97,12 @@ function fetchStoreYaml(version) {
     // Primary: raw file from the tag
     const rawUrl =
         `${GITHUB_RAW_BASE}UnofficialCrusaderPatch/` +
-        `UCP3-extensions-store/v${version}/recipe.yml`;
+        `UCP3-extensions-store/${version}/recipe.yml`;
 
     // Fallback: jsDelivr CDN (always CORS‑enabled)
     const cdnUrl =
         `https://cdn.jsdelivr.net/gh/UnofficialCrusaderPatch/` +
-        `UCP3-extensions-store@v${version}/recipe.yml`;
+        `UCP3-extensions-store@${version}/recipe.yml`;
 
     return fetchWithCache(`storeYaml_${version}`, rawUrl, false)
         .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
