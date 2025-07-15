@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             (ext.definition.tags || []).forEach(t => tagSet.add(t));
 
                             /* If tags missing → fetch definition.yml in the background */
-                            if (!ext.definition.tags) {
+                            if (!Array.isArray(ext.definition.tags)) {
                                 fetchDefinitionYaml(ext)
                                 .then(def => {
                                     ext.definition.tags = def.tags || [];
