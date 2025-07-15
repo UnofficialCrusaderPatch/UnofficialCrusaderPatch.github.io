@@ -90,18 +90,24 @@ function fetchCredits() {
     return fetchRawText(url);
 }
 
-/* --- make sure window.YAML is ready ------------------------------------ */
-function ensureYamlReady() {
-    if (typeof YAML !== "undefined" && typeof YAML.parse === "function") {
-        return Promise.resolve();               // already there
-    }
+/* ------------------------------------------------------------------
+   Make sure window.YAML is available before we call YAML.parse()
+   ------------------------------------------------------------------ */
+function ensureYamlReady(timeoutMs = 3000) {
+    if (typeof YAML !== "undefined") return Promise.resolve();
+
     return new Promise((resolve, reject) => {
-        const tag = document.createElement("script");
-        tag.src   = "https://cdn.jsdelivr.net/npm/yaml@2.4.5/dist/yaml.min.js";
-        tag.onload = () => (typeof YAML !== "undefined" ? resolve() :
-                            reject(new Error("YAML failed to load")));
-        tag.onerror = () => reject(new Error("YAML network error"));
-        document.head.appendChild(tag);
+        const started = Date.now();
+
+        const id = setInterval(() => {
+            if (typeof YAML !== "undefined") {
+                clearInterval(id);
+                resolve();
+            } else if (Date.now() - started > timeoutMs) {
+                clearInterval(id);
+                reject(new Error("YAML still not loaded"));
+            }
+        }, 50);
     });
 }
 
