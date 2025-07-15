@@ -178,8 +178,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // FIX: Use display-name, but fall back to name if it's missing.
         const rows = filteredItems.map(ext =>
-            `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"]}</div>`
+            `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"] || ext.definition.name}</div>`
         ).join("");
 
         const storeLayoutHTML = `
@@ -219,13 +220,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 descContainer.innerHTML = `<p>${T('loading')}</p>`;
 
                 try {
+                    // Lazy load definition if not already fetched
                     if (!ext.definition.tags_fetched) {
                         const def = await fetchDefinitionYaml(ext);
-                        ext.definition.tags = def.tags || [];
+                        // Merge fetched definition properties into the existing one
+                        Object.assign(ext.definition, def);
                         (def.tags || []).forEach(t => appState.store.allTags.add(t));
                         ext.definition.tags_fetched = true;
                     }
-
+                    
                     const urls = buildDescriptionUrl(ext, appState.currentLang);
                     let md = "";
                     for (const u of urls) {
@@ -234,7 +237,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (!md) md = "_No description available._";
                     
-                    descContainer.innerHTML = `<div class="prose">${marked.parse(md)}</div>`;
+                    // NEW: Create header with metadata
+                    const descriptionHeader = `
+                        <div class="description-header">
+                            <h2 class="ucp-header-font">${ext.definition["display-name"] || ext.definition.name}</h2>
+                            <div class="meta-info">
+                                <span>Author: ${ext.definition.author || 'Unknown'}</span>
+                                <span>Version: ${ext.definition.version || 'N/A'}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    descContainer.innerHTML = `${descriptionHeader}<div class="prose">${marked.parse(md)}</div>`;
                 } catch (err) {
                     descContainer.innerHTML = `<p style="color:red">Could not load details for this item.</p>`;
                 }
@@ -269,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            // FIX: Don't re-translate the footer if it has already been set
             if (el.id === 'footer-version-info' && el.dataset.i18n === 'loaded') return;
             if (T(key) !== `[${key}]`) el.textContent = T(key);
         });
@@ -344,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
             appState.versions = { gui: guiVer, ucp: ucpVer };
             const footerInfo = document.getElementById("footer-version-info");
-            // FIX: Use a data attribute to signal that the versions are loaded
             footerInfo.dataset.i18n = 'loaded'; 
             footerInfo.textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
             preloadStoreData();

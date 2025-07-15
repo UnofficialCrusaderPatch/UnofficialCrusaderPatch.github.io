@@ -16,8 +16,11 @@
 
     background-image: url('../assets/ucp3/parchment_bg.png');
     background-color: var(--ucp-parchment);
-    padding: 2rem;
+    /* FIX: Reduced padding for a tighter layout */
+    padding: 1rem;
     min-height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .parchment-box a {
@@ -29,19 +32,25 @@
     color: var(--ucp-text);
 }
 
-/* --- CUSTOM SCROLLBAR (from scrollbar.css) --- */
-.main-content::-webkit-scrollbar {
+/* --- CUSTOM SCROLLBAR (Applied to main content AND store lists) --- */
+.main-content::-webkit-scrollbar,
+.ucp-store-list-items::-webkit-scrollbar,
+.ucp-store-desc::-webkit-scrollbar {
     width: 12px;
     height: 7px;
 }
 
-.main-content::-webkit-scrollbar-track-piece:start:vertical {
+.main-content::-webkit-scrollbar-track-piece:start:vertical,
+.ucp-store-list-items::-webkit-scrollbar-track-piece:start:vertical,
+.ucp-store-desc::-webkit-scrollbar-track-piece:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
     background-position: center bottom;
 }
 
-.main-content::-webkit-scrollbar-thumb:vertical {
+.main-content::-webkit-scrollbar-thumb:vertical,
+.ucp-store-list-items::-webkit-scrollbar-thumb:vertical,
+.ucp-store-desc::-webkit-scrollbar-thumb:vertical {
     background-color: transparent;
     box-shadow: none;
     background-image:
@@ -60,14 +69,65 @@
 .modal-body { overflow-y: auto; }
 .hidden { display: none; }
 
-/* --- content split layout (store tab only) ------------------- */
-.ucp-store-split { display:flex; gap:20px; height:100%; }
-.ucp-store-list  { overflow-y:auto; max-height:70vh; flex-basis: 300px; flex-shrink: 0; }
-.ucp-store-row   { padding:4px 6px; cursor:pointer; border-radius: 4px; }
+
+/* --- Store Tab Layout Styles --- */
+.store-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1rem;
+}
+
+.store-headers-and-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    flex-shrink: 0;
+}
+
+.store-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.store-content-split {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) 2fr;
+    gap: 1.5rem;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.ucp-store-list-container,
+.ucp-store-desc-container {
+    height: 100%;
+    min-height: 0;
+}
+
+.ucp-store-list-items {
+    overflow-y: auto;
+    height: 100%;
+    padding-right: 1rem;
+}
+
+.ucp-store-desc {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.ucp-store-row {
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .ucp-store-row:hover { background:rgba(0,0,0,.1); }
-.ucp-store-desc { overflow-y:auto; flex:1; max-height:70vh; }
-.ucp-store-search{ width:100%; margin-bottom:8px; }
 .ucp-store-row.sel { background: rgba(255,255,0,.25); }
+
 .ucp-tag-menu {
     position: absolute;
     background: var(--ucp-brown);
@@ -75,12 +135,25 @@
     border: 1px solid var(--ucp-gold);
     padding: 10px;
     border-radius: 4px;
-    z-index: 10;
+    z-index: 20; /* Ensure it's above other content */
     margin-top: 4px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 .ucp-tag-menu label { display: block; }
 
+/* --- Description Header & Metadata --- */
+.description-header {
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.meta-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--ucp-text-muted);
+    margin-top: 0.25rem;
+}
 
 /* --- VIDEO FACADE STYLES --- */
 .video-facade {
@@ -89,14 +162,14 @@
     background-color: #000;
     border-radius: 4px;
     overflow: hidden;
-    display: block; /* Make it a block element */
+    display: block;
     width: 100%;
-    aspect-ratio: 16 / 9; /* Maintain aspect ratio */
+    aspect-ratio: 16 / 9;
 }
 .video-facade img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensure image covers the area */
+    object-fit: cover;
     display: block;
     opacity: 0.7;
     transition: opacity 0.2s ease-in-out;
@@ -115,56 +188,10 @@
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    pointer-events: none; /* Make sure the click goes to the div */
+    pointer-events: none;
     transition: transform 0.2s ease-in-out;
     filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
 }
 .video-facade:hover .play-icon {
     transform: translate(-50%, -50%) scale(1.1);
-}
-
-.store-container {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 1rem;
-}
-
-.store-headers-and-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 1rem;
-    flex-shrink: 0; /* Prevent this from shrinking */
-}
-
-.store-controls {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.store-content-split {
-    display: grid;
-    grid-template-columns: minmax(300px, 1fr) 2fr; /* Left col is flexible, right is larger */
-    gap: 1.5rem;
-    flex-grow: 1;
-    min-height: 0; /* Critical for children with overflow-y: auto */
-}
-
-.ucp-store-list-container,
-.ucp-store-desc-container {
-    height: 100%;
-}
-
-.ucp-store-list-items {
-    overflow-y: auto;
-    height: 100%;
-    padding: 1rem;
-}
-
-.ucp-store-desc {
-    overflow-y: auto;
-    height: 100%;
-    padding: 1rem;
 }
