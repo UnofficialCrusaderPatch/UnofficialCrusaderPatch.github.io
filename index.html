@@ -21,63 +21,65 @@
     <script src="https://cdn.jsdelivr.net/npm/yaml/browser/index.js" defer></script>
 
     <!-- Main JavaScript files -->
-    <script src="js/api.js" defer></script>
-    <script src="js/ui.js" defer></script>
+    <script src="js/api.js"  defer></script>
+    <script src="js/ui.js"   defer></script>
     <script src="js/main.js" defer></script>
 </head>
 <body>
 
-    <!-- TOP BAR -->
-    <header id="main-header" class="top-bar">
-        <div class="header-controls">
-            <div class="header-left">
-                <a id="btnGithub" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io"
-                   target="_blank" class="ucp-button-small">
-                    <i class="fab fa-github mr-1"></i><span></span>
-                </a>
-                <button id="creditsBtn" class="ucp-button-small">
-                    <i class="fas fa-users mr-1"></i><span></span>
-                </button>
-            </div>
-            <button id="downloadBtn" class="ucp-button-download"><span></span></button>
-            <div class="header-right">
-                <div class="language-select-wrapper">
-                    <i class="fas fa-globe"></i>
-                    <select id="languageSelector" class="ucp-select"></select>
-                </div>
+<!-- ─────────── TOP BAR ─────────── -->
+<header id="main-header" class="top-bar">
+    <div class="header-controls">
+        <div class="header-left">
+            <a id="btnGithub" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io"
+               target="_blank" class="ucp-button-small">
+                <i class="fab fa-github mr-1"></i><span data-i18n="btn_github">GitHub</span>
+            </a>
+            <button id="creditsBtn" class="ucp-button-small">
+                <i class="fas fa-users mr-1"></i><span data-i18n="btn_credits">Credits</span>
+            </button>
+        </div>
+        <button id="downloadBtn" class="ucp-button-download">
+            <span data-i18n="btn_download">Download Now</span>
+        </button>
+        <div class="header-right">
+            <div class="language-select-wrapper">
+                <i class="fas fa-globe"></i>
+                <select id="languageSelector" class="ucp-select"></select>
             </div>
         </div>
-
-        <!-- TAB BAR -->
-        <nav id="tab-nav" class="tab-bar">
-            <button id="tabOverview"  data-tab="overview"  class="ucp-tab active"><span></span></button>
-            <button id="tabNews"      data-tab="news"      class="ucp-tab"><span></span></button>
-            <button id="tabStore"     data-tab="store"     class="ucp-tab"><span></span></button>
-            <button id="tabAIFormat"  data-tab="ai-format" class="ucp-tab"><span></span></button>
-            <button id="tabFaq"       data-tab="faq"       class="ucp-tab"><span></span></button>
-        </nav>
-    </header>
-
-    <!-- CENTRAL CONTENT -->
-    <div class="content-wrapper">
-        <main id="tab-content-area" class="main-content"></main>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="footer-bar">
-        <span id="footer-version-info">loading versions…</span>
-    </footer>
+    <!-- TAB BAR -->
+    <nav id="tab-nav" class="tab-bar">
+        <button id="tabOverview"  data-tab="overview"  class="ucp-tab active"><span data-i18n="tab_overview">Overview</span></button>
+        <button id="tabNews"      data-tab="news"      class="ucp-tab"><span data-i18n="tab_news">News</span></button>
+        <button id="tabStore"     data-tab="store"     class="ucp-tab"><span data-i18n="tab_store">Content</span></button>
+        <button id="tabAIFormat"  data-tab="ai-format" class="ucp-tab"><span data-i18n="tab_ai_format">AI Format</span></button>
+        <button id="tabFaq"       data-tab="faq"       class="ucp-tab"><span data-i18n="tab_faq">FAQ</span></button>
+    </nav>
+</header>
 
-    <!-- Credits Modal -->
-    <div id="creditsModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalCreditsTtl" class="ucp-header-font"></h2>
-                <button id="closeCreditsBtn" class="modal-close-btn">&times;</button>
-            </div>
-            <div id="creditsContent" class="modal-body"></div>
+<!-- ─────────── MAIN CONTENT ─────────── -->
+<div class="content-wrapper">
+    <main id="tab-content-area" class="main-content"></main>
+</div>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer class="footer-bar">
+    <span id="footer-version-info" data-i18n="footer_loading">loading versions…</span>
+</footer>
+
+<!-- ─────────── CREDITS MODAL ─────────── -->
+<div id="creditsModal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalCreditsTtl" class="ucp-header-font" data-i18n="modal_credits_ttl">Credits & License</h2>
+            <button id="closeCreditsBtn" class="modal-close-btn">&times;</button>
         </div>
+        <div id="creditsContent" class="modal-body"></div>
     </div>
+</div>
 
 </body>
 </html>

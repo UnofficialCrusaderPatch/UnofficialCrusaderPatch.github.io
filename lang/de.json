@@ -32,5 +32,6 @@
     "tab_store"         : "Inhalte",
     "tab_ai_format"     : "KI-Format",
     "tab_faq"           : "FAQ",
-    "modal_credits_ttl" : "Mitwirkende & Lizenz"
+    "modal_credits_ttl" : "Mitwirkende & Lizenz",
+    "footer_loading": "Versionen werden geladen…"
 }

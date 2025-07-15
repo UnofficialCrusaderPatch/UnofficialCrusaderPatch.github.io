@@ -32,5 +32,6 @@
     "tab_store"         : "Content",
     "tab_ai_format"     : "AI Format",
     "tab_faq"           : "FAQ",
-    "modal_credits_ttl" : "Credits & License"
+    "modal_credits_ttl" : "Credits & License",
+    "footer_loading": "loading versions…"
 }
