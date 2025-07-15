@@ -1,7 +1,6 @@
 // This is the main entry point for the website's JavaScript.
 // It orchestrates the UI, API calls, and event handling.
 
-// Wait for the entire document to be ready
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE & CONSTANTS ---
     const appState = {
@@ -48,10 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    /**
-     * Finds iframes in a container and replaces them with clickable facades.
-     * @param {HTMLElement} container The element to search within.
-     */
     function createVideoFacades(container) {
         const iframes = container.querySelectorAll('iframe[src*="youtube.com"]');
         iframes.forEach(iframe => {
@@ -79,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * Pre-loads only the main recipe.yml file. Details are fetched on demand.
+     */
     function preloadStoreData() {
         if (!appState.versions.ucp) {
             console.warn("UCP version not available, cannot preload store yet.");
@@ -87,21 +85,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         storeDataPromise = (async () => {
             try {
+                // Step 1: Fetch only the main recipe file. This is fast.
                 const storeObj = await fetchStoreYaml(appState.versions.ucp);
                 appState.store.raw = storeObj;
                 appState.store.items = storeObj.extensions.list;
 
-                const tagPromises = storeObj.extensions.list.map(ext => {
+                // Step 2: Collect only the tags that are already in the recipe file.
+                storeObj.extensions.list.forEach(ext => {
                     (ext.definition.tags || []).forEach(t => appState.store.allTags.add(t));
-                    if (!Array.isArray(ext.definition.tags)) {
-                        return fetchDefinitionYaml(ext).then(def => {
-                            ext.definition.tags = def.tags || [];
-                            (def.tags || []).forEach(t => appState.store.allTags.add(t));
-                        }).catch(() => {});
-                    }
-                    return Promise.resolve();
                 });
-                await Promise.all(tagPromises);
+
             } catch (e) {
                 console.error("Failed to preload store data:", e);
                 appState.store.raw = 'error';
@@ -208,22 +201,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         document.querySelectorAll(".ucp-store-row").forEach(row => {
-            row.addEventListener("click", async () => {
+            row.addEventListener("click", async (e) => {
                 document.querySelectorAll(".ucp-store-row").forEach(r => r.classList.remove("sel"));
                 row.classList.add("sel");
                 const ext = items.find(item => item.definition.name === row.dataset.id);
                 const descContainer = document.getElementById("store-desc");
-                descContainer.innerHTML = `<p>${T('loading')}</p>`;
+                descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><p>${T('loading')}</p>`;
 
-                const urls = buildDescriptionUrl(ext, appState.currentLang);
-                let md = "";
-                for (const u of urls) {
-                    md = await fetchRawText(u).catch(() => null);
-                    if (md) break;
+                // LAZY LOADING: Fetch details only on click
+                try {
+                    // Fetch definition.yml if we haven't already
+                    if (!ext.definition.tags_fetched) {
+                        const def = await fetchDefinitionYaml(ext);
+                        ext.definition.tags = def.tags || [];
+                        (def.tags || []).forEach(t => appState.store.allTags.add(t));
+                        ext.definition.tags_fetched = true; // Mark as fetched
+                    }
+
+                    // Fetch description markdown
+                    const urls = buildDescriptionUrl(ext, appState.currentLang);
+                    let md = "";
+                    for (const u of urls) {
+                        md = await fetchRawText(u).catch(() => null);
+                        if (md) break;
+                    }
+                    if (!md) md = "_No description available._";
+                    
+                    descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><div class="prose">${marked.parse(md)}</div>`;
+                } catch (err) {
+                    descContainer.innerHTML += `<p style="color:red">Could not load details for this item.</p>`;
                 }
-                if (!md) md = "_No description available._";
-                
-                descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><div class="prose">${marked.parse(md)}</div>`;
             });
         });
 
