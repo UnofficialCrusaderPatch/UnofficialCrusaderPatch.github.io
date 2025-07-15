@@ -282,6 +282,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         appState.translations = data;
         appState.currentLang = lang;
+
+        document.querySelector("#btnGithub      span").textContent = T("btn_github");
+        document.querySelector("#creditsBtn     span").textContent = T("btn_credits");
+        document.querySelector("#downloadBtn    span").textContent = T("btn_download");
+        document.querySelector("#tabOverview    span").textContent = T("tab_overview");
+        document.querySelector("#tabNews        span").textContent = T("tab_news");
+        document.querySelector("#tabStore       span").textContent = T("tab_store");
+        document.querySelector("#tabAIFormat    span").textContent = T("tab_ai_format");
+        document.querySelector("#tabFaq         span").textContent = T("tab_faq");
+        document.getElementById("modalCreditsTtl").textContent   = T("modal_credits_ttl");
+
         document.documentElement.lang = lang;
         langSelector.value = lang; // Ensure dropdown reflects the actual loaded language
         

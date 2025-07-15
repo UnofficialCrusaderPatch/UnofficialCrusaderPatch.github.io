@@ -5,22 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unofficial Crusader Patch</title>
     <link rel="icon" type="image/png" href="assets/ucp3_32x32.png">
-    
-    <!-- Custom Stylesheets -->
+
+    <!-- Custom stylesheets -->
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/tabs.css">
     <link rel="stylesheet" href="css/content.css">
-    
-    <!-- Font Awesome for icons -->
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- External libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-
-    <!-- YAML parser – provides global `YAML` -->
+    <!-- YAML parser → global YAML -->
     <script src="https://cdn.jsdelivr.net/npm/yaml/browser/index.js" defer></script>
-    
+
     <!-- Main JavaScript files -->
     <script src="js/api.js" defer></script>
     <script src="js/ui.js" defer></script>
@@ -28,54 +27,55 @@
 </head>
 <body>
 
-    <!-- TOP BAR: Fixed at the top -->
+    <!-- TOP BAR -->
     <header id="main-header" class="top-bar">
         <div class="header-controls">
             <div class="header-left">
-                <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io" target="_blank" class="ucp-button-small"><i class="fab fa-github mr-1"></i> GitHub</a>
-                <button id="creditsBtn" class="ucp-button-small"><i class="fas fa-users mr-1"></i> Credits</button>
+                <a id="btnGithub" href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io"
+                   target="_blank" class="ucp-button-small">
+                    <i class="fab fa-github mr-1"></i><span></span>
+                </a>
+                <button id="creditsBtn" class="ucp-button-small">
+                    <i class="fas fa-users mr-1"></i><span></span>
+                </button>
             </div>
-            <button id="downloadBtn" class="ucp-button-download">Download Now</button>
+            <button id="downloadBtn" class="ucp-button-download"><span></span></button>
             <div class="header-right">
                 <div class="language-select-wrapper">
                     <i class="fas fa-globe"></i>
-                    <select id="languageSelector" class="ucp-select">
-                        <!-- Options will be populated by JS -->
-                    </select>
+                    <select id="languageSelector" class="ucp-select"></select>
                 </div>
             </div>
         </div>
+
+        <!-- TAB BAR -->
         <nav id="tab-nav" class="tab-bar">
-            <button data-tab="overview" class="ucp-tab active">Overview</button>
-            <button data-tab="news" class="ucp-tab">News</button>
-            <button data-tab="store" class="ucp-tab">Content</button>
-            <button data-tab="ai-format" class="ucp-tab">AI Format</button>
-            <button data-tab="faq" class="ucp-tab">FAQ</button>
+            <button id="tabOverview"  data-tab="overview"  class="ucp-tab active"><span></span></button>
+            <button id="tabNews"      data-tab="news"      class="ucp-tab"><span></span></button>
+            <button id="tabStore"     data-tab="store"     class="ucp-tab"><span></span></button>
+            <button id="tabAIFormat"  data-tab="ai-format" class="ucp-tab"><span></span></button>
+            <button id="tabFaq"       data-tab="faq"       class="ucp-tab"><span></span></button>
         </nav>
     </header>
 
-    <!-- CENTRAL CONTENT: This is the only part that will scroll -->
+    <!-- CENTRAL CONTENT -->
     <div class="content-wrapper">
-        <main id="tab-content-area" class="main-content">
-            <!-- A parchment-box will be injected here by JS -->
-        </main>
+        <main id="tab-content-area" class="main-content"></main>
     </div>
 
-    <!-- FOOTER: Fixed at the bottom -->
+    <!-- FOOTER -->
     <footer class="footer-bar">
         <span id="footer-version-info">loading versions…</span>
     </footer>
-    
+
     <!-- Credits Modal -->
     <div id="creditsModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="ucp-header-font">Credits & License</h2>
+                <h2 id="modalCreditsTtl" class="ucp-header-font"></h2>
                 <button id="closeCreditsBtn" class="modal-close-btn">&times;</button>
             </div>
-            <div id="creditsContent" class="modal-body">
-                <!-- Credits content will be loaded here -->
-            </div>
+            <div id="creditsContent" class="modal-body"></div>
         </div>
     </div>
 

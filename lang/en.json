@@ -23,5 +23,14 @@
     "ai_param_values": "Acceptable Values",
     "ai_param_description": "Description",
     "faq_title": "Frequently Asked Questions",
-    "faq_error": "Could not load the FAQ."
+    "faq_error": "Could not load the FAQ.",
+    "btn_github"        : "GitHub",
+    "btn_credits"       : "Credits",
+    "btn_download"      : "Download Now",
+    "tab_overview"      : "Overview",
+    "tab_news"          : "News",
+    "tab_store"         : "Content",
+    "tab_ai_format"     : "AI Format",
+    "tab_faq"           : "FAQ",
+    "modal_credits_ttl" : "Credits & License"
 }

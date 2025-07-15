@@ -23,5 +23,14 @@
     "ai_param_values": "Akzeptierte Werte",
     "ai_param_description": "Beschreibung",
     "faq_title": "Häufig gestellte Fragen",
-    "faq_error": "FAQ konnte nicht geladen werden."
+    "faq_error": "FAQ konnte nicht geladen werden.",
+    "btn_github"        : "GitHub",
+    "btn_credits"       : "Mitwirkende",
+    "btn_download"      : "Jetzt herunterladen",
+    "tab_overview"      : "Übersicht",
+    "tab_news"          : "Neuigkeiten",
+    "tab_store"         : "Inhalte",
+    "tab_ai_format"     : "KI-Format",
+    "tab_faq"           : "FAQ",
+    "modal_credits_ttl" : "Mitwirkende & Lizenz"
 }
