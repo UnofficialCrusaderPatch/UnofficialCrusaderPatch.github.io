@@ -61,8 +61,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    /* FIX: Use a transparent gradient over the body background, fading from black */
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 70%);
+    /* FIX: Diagonal gradient that fades across the middle of the screen */
+    background: linear-gradient(135deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0) 75%);
 }
 
 .footer-bar {
@@ -78,6 +78,6 @@ body {
 /* --- GLOBAL FONT STYLES --- */
 .ucp-header-font {
     font-family: 'RiverAvenue', cursive;
-    /* FIX: Set header font color to the standard beige button text color */
-    color: var(--ucp-button-text);
+    /* FIX: Default header color is now dark. Specific headers will be overridden. */
+    color: var(--ucp-text);
 }
