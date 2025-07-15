@@ -101,15 +101,28 @@ document.addEventListener('DOMContentLoaded', () => {
                         const storeObj = await fetchStoreYaml(appState.versions.ucp);  // api.js helper
                         appState.store.raw = storeObj;
                         appState.store.items = storeObj.extensions.list;
-                        // collect tags (deduplicate + sort)
+                        /* --- collect tags : first from recipe, then supplement with definition.yml */
                         const tagSet = new Set();
-                        storeObj.extensions.list.forEach(ext => {
+                        for (const ext of storeObj.extensions.list) {
                             (ext.definition.tags || []).forEach(t => tagSet.add(t));
-                        });
+
+                            /* If tags missing → fetch definition.yml in the background */
+                            if (!ext.definition.tags) {
+                                fetchDefinitionYaml(ext)
+                                .then(def => {
+                                    ext.definition.tags = def.tags || [];
+                                    def.tags?.forEach(t => tagSet.add(t));
+
+                                    /* if user hasn’t navigated away, re‑render once */
+                                    if (tabNav.querySelector('.active').dataset.tab === "store") {
+                                        appState.store.allTags = Array.from(tagSet).sort();
+                                        switchTab("store");
+                                    }
+                                })
+                                .catch(() => {/* ignore failures, just no tags */});
+                            }
+                        }
                         appState.store.allTags = Array.from(tagSet).sort();
-                        if (!Array.isArray(appState.store.selectedTags) ||
-                            appState.store.selectedTags.length === 0)
-                            appState.store.selectedTags = [];   // none selected ⇒ show all
                     } catch (e) {
                         console.error("Store fetch failed", e);
                         tabContentArea.innerHTML = createParchmentBox(
@@ -193,16 +206,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         row.classList.add("sel");
 
                         const ext = filtered[Number(row.dataset.idx)];
-                        const descObj = pickDescription(
-                            ext.contents.description,
-                            appState.currentLang
-                        );
 
+                        /* ----- 1. build the list of candidate URLs for description‑<lang>.md */
+                        const urls = buildDescriptionUrl(ext, appState.currentLang);
+
+                        /* ----- 2. try them in order until one succeeds */
                         let md = "";
-                        if (descObj.method === "inline") md = descObj.content;
-                        else if (descObj.method === "online")
-                            md = await fetchRawText(descObj.url);
+                        for (const u of urls) {
+                            md = await fetchRawText(u).catch(() => null);
+                            if (md) break;
+                        }
+                        if (!md) md = "_No description available_";
 
+                        /* ----- 3. inject into the right‑hand pane */
                         document.getElementById("store-desc").innerHTML =
                             `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2>` +
                             `<div class="prose">${marked.parse(md)}</div>`;

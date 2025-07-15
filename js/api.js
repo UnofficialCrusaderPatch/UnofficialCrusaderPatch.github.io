@@ -121,11 +121,45 @@ function pickDescription(descArr, lang) {
     return exact || en || deflt || descArr[0];
 }
 
-/* export for main.js */
-Object.assign(window, {
-    fetchStoreYaml,
-    pickDescription
-});
+
+
+/* -------------------------------------------------------------
+   PER‑EXTENSION  helpers  (tags + description)
+------------------------------------------------------------- */
+
+/*  download and cache definition.yml so we get the tags array
+    raw.githubusercontent.com/{owner}/{tag}/{location?}/definition.yml     */
+function fetchDefinitionYaml(ext) {
+    const repo  = ext.contents.source.url;              // owner/repo
+    const ref   = ext.contents.source["github-sha"] ||
+                  ext.contents.source["github-tag"];
+    const loc   = ext.contents.source.location
+                    ? ext.contents.source.location + "/"
+                    : "";
+    const url =
+      GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc + "definition.yml";
+
+    return fetchWithCache("def_" + repo + "_" + ref + "_" + loc, url, false)
+           .then(text => YAML.parse(text));
+}
+
+/*  build the URL for description‑<lang>.md, fall back to en → default */
+function buildDescriptionUrl(ext, lang) {
+    const repo  = ext.contents.source.url;
+    const ref   = ext.contents.source["github-sha"] ||
+                  ext.contents.source["github-tag"];
+    const loc   = ext.contents.source.location
+                    ? ext.contents.source.location + "/"
+                    : "";
+    const tryLangs = [lang, "en", "default"];
+
+    return tryLangs.map(l =>
+        GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc +
+        "locale/description-" + l + ".md"
+    );
+}
+
+
 
 /* -------------------------------------------------------------
    PUBLIC API – expose selected helpers globally so main.js and ui.js
@@ -146,6 +180,8 @@ Object.assign(window, {
     fetchNewsMarkdown,
     fetchCredits,
     // yaml utils
+    fetchDefinitionYaml,
+    buildDescriptionUrl,
     fetchFileContentByUrl,
     fetchStoreYaml,
     pickDescription
