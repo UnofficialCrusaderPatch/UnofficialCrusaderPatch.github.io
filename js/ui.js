@@ -10,47 +10,23 @@ function createParchmentBox(innerHTML) {
 }
 
 /**
- * Renders the content for the Overview tab using a video facade.
+ * Renders the content for the Overview tab.
  * @param {function} T - The translation function.
  * @returns {string} - The HTML string for the overview tab.
  */
 function renderOverview(T) {
-    // YouTube video IDs
-    const videoId1 = 'fTn9QA-dGjY'; // UCP 3.0 Release Trailer
-    const videoId2 = 'xKEmaIit8vE'; // UCP 3.0 AI Features
-
     const content = `
         <h2 class="ucp-header-font">${T('overview_title')}</h2>
         <p class="mb-6">${T('overview_intro')}</p>
-
-        <div class="grid md:grid-cols-2 gap-6 items-start">
-
-            <!-- Left Column: Videos -->
-            <div class="space-y-6">
-                <!-- Video Facade 1 -->
-                <div class="video-facade" data-video-id="${videoId1}">
-                    <img src="https://i.ytimg.com/vi/${videoId1}/hqdefault.jpg" loading="lazy" alt="UCP 3.0 Release Trailer Thumbnail">
-                    <div class="play-icon"></div>
-                </div>
-
-                <!-- Video Facade 2 -->
-                <div class="video-facade" data-video-id="${videoId2}">
-                    <img src="https://i.ytimg.com/vi/${videoId2}/hqdefault.jpg" loading="lazy" alt="UCP 3.0 AI Features Thumbnail">
-                    <div class="play-icon"></div>
-                </div>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-ucp-dark-parchment p-4 rounded-md">
+                <h3 class="ucp-header-font">${T('overview_quickstart_title')}</h3>
+                <p class="mb-3">${T('overview_quickstart_text')}</p>
+                <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download inline-block px-4 py-2 rounded-md">${T('download_now')}</a>
             </div>
-
-            <!-- Right Column: Info Boxes -->
-            <div class="space-y-6">
-                <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                    <h3 class="ucp-header-font">${T('overview_quickstart_title')}</h3>
-                    <p class="mb-3">${T('overview_quickstart_text')}</p>
-                    <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download inline-block px-4 py-2 rounded-md">${T('download_now')}</a>
-                </div>
-                <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                    <h3 class="ucp-header-font">${T('overview_contribute_title')}</h3>
-                    <p>${T('overview_contribute_text')}</p>
-                </div>
+            <div class="bg-ucp-dark-parchment p-4 rounded-md">
+                <h3 class="ucp-header-font">${T('overview_contribute_title')}</h3>
+                <p>${T('overview_contribute_text')}</p>
             </div>
         </div>
     `;
@@ -112,18 +88,40 @@ function renderAiFormat(aiData, T) {
 }
 
 function renderFaq(faqData, T) {
-    let content;
+    // YouTube video IDs
+    const videoId1 = 'fTn9QA-dGjY'; // UCP 3.0 Release Trailer
+    const videoId2 = 'xKEmaIit8vE'; // UCP 3.0 AI Features
+
+    let questionsContent;
     if (!faqData) {
-        content = `<p>${T('faq_error')}</p>`;
+        questionsContent = `<p>${T('faq_error')}</p>`;
     } else {
-        content = faqData.map(item => `
+        questionsContent = faqData.map(item => `
             <div class="faq-item">
                 <h3 class="font-bold text-lg">${item.question}</h3>
                 <div class="mt-1 prose max-w-none">${item.answer}</div>
             </div>
         `).join('');
     }
-    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${content}</div>`;
+
+    const videosContent = `
+        <h3 class="ucp-header-font mt-8">Tutorial Videos</h3>
+        <div class="grid md:grid-cols-2 gap-6 items-start mt-4">
+            <!-- Video Facade 1 -->
+            <div class="video-facade" data-video-id="${videoId1}">
+                <img src="https://i.ytimg.com/vi/${videoId1}/sddefault.jpg" loading="lazy" alt="UCP 3.0 Release Trailer Thumbnail" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${videoId1}/default.jpg';">
+                <div class="play-icon"></div>
+            </div>
+
+            <!-- Video Facade 2 -->
+            <div class="video-facade" data-video-id="${videoId2}">
+                <img src="https://i.ytimg.com/vi/${videoId2}/sddefault.jpg" loading="lazy" alt="UCP 3.0 AI Features Thumbnail" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${videoId2}/default.jpg';">
+                <div class="play-icon"></div>
+            </div>
+        </div>
+    `;
+
+    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${questionsContent}</div>${videosContent}`;
     return createParchmentBox(html);
 }
 

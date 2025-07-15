@@ -1,7 +1,7 @@
 // This file handles all communication with the GitHub API to fetch dynamic content.
 
 /* -------------------------------------------------------------
-   CONSTANTS
+    CONSTANTS
 ------------------------------------------------------------- */
 const GITHUB_API_BASE = "https://api.github.com/repos/";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/";
@@ -9,20 +9,20 @@ const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/";
 // Repositories
 const REPOS = {
     NEWS   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch", // contains NEWS.md
-    STORE  : "UnofficialCrusaderPatch/UCP3-extensions-store",    // branch‑aware store
-    CREDITS: "UnofficialCrusaderPatch/UCP3-GUI"                  // credits.md lives here
+    STORE  : "UnofficialCrusaderPatch/UCP3-extensions-store",   // branch‑aware store
+    CREDITS: "UnofficialCrusaderPatch/UCP3-GUI"                 // credits.md lives here
 };
 
 // Paths inside those repositories
 const PATHS = {
-    NEWS   : "NEWS.md",                  // single markdown file
-    STORE  : "",                         // root directory
+    NEWS   : "NEWS.md",                                     // single markdown file
+    STORE  : "",                                            // root directory
     CREDITS: "main/src/components/credits/credits.md"
 };
 
 /* -------------------------------------------------------------
-   VERY SMALL LOCAL CACHE (5‑minute TTL) – keeps us under GitHub's
-   60 unauthenticated requests / hour limit.
+    VERY SMALL LOCAL CACHE (5‑minute TTL) – keeps us under GitHub's
+    60 unauthenticated requests / hour limit.
 ------------------------------------------------------------- */
 const CACHE_SECONDS = 300; // 5 minutes
 
@@ -36,7 +36,10 @@ function fetchWithCache(key, url, asJson = true) {
     return fetch(url, {
         headers: { "Accept": "application/vnd.github.v3+json" }
     })
-        .then(r => asJson ? r.json() : r.text())
+        .then(r => {
+            if (!r.ok) throw new Error(`GitHub API request failed: ${r.status}`);
+            return asJson ? r.json() : r.text();
+        })
         .then(data => {
             localStorage.setItem(key, JSON.stringify({ time: now, data }));
             return data;
@@ -44,7 +47,7 @@ function fetchWithCache(key, url, asJson = true) {
 }
 
 /* -------------------------------------------------------------
-   GENERIC LOW‑LEVEL HELPERS
+    GENERIC LOW‑LEVEL HELPERS
 ------------------------------------------------------------- */
 function fetchApiJson(url) {
     return fetchWithCache("json_" + url, url, true);
@@ -55,7 +58,7 @@ function fetchRawText(url) {
 }
 
 /* -------------------------------------------------------------
-   VERSION HELPERS (latest GUI & UCP releases)
+    VERSION HELPERS (latest GUI & UCP releases)
 ------------------------------------------------------------- */
 function fetchGuiVersion() {
     return fetchWithCache(
@@ -74,7 +77,7 @@ function fetchUcpVersion() {
 }
 
 /* -------------------------------------------------------------
-   NEWS & CREDIT HELPERS
+    NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */
 function fetchNewsMarkdown() {
     const url = GITHUB_RAW_BASE + REPOS.NEWS + "/HEAD/" + PATHS.NEWS;
@@ -91,7 +94,7 @@ function fetchCredits() {
 }
 
 /* -------------------------------------------------------------
-    STORE (YAML) HELPERS
+     STORE (YAML) HELPERS
 ------------------------------------------------------------- */
 function fetchStoreYaml(version) {
     // Primary: raw file from the tag
@@ -108,10 +111,18 @@ function fetchStoreYaml(version) {
         .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
         .then(text => {
             if (!text) throw new Error("empty YAML");
-            if (typeof YAML === 'undefined') throw new Error("YAML parser not loaded");
-            return YAML.parse(text);
+            
+            // *** FIX: Check for any available YAML parser ***
+            if (typeof window.jsyaml !== 'undefined') {
+                return window.jsyaml.load(text); // Use full js-yaml if present
+            } else if (typeof window.parseYAML === 'function') {
+                return window.parseYAML(text); // Use the simple parser if present
+            } else {
+                throw new Error("YAML parser not loaded");
+            }
         });
 }
+
 
 /* chooses best description block for the language the page is in */
 function pickDescription(descArr, lang) {
@@ -125,11 +136,11 @@ function pickDescription(descArr, lang) {
 
 
 /* -------------------------------------------------------------
-   PER‑EXTENSION  helpers  (tags + description)
+    PER‑EXTENSION  helpers  (tags + description)
 ------------------------------------------------------------- */
 
-/*  download and cache definition.yml so we get the tags array
-    raw.githubusercontent.com/{owner}/{tag}/{location?}/definition.yml     */
+/* download and cache definition.yml so we get the tags array
+    raw.githubusercontent.com/{owner}/{tag}/{location?}/definition.yml    */
 function fetchDefinitionYaml(ext) {
     const repo  = ext.contents.source.url;              // owner/repo
     const ref   = ext.contents.source["github-sha"] ||
@@ -142,10 +153,17 @@ function fetchDefinitionYaml(ext) {
         GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc + "definition.yml";
 
     return fetchWithCache("def_" + repo + "_" + ref + "_" + loc, url, false)
-        .then(text => (typeof YAML !== "undefined" ? YAML.parse(text) : {}));
+        .then(text => {
+            if (typeof window.jsyaml !== 'undefined') {
+                return window.jsyaml.load(text);
+            } else if (typeof window.parseYAML === 'function') {
+                return window.parseYAML(text);
+            }
+            return {};
+        }).catch(() => ({})); // Return empty object on failure
 }
 
-/*  build the URL for description‑<lang>.md, fall back to en → default */
+/* build the URL for description‑<lang>.md, fall back to en → default */
 function buildDescriptionUrl(ext, lang) {
     const repo  = ext.contents.source.url;
     const ref   = ext.contents.source["github-sha"] ||
@@ -164,8 +182,8 @@ function buildDescriptionUrl(ext, lang) {
 
 
 /* -------------------------------------------------------------
-   PUBLIC API – expose selected helpers globally so main.js and ui.js
-   can call them without using ES‑module syntax. We attach to window.
+    PUBLIC API – expose selected helpers globally so main.js and ui.js
+    can call them without using ES‑module syntax. We attach to window.
 ------------------------------------------------------------- */
 Object.assign(window, {
     // constants (useful elsewhere)

@@ -154,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
             case "store":
                 try {
                     // Wait for the preloading to finish if it hasn't already.
-                    // If it's done, this resolves instantly.
                     if (appState.store.raw !== 'error') {
                        await storeDataPromise;
                     }
@@ -162,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
                        throw new Error("Store data is not available.");
                     }
                     
-                    // If we are here, data is loaded. Render the UI.
                     renderStoreTab();
 
                 } catch (e) {
@@ -180,18 +178,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dataType = tabId === 'faq' ? 'faq' : 'ai';
                 const cacheKey = tabId === 'faq' ? 'faqData' : 'aiData';
                 const renderFunc = tabId === 'faq' ? renderFaq : renderAiFormat;
+                const errorKey = tabId === 'faq' ? 'faq_error' : 'ai_format_error';
 
-                let data = appState[cacheKey][appState.currentLang];
-                if (!data) {
-                    data = await fetchLocalJson(`lang/${dataType}-${appState.currentLang}.json`);
-                    if (!data) { // Fallback to English
-                        data = await fetchLocalJson(`lang/${dataType}-en.json`);
+                // Non-blocking data fetching
+                (async () => {
+                    let data = appState[cacheKey][appState.currentLang];
+                    if (!data) {
+                        data = await fetchLocalJson(`lang/${dataType}-${appState.currentLang}.json`);
+                        if (!data) { // Fallback to English
+                            data = await fetchLocalJson(`lang/${dataType}-en.json`);
+                        }
+                        appState[cacheKey][appState.currentLang] = data; // Cache it
                     }
-                    appState[cacheKey][appState.currentLang] = data; // Cache it
-                }
-                if (isTabStillActive()) {
-                    tabContentArea.innerHTML = renderFunc(data, T);
-                }
+                    return data;
+                })().then(data => {
+                    if (isTabStillActive()) {
+                        tabContentArea.innerHTML = renderFunc(data, T);
+                    }
+                }).catch(err => {
+                    console.error(`Failed to load ${tabId}:`, err);
+                    if (isTabStillActive()) {
+                        tabContentArea.innerHTML = createParchmentBox(`<p>${T(errorKey)}</p>`);
+                    }
+                });
                 break;
 
             default:
@@ -201,7 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Renders the store tab content and wires up its events.
-     * This is separated because it's complex and only called when the store data is ready.
      */
     function renderStoreTab() {
         const query = appState.store.searchQuery.toLowerCase();
@@ -224,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
 
         const rows = filteredItems.map((ext, i) =>
-            `<div class="ucp-store-row" data-idx="${i}">${ext.definition["display-name"]}</div>`
+            `<div class="ucp-store-row" data-idx="${filteredItems.indexOf(ext)}">${ext.definition["display-name"]}</div>`
         ).join("");
 
         const listPane = `
@@ -360,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (url) window.open(url, "_blank");
         });
 
-        // Event delegation for video facades
+        // Event delegation for video facades and closing the tag menu
         document.addEventListener('click', (e) => {
             const facade = e.target.closest('.video-facade');
             if (facade) {
@@ -370,8 +378,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
                 iframe.setAttribute('allowfullscreen', '');
+                // Use aspect-ratio on the container for sizing
                 iframe.className = 'w-full h-full absolute top-0 left-0';
-                facade.replaceWith(iframe);
+                
+                // Create a container to maintain aspect ratio
+                const videoContainer = document.createElement('div');
+                videoContainer.className = 'relative w-full';
+                videoContainer.style.paddingTop = '56.25%'; // 16:9 aspect ratio
+                videoContainer.appendChild(iframe);
+
+                facade.replaceWith(videoContainer);
+                return; // Stop further processing
             }
             
             // Close tag menu if clicking outside
