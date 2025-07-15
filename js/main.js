@@ -46,6 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
         else alert("Could not fetch installer link");
     });
 
+    function normalizeStoreBranch(raw) {
+        // grab first x.y.z group
+        const m = raw.match(/(\\d+\\.\\d+\\.\\d+)/);
+        return m ? m[1] : "";
+    }
+
 
     /**
      * Translates a key using the loaded language file.
@@ -154,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
                 break;
             case 'store':
-                const branch = appState.versions.ucp;
+                const branch = normalizeStoreBranch(appState.versions.ucp);
                 if (appState.store.items.length === 0) {
                     const storeDirs = await fetchStoreItems(branch);
                     if (storeDirs && Array.isArray(storeDirs)) {

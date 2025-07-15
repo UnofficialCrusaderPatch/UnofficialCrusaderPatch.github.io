@@ -67,8 +67,8 @@ function fetchGuiVersion() {
 
 function fetchUcpVersion() {
     return fetchWithCache(
-        "ucpVer",
-        "https://api.github.com/repos/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/latest",
+        "ucpCoreVer",
+        "https://api.github.com/repos/UnofficialCrusaderPatch/UnofficialCrusaderPatch3/releases/latest",
         true
     ).then(data => data?.tag_name?.replace(/^v/i, "") || null);
 }
