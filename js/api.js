@@ -5,16 +5,56 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/';
 
 // --- API ENDPOINTS ---
 const REPOS = {
-    NEWS: 'UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io',
-    STORE: 'UnofficialCrusaderPatch/UCP-Store-SVN',
+    NEWS: 'UnofficialCrusaderPatch/UnofficialCrusaderPatch',
+    STORE : 'UnofficialCrusaderPatch/UCP3-extensions-store',
     CREDITS: 'UnofficialCrusaderPatch/UCP3-GUI'
 };
 
 const PATHS = {
-    NEWS: 'news',
-    STORE: 'store',
+    NEWS  : "NEWS.md",
+    STORE : '',
     CREDITS: 'main/src/assets/credits.md'
 };
+
+// ---------- very small local cache to stay inside GitHub rate limits ----------
+const cacheSeconds = 300;                           // 5 min
+function fetchWithCache(key, url, isJson = true) {
+    const now = Date.now();
+    const cached = JSON.parse(localStorage.getItem(key) || "null");
+    if (cached && now - cached.time < cacheSeconds * 1000) {
+        return Promise.resolve(cached.data);
+    }
+    return fetch(url, {
+        headers: { Accept: "application/vnd.github.v3+json" }
+    })
+        .then(r => isJson ? r.json() : r.text())
+        .then(data => {
+            localStorage.setItem(key, JSON.stringify({ time: now, data }));
+            return data;
+        });
+}
+
+// ---------- latest version helpers ----------
+export async function fetchGuiVersion() {
+    const data = await fetchWithCache(
+        "guiVer",
+        "https://api.github.com/repos/UnofficialCrusaderPatch/UCP3-GUI/releases/latest"
+    );
+    return data?.tag_name?.replace(/^v/i, "") || null;
+}
+
+export async function fetchUcpVersion() {
+    const data = await fetchWithCache(
+        "ucpVer",
+        "https://api.github.com/repos/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/latest"
+    );
+    return data?.tag_name?.replace(/^v/i, "") || null;
+}
+
+// ---------- branch query helper ----------
+function branchRef(branch) {
+    return branch ? "?ref=" + branch : "";
+}
 
 /**
  * A generic helper function to fetch JSON data from the GitHub API.
@@ -76,9 +116,10 @@ async function fetchFileContentByUrl(downloadUrl) {
  * Fetches the list of items (modules, packs) from the store repository.
  * @returns {Promise<object[]|null>} - An array of directory/file objects.
  */
-async function fetchStoreItems() {
-    const url = `${GITHUB_API_BASE}${REPOS.STORE}/contents/${PATHS.STORE}`;
-    return await fetchApiJson(url);
+export async function fetchStoreItems(branch = "") {
+    const url =
+        GITHUB_API_BASE + REPOS.STORE + "/contents/" + PATHS.STORE + branchRef(branch);
+    return await fetchWithCache("storeList_" + branch, url);
 }
 
 /**
@@ -86,9 +127,9 @@ async function fetchStoreItems() {
  * @param {string} path - The path to the directory relative to the repo root.
  * @returns {Promise<object[]|null>}
  */
-async function fetchDirectoryContents(path) {
-    const url = `${GITHUB_API_BASE}${REPOS.STORE}/contents/${path}`;
-    return await fetchApiJson(url);
+export async function fetchDirectoryContents(path, branch = "") {
+    const url = GITHUB_API_BASE + REPOS.STORE + "/contents/" + path + branchRef(branch);
+    return await fetchWithCache("dir_" + path + "_" + branch, url);
 }
 
 

@@ -26,6 +26,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const creditsBtn = document.getElementById('creditsBtn');
     const closeCreditsBtn = document.getElementById('closeCreditsBtn');
     const creditsContent = document.getElementById('creditsContent');
+    const downloadBtn = document.getElementById("downloadBtn");
+
+
+    async function fetchInstallerUrl() {
+        const data = await fetchWithCache(
+            "guiLatest",
+            "https://api.github.com/repos/UnofficialCrusaderPatch/UCP3-GUI/releases/latest"
+        );
+        const asset = data?.assets?.find(a => /setup\.exe$/i.test(a.name));
+        return asset ? asset.browser_download_url : data?.html_url;
+    }
+
+    downloadBtn.addEventListener("click", async () => {
+        downloadBtn.disabled = true;
+        const url = await fetchInstallerUrl();
+        downloadBtn.disabled = false;
+        if (url) window.open(url, "_blank");
+        else alert("Could not fetch installer link");
+    });
+
 
     /**
      * Translates a key using the loaded language file.
@@ -60,14 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Array<string>} - An array of tags.
      */
     function parseTagsFromYaml(yamlContent) {
-        if (!yamlContent) return [];
-        const match = yamlContent.match(/tags:\s*(\[.*?\]|-.*?(?=\w+:|$))/s);
-        if (!match) return [];
-        return match[1]
-            .replace(/\[|\]/g, '')
-            .split(/,|-/)
-            .map(tag => tag.trim().replace(/"/g, ''))
-            .filter(tag => tag);
+        try {
+            const doc = YAML.parse(yamlContent);
+            const tags = doc?.tags;
+            if (Array.isArray(tags)) return tags.map(t => String(t));
+        } catch (e) {
+            console.warn("YAML parse failed", e);
+        }
+        return [];
     }
     
     /**
@@ -126,32 +146,27 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'overview':
                 tabContentArea.innerHTML = renderOverview(T);
                 break;
-            case 'news':
-                const newsFiles = await fetchNewsList();
-                if (newsFiles && Array.isArray(newsFiles)) {
-                    const newsItems = await Promise.all(
-                        newsFiles
-                            .sort((a, b) => b.name.localeCompare(a.name))
-                            .slice(0, 5)
-                            .map(async (file) => ({
-                                name: file.name,
-                                content: await fetchFileContentByUrl(file.download_url)
-                            }))
-                    );
-                    tabContentArea.innerHTML = renderNews(newsItems.filter(item => item.content), T);
-                } else {
-                    tabContentArea.innerHTML = renderNews(null, T);
-                }
+            case "news":
+                const markdown = await fetchRawText(
+                    GITHUB_RAW_BASE + REPOS.NEWS + "/" + PATHS.NEWS
+                );
+                tabContentArea.innerHTML = renderNews(
+                    markdown ? [{ name: PATHS.NEWS, content: markdown }] : null,
+                    T
+                );
                 break;
             case 'store':
+                const branch = appState.versions.ucp;
                 if (appState.store.items.length === 0) {
-                    const storeDirs = await fetchStoreItems();
+                    const storeDirs = await fetchStoreItems(branch);
                     if (storeDirs && Array.isArray(storeDirs)) {
                         appState.store.items = storeDirs.filter(item => item.type === 'dir');
                         
                         const definitionsPromises = appState.store.items.map(async (item) => {
-                            const dirContents = await fetchDirectoryContents(item.path);
-                            const defFile = dirContents?.find(f => f.name === 'definition.yml');
+                            const dirContents = await fetchDirectoryContents(item.path, branch);
+                            const defFile =
+                                dirContents?.find(f => f.name === "definition.yml") ||
+                                dirContents?.find(f => f.name === "definition.yaml");
                             if (defFile) {
                                 const yamlContent = await fetchFileContentByUrl(defFile.download_url);
                                 appState.store.definitions[item.name] = { tags: parseTagsFromYaml(yamlContent) };
@@ -239,6 +254,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 langSelector.appendChild(option);
             });
         }
+
+        // Fetch versioms and footer
+        const [guiVer, ucpVer] = await Promise.all([
+            fetchGuiVersion(),
+            fetchUcpVersion()
+        ]);
+        appState.versions = { gui: guiVer, ucp: ucpVer };
+        document.getElementById("footer-version-info").textContent =
+            "GUI " + (guiVer || "-") + " | UCP " + (ucpVer || "-");
 
         // Add event listeners
         tabNav.addEventListener('click', (e) => {
