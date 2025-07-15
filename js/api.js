@@ -81,20 +81,36 @@ function branchRef(branch) {
 }
 
 function fetchStoreItems(branch = "") {
-    const url = GITHUB_API_BASE + REPOS.STORE + "/contents/" + PATHS.STORE + branchRef(branch);
-    return fetchWithCache("storeList_" + branch, url, true);
+    const url = GITHUB_API_BASE + REPOS.STORE +
+                "/contents/" + PATHS.STORE + branchRef(branch);
+    const key = "storeList_" + (branch || "root");
+
+    return fetchWithCache(key, url, true).then(data => {
+        if (data?.message === "Not Found" && branch) {
+            return fetchStoreItems("");
+        }
+        return data;
+    });
 }
 
 function fetchDirectoryContents(path, branch = "") {
-    const url = GITHUB_API_BASE + REPOS.STORE + "/contents/" + path + branchRef(branch);
-    return fetchWithCache("dir_" + path + "_" + branch, url, true);
+    const url = GITHUB_API_BASE + REPOS.STORE +
+                "/contents/" + path + branchRef(branch);
+    const key = "dir_" + path + "_" + (branch || "root");
+
+    return fetchWithCache(key, url, true).then(data => {
+        if (data?.message === "Not Found" && branch) {
+            return fetchDirectoryContents(path, "");
+        }
+        return data;
+    });
 }
 
 /* -------------------------------------------------------------
    NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */
 function fetchNewsMarkdown() {
-    const url = GITHUB_RAW_BASE + REPOS.NEWS + "/" + PATHS.NEWS;
+    const url = GITHUB_RAW_BASE + REPOS.NEWS + "/HEAD/" + PATHS.NEWS;
     return fetchRawText(url);
 }
 

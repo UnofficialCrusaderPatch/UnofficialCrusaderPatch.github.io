@@ -147,9 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabContentArea.innerHTML = renderOverview(T);
                 break;
             case "news":
-                const markdown = await fetchRawText(
-                    GITHUB_RAW_BASE + REPOS.NEWS + "/" + PATHS.NEWS
-                );
+                const markdown = await fetchNewsMarkdown();
                 tabContentArea.innerHTML = renderNews(
                     markdown ? [{ name: PATHS.NEWS, content: markdown }] : null,
                     T
