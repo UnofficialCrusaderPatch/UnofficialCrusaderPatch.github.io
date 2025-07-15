@@ -1,0 +1,79 @@
+/* --- HEADER BUTTONS & CONTROLS --- */
+.header-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.header-left, .header-right { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.75rem; 
+}
+
+/* Wrapper for the language selector to position the icon */
+.language-select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.language-select-wrapper .fa-globe { 
+    position: absolute;
+    left: 0.75rem;
+    color: var(--ucp-button-text); 
+    font-size: 1.2rem; 
+    pointer-events: none; /* Allows clicks to go through to the select */
+}
+
+.ucp-button-small {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--ucp-button-text);
+    border: 1px solid var(--ucp-gold);
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'RiverAvenue', cursive;
+}
+
+.ucp-button-small:hover { 
+    background-color: rgba(25, 25, 25, 0.8); 
+    border-color: #eac888; 
+}
+
+#downloadBtn {
+    border: 10px solid transparent;
+    border-image: url('../assets/ucp3/button_ucp.png') 8 fill;
+    background-color: transparent;
+    color: var(--ucp-button-text);
+    padding: 0.5rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'RiverAvenue', cursive;
+}
+
+#downloadBtn:hover { 
+    border-image-source: url('../assets/ucp3/button_ucp_hover.png'); 
+}
+
+.ucp-select {
+    appearance: none; /* Remove default dropdown arrow */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--ucp-button-text);
+    border: 1px solid var(--ucp-gold);
+    border-radius: 4px;
+    padding: 0.4rem 1rem 0.4rem 2.5rem; /* Left padding for icon */
+    font-size: 0.9rem;
+    font-family: 'RiverAvenue', cursive;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: 50%;
+}

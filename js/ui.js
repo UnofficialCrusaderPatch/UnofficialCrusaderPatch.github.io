@@ -1,12 +1,21 @@
 // This file contains all functions that manipulate the DOM to render content.
 
 /**
+ * Creates the main content wrapper with a parchment background.
+ * @param {string} innerHTML - The HTML content to place inside the box.
+ * @returns {string}
+ */
+function createParchmentBox(innerHTML) {
+    return `<div class="parchment-box">${innerHTML}</div>`;
+}
+
+/**
  * Renders the content for the Overview tab.
  * @param {function} T - The translation function.
  * @returns {string} - The HTML string for the overview tab.
  */
 function renderOverview(T) {
-    return `
+    const content = `
         <h2 class="ucp-header-font">${T('overview_title')}</h2>
         <p class="mb-6">${T('overview_intro')}</p>
         <div class="grid md:grid-cols-2 gap-6">
@@ -21,6 +30,7 @@ function renderOverview(T) {
             </div>
         </div>
     `;
+    return createParchmentBox(content);
 }
 
 /**
@@ -30,30 +40,24 @@ function renderOverview(T) {
  * @returns {string} - The HTML string for the news list.
  */
 function renderNews(newsItems, T) {
+    let content;
     if (!newsItems || newsItems.length === 0) {
-        return `<p>${T('news_error')}</p>`;
+        content = `<p>${T('news_error')}</p>`;
+    } else {
+        content = newsItems.map(item => {
+            const date = item.name.split('_')[0].replace(/-/g, '.');
+            return `
+                <div class="news-item">
+                    <h3 class="ucp-header-font">${date}</h3>
+                    <div class="prose max-w-none">${marked.parse(item.content)}</div>
+                </div>
+            `;
+        }).join('');
     }
-    const content = newsItems.map(item => {
-        const date = item.name.split('_')[0].replace(/-/g, '.');
-        return `
-            <div class="news-item">
-                <h3 class="ucp-header-font">${date}</h3>
-                <div class="prose max-w-none">${marked.parse(item.content)}</div>
-            </div>
-        `;
-    }).join('');
-    return `<h2 class="ucp-header-font">${T('news_title')}</h2><div class="space-y-6">${content}</div>`;
+    const html = `<h2 class="ucp-header-font">${T('news_title')}</h2><div class="space-y-6">${content}</div>`;
+    return createParchmentBox(html);
 }
 
-/**
- * Renders the store content grid with search and filter controls.
- * @param {Array<object>} storeItems - The filtered list of items to display.
- * @param {function} T - The translation function.
- * @param {Array<string>} allTags - All unique tags available for filtering.
- * @param {Array<string>} selectedTags - The currently selected tags.
- * @param {string} searchQuery - The current search query.
- * @returns {string} - The HTML string for the store tab.
- */
 function renderStore(storeItems, T, allTags = [], selectedTags = [], searchQuery = '') {
     const filterUI = `
         <div class="flex flex-wrap gap-4 mb-6 items-center">
@@ -83,79 +87,69 @@ function renderStore(storeItems, T, allTags = [], selectedTags = [], searchQuery
     } else if (storeItems.length === 0) {
         content = `<p>${T('store_no_results')}</p>`;
     } else {
-        content = storeItems
+        content = `<div class="store-grid">${storeItems
             .map(item => `
                 <div class="store-item">
                     <h3 class="ucp-header-font text-xl">${item.name}</h3>
                     ${item.definition && item.definition.tags ? `<div class="flex flex-wrap gap-2 mt-2">${item.definition.tags.map(tag => `<span class="text-xs bg-ucp-stone-border text-white px-2 py-1 rounded-full">${tag}</span>`).join('')}</div>` : ''}
                     <a href="${item.html_url}" target="_blank" class="text-sm hover:underline mt-4 inline-block">${T('view_on_github')} &rarr;</a>
                 </div>
-            `).join('');
+            `).join('')}</div>`;
     }
 
-    return `
+    const html = `
         <h2 class="ucp-header-font">${T('store_title')}</h2>
         <p class="mb-6">${T('store_intro')}</p>
         ${filterUI}
-        <div class="store-grid">${content}</div>
+        ${content}
     `;
+    return createParchmentBox(html);
 }
 
-
-/**
- * Renders the AI Format parameter tables.
- * @param {object} aiData - The parsed JSON data for AI parameters.
- * @param {function} T - The translation function.
- * @returns {string} - The HTML string for the AI Format tab.
- */
 function renderAiFormat(aiData, T) {
+    let content;
     if (!aiData || !aiData.categories) {
-        return `<p>${T('ai_format_error')}</p>`;
+        content = `<p>${T('ai_format_error')}</p>`;
+    } else {
+        content = `<p class="mb-6">${T('ai_format_intro')}</p>`;
+        for (const category of aiData.categories) {
+            content += `<h3 class="ucp-header-font mt-6 mb-2">${category.title}</h3>`;
+            content += `<div class="overflow-x-auto"><table class="ai-param-table"><thead><tr>
+                <th>${T('ai_param_field')}</th>
+                <th>${T('ai_param_values')}</th>
+                <th>${T('ai_param_description')}</th>
+            </tr></thead><tbody>`;
+            category.params.forEach((param, index) => {
+                content += `<tr class="${index % 2 === 0 ? 'bg-black bg-opacity-5' : ''}">
+                    <td class="font-semibold">${param.field}</td>
+                    <td>${param.values}</td>
+                    <td>${param.description}</td>
+                </tr>`;
+            });
+            content += `</tbody></table></div>`;
+        }
     }
-    let html = `<p class="mb-6">${T('ai_format_intro')}</p>`;
-    for (const category of aiData.categories) {
-        html += `<h3 class="ucp-header-font mt-6 mb-2">${category.title}</h3>`;
-        html += `<div class="overflow-x-auto"><table class="ai-param-table"><thead><tr>
-            <th>${T('ai_param_field')}</th>
-            <th>${T('ai_param_values')}</th>
-            <th>${T('ai_param_description')}</th>
-        </tr></thead><tbody>`;
-        category.params.forEach((param, index) => {
-            html += `<tr class="${index % 2 === 0 ? 'bg-black bg-opacity-5' : ''}">
-                <td class="font-semibold">${param.field}</td>
-                <td>${param.values}</td>
-                <td>${param.description}</td>
-            </tr>`;
-        });
-        html += `</tbody></table></div>`;
-    }
-    return `<h2 class="ucp-header-font">${T('ai_format_title')}</h2>${html}`;
+    const html = `<h2 class="ucp-header-font">${T('ai_format_title')}</h2>${content}`;
+    return createParchmentBox(html);
 }
 
-/**
- * Renders the FAQ list.
- * @param {Array<object>} faqData - The parsed JSON data for the FAQ.
- * @param {function} T - The translation function.
- * @returns {string} - The HTML string for the FAQ tab.
- */
 function renderFaq(faqData, T) {
+    let content;
     if (!faqData) {
-        return `<p>${T('faq_error')}</p>`;
+        content = `<p>${T('faq_error')}</p>`;
+    } else {
+        content = faqData.map(item => `
+            <div class="faq-item">
+                <h3 class="font-bold text-lg">${item.question}</h3>
+                <div class="mt-1">${item.answer}</div>
+            </div>
+        `).join('');
     }
-    const content = faqData.map(item => `
-        <div class="faq-item">
-            <h3 class="font-bold text-lg">${item.question}</h3>
-            <div class="mt-1">${item.answer}</div>
-        </div>
-    `).join('');
-    return `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${content}</div>`;
+    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${content}</div>`;
+    return createParchmentBox(html);
 }
 
-/**
- * Renders the loading state into a container.
- * @param {HTMLElement} container - The element to show the loading message in.
- * @param {function} T - The translation function.
- */
 function renderLoading(container, T) {
-    container.innerHTML = `<div class="text-center p-8">${T('loading')}</div>`;
+    const html = `<div class="text-center p-8">${T('loading')}</div>`;
+    container.innerHTML = createParchmentBox(html);
 }

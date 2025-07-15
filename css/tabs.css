@@ -1,0 +1,59 @@
+/* --- ORNAMENTAL SEPARATOR --- */
+.top-bar::after {
+    content: '';
+    position: absolute;
+    bottom: 10;
+    left: 0;
+    right: 0;
+    height: 8px;
+    border-image: url('../assets/ucp3/ornament_border.png') 8 round;
+    border-image-slice: 8;
+    border-style: solid;
+    border-width: 8px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    z-index: 15; /* This ensures the border is ON TOP of the tabs */
+}
+
+/* --- TAB BAR & TABS --- */
+.tab-bar {
+    display: flex;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 10; /* Behind the separator */
+    align-items: flex-end; /* Align to bottom */
+}
+
+.ucp-tab {
+    border-image: url('../assets/ucp3/ornament_border_button.png') 18 fill;
+    border-image-repeat: round;
+    border-style: solid;
+    border-width: 13px;
+    border-color: transparent;
+
+    color: var(--ucp-button-text);
+    background-color: transparent;
+    padding: 0.5rem 1.5rem;
+    font-size: 1.25rem;
+    cursor: pointer;
+    margin-right: 5px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    bottom: -8px; 
+    font-family: 'RiverAvenue', cursive;
+    transition: all 0.1s ease-in-out;
+}
+
+.ucp-tab.active, .ucp-tab:hover {
+    border-image-source: url('../assets/ucp3/ornament_border_button_hover.png');
+}
+
+.ucp-tab.active {
+    height: 60px;
+    margin-top: -10px;
+    color: var(--ucp-button-text); /* CORRECTED: Text color is now consistent */
+}

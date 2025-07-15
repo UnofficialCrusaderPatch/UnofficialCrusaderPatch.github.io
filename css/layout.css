@@ -1,0 +1,74 @@
+/* --- FONT & COLOR DEFINITIONS --- */
+@font-face {
+    font-family: 'RiverAvenue';
+    src: url('../assets/ucp3/fonts/riverave.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Dayrom';
+    src: url('../assets/ucp3/fonts/DAYROM__.ttf') format('truetype');
+}
+
+:root {
+    --ucp-top-bg: #2d2d2d;
+    --ucp-parchment: #e9dcc9;
+    --ucp-text: #2c2217;
+    --ucp-gold: #c8a868;
+    --ucp-footer-bg: #1e1e1e;
+    --ucp-footer-text: #a0a0a0;
+    --ucp-button-text: #e0d6c6;
+    --ucp-link-color: #8a5a2a;
+    --ucp-main-grey: #a0a0a0;
+}
+
+/* --- CORE LAYOUT --- */
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Dayrom', sans-serif;
+    background-color: #000;
+    background-image: url('../assets/backgrounds/bg_richard.webp');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    color: var(--ucp-text);
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.top-bar {
+    background-color: var(--ucp-top-bg);
+    background-image: url('../assets/backgrounds/awesomebackdrop_wide.webp');
+    background-size: cover;
+    background-position: center bottom;
+    padding: 1rem 1.5rem 0 1.5rem;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20; /* Ensure header is on top */
+}
+
+.content-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #4a3c2a, #2c2217);
+}
+
+.footer-bar {
+    background-color: var(--ucp-footer-bg);
+    color: var(--ucp-footer-text);
+    padding: 0.35rem 1rem;
+    text-align: right;
+    font-size: 0.8rem;
+    border-top: 2px solid #333;
+    flex-shrink: 0;
+}

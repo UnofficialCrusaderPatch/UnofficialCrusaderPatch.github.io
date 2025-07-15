@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unofficial Crusader Patch</title>
-    <!-- CORRECTED: This now points to your local asset -->
     <link rel="icon" type="image/png" href="assets/ucp3_32x32.png">
     
-    <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Custom Stylesheets -->
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/content.css">
     
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -16,51 +18,51 @@
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     
-    <!-- Main JavaScript files (defer ensures they run after HTML parsing) -->
+    <!-- Main JavaScript files -->
     <script src="js/api.js" defer></script>
     <script src="js/ui.js" defer></script>
     <script src="js/main.js" defer></script>
 </head>
 <body>
 
-    <div class="ucp-container">
-        <!-- TOP BAR: Meta Info, Download, Language -->
-        <header id="main-header" class="main-header">
+    <!-- TOP BAR: Fixed at the top -->
+    <header id="main-header" class="top-bar">
+        <div class="header-controls">
             <div class="header-left">
                 <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch.github.io" target="_blank" class="ucp-button-small"><i class="fab fa-github mr-1"></i> GitHub</a>
                 <button id="creditsBtn" class="ucp-button-small"><i class="fas fa-users mr-1"></i> Credits</button>
             </div>
-            <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download">Download Now</a>
+            <button id="downloadBtn" class="ucp-button-download">Download Now</button>
             <div class="header-right">
-                <i class="fas fa-globe"></i>
-                <select id="languageSelector" class="ucp-select">
-                    <!-- Options will be populated by JS -->
-                </select>
+                <!-- NEW WRAPPER for language menu -->
+                <div class="language-select-wrapper">
+                    <i class="fas fa-globe"></i>
+                    <select id="languageSelector" class="ucp-select">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
             </div>
-        </header>
-
-        <!-- Main content section including tabs and tab content -->
-        <div class="main-content-wrapper">
-            <!-- TABS NAVIGATION -->
-            <nav id="tab-nav" class="tab-nav">
-                <button data-tab="overview" class="ucp-tab active">Overview</button>
-                <button data-tab="news" class="ucp-tab">News</button>
-                <button data-tab="store" class="ucp-tab">Content</button>
-                <button data-tab="ai-format" class="ucp-tab">AI Format</button>
-                <button data-tab="faq" class="ucp-tab">FAQ</button>
-            </nav>
-
-            <!-- TAB CONTENT AREA -->
-            <main id="tab-content-area" class="ucp-tab-content">
-                <!-- Content will be injected here by JavaScript -->
-            </main>
         </div>
-        
-        <!-- FOOTER -->
-        <footer class="ucp-footer">
-            <span id="footer-version-info">GUI 1.0.13 | UCP 3.0.7 | Developer</span>
-        </footer>
+        <nav id="tab-nav" class="tab-bar">
+            <button data-tab="overview" class="ucp-tab active">Overview</button>
+            <button data-tab="news" class="ucp-tab">News</button>
+            <button data-tab="store" class="ucp-tab">Content</button>
+            <button data-tab="ai-format" class="ucp-tab">AI Format</button>
+            <button data-tab="faq" class="ucp-tab">FAQ</button>
+        </nav>
+    </header>
+
+    <!-- CENTRAL CONTENT: This is the only part that will scroll -->
+    <div class="content-wrapper">
+        <main id="tab-content-area" class="main-content">
+            <!-- A parchment-box will be injected here by JS -->
+        </main>
     </div>
+
+    <!-- FOOTER: Fixed at the bottom -->
+    <footer class="footer-bar">
+        <span id="footer-version-info">GUI 1.0.13 | UCP 3.0.7 | Developer</span>
+    </footer>
     
     <!-- Credits Modal -->
     <div id="creditsModal" class="modal-overlay hidden">
