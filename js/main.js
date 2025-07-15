@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         faqData: {},
         aiData: {},
         store: {
+            raw: null, 
             items: [],
             allTags: [],
             selectedTags: [],
@@ -123,6 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                         appState.store.allTags = Array.from(tagSet).sort();
+
+                        if (!Array.isArray(appState.store.selectedTags) ||
+                            appState.store.selectedTags.length === 0) {
+                            appState.store.selectedTags = [];   // show all on first render
+                        }
                     } catch (e) {
                         console.error("Store fetch failed", e);
                         tabContentArea.innerHTML = createParchmentBox(
@@ -150,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const query = appState.store.searchQuery.toLowerCase();
 
                 const filtered = appState.store.items.filter(ext => {
-                    const nameMatch = ext.definition["display-name"]
+                    const nameMatch = (ext.definition["display-name"] || ext.definition.name)
                         .toLowerCase()
                         .includes(query);
 
