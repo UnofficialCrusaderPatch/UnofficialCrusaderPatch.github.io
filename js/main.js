@@ -269,8 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            // FIX: Don't re-translate the footer if it already has version info
-            if (el.id === 'footer-version-info' && !T(key)) return;
+            // FIX: Don't re-translate the footer if it has already been set
+            if (el.id === 'footer-version-info' && el.dataset.i18n === 'loaded') return;
             if (T(key) !== `[${key}]`) el.textContent = T(key);
         });
 
@@ -344,14 +344,14 @@ document.addEventListener('DOMContentLoaded', () => {
         Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
             appState.versions = { gui: guiVer, ucp: ucpVer };
             const footerInfo = document.getElementById("footer-version-info");
-            // FIX: Remove the i18n attribute to prevent it from being overwritten
-            footerInfo.removeAttribute('data-i18n');
+            // FIX: Use a data attribute to signal that the versions are loaded
+            footerInfo.dataset.i18n = 'loaded'; 
             footerInfo.textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
             preloadStoreData();
         }).catch(err => {
             console.error("Failed to fetch versions:", err);
             const footerInfo = document.getElementById("footer-version-info");
-            footerInfo.removeAttribute('data-i18n');
+            footerInfo.dataset.i18n = 'loaded';
             footerInfo.textContent = "Version info unavailable";
         });
 
