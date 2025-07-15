@@ -90,29 +90,8 @@ function fetchCredits() {
     return fetchRawText(url);
 }
 
-/* ------------------------------------------------------------------
-   Make sure window.YAML is available before we call YAML.parse()
-   ------------------------------------------------------------------ */
-function ensureYamlReady(timeoutMs = 3000) {
-    if (typeof YAML !== "undefined") return Promise.resolve();
-
-    return new Promise((resolve, reject) => {
-        const started = Date.now();
-
-        const id = setInterval(() => {
-            if (typeof YAML !== "undefined") {
-                clearInterval(id);
-                resolve();
-            } else if (Date.now() - started > timeoutMs) {
-                clearInterval(id);
-                reject(new Error("YAML still not loaded"));
-            }
-        }, 50);
-    });
-}
-
 /* -------------------------------------------------------------
-   STORE (YAML) HELPERS
+    STORE (YAML) HELPERS
 ------------------------------------------------------------- */
 function fetchStoreYaml(version) {
     // Primary: raw file from the tag
@@ -129,7 +108,8 @@ function fetchStoreYaml(version) {
         .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
         .then(text => {
             if (!text) throw new Error("empty YAML");
-            return ensureYamlReady().then(() => YAML.parse(text));
+            if (typeof YAML === 'undefined') throw new Error("YAML parser not loaded");
+            return YAML.parse(text);
         });
 }
 

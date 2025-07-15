@@ -15,12 +15,10 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Marked.js for Markdown parsing -->
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-    
-    <!-- robust YAML tag extraction (optional but safer) -->
     <script src="https://cdn.jsdelivr.net/npm/yaml@2.4.5/dist/yaml.min.js" defer></script>
-
+    
     <!-- Main JavaScript files -->
     <script src="js/api.js" defer></script>
     <script src="js/ui.js" defer></script>
@@ -37,7 +35,6 @@
             </div>
             <button id="downloadBtn" class="ucp-button-download">Download Now</button>
             <div class="header-right">
-                <!-- NEW WRAPPER for language menu -->
                 <div class="language-select-wrapper">
                     <i class="fas fa-globe"></i>
                     <select id="languageSelector" class="ucp-select">
@@ -64,7 +61,7 @@
 
     <!-- FOOTER: Fixed at the bottom -->
     <footer class="footer-bar">
-        <span id="footer-version-info">loading versions…</span>
+        <span id="footer-version-info">loading versions…</span>
     </footer>
     
     <!-- Credits Modal -->
