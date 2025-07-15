@@ -17,7 +17,7 @@ const REPOS = {
 const PATHS = {
     NEWS   : "NEWS.md",                  // single markdown file
     STORE  : "",                         // root directory
-    CREDITS: "main/src/assets/credits.md" // credits markdown
+    CREDITS: "main/src/components/credits/credits.md"
 };
 
 /* -------------------------------------------------------------
