@@ -153,3 +153,29 @@ function renderLoading(container, T) {
     const html = `<div class="text-center p-8">${T('loading')}</div>`;
     container.innerHTML = createParchmentBox(html);
 }
+
+/**
+ * Post‑processes freshly injected HTML:
+ *  – Any <iframe> whose src contains "youtube.com"
+ *    gets lazy‑loading + a restrictive sandbox so
+ *    the heavy YouTube JS bundle is deferred until needed.
+ */
+function fixEmbeddedIframes(container) {
+    container.querySelectorAll('iframe[src*="youtube.com"]').forEach(iframe => {
+        // don’t reload if we’ve already patched this one
+        if (iframe.dataset.ucpFixed) return;
+        iframe.dataset.ucpFixed = "1";
+
+        iframe.loading = "lazy";
+        iframe.referrerPolicy = "no-referrer-when-downgrade";
+
+        /* restrict what the sandbox allows:
+           – same‑origin + scripts are needed for YT
+           – presentation lets it go fullscreen
+        */
+        iframe.sandbox =
+            "allow-same-origin allow-scripts allow-presentation";
+    });
+}
+
+window.fixEmbeddedIframes = fixEmbeddedIframes;

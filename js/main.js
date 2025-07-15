@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         switch (tabId) {
             case 'overview':
                 tabContentArea.innerHTML = renderOverview(T);
+                fixEmbeddedIframes(tabContentArea);
                 break;
             case "news":
                 const markdown = await fetchNewsMarkdown();
@@ -263,8 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 appState.faqData[appState.currentLang] = faqData; // Cache it
                 tabContentArea.innerHTML = renderFaq(faqData, T);
                 break;
-            default:
+            default:                
                 tabContentArea.innerHTML = renderOverview(T);
+                fixEmbeddedIframes(tabContentArea);
         }
     }
 
