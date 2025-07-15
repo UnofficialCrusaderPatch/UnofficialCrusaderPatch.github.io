@@ -98,6 +98,10 @@ function fetchNewsMarkdown() {
     return fetchRawText(url);
 }
 
+function fetchFileContentByUrl(downloadUrl) {
+    return fetchRawText(downloadUrl);
+}
+
 function fetchCredits() {
     const url = GITHUB_RAW_BASE + REPOS.CREDITS + "/" + PATHS.CREDITS;
     return fetchRawText(url);
@@ -139,5 +143,6 @@ Object.assign(window, {
     fetchNewsMarkdown,
     fetchCredits,
     // yaml util
-    parseTagsFromYaml
+    parseTagsFromYaml,
+    fetchFileContentByUrl
 });
