@@ -2,7 +2,7 @@
 .top-bar::after {
     content: '';
     position: absolute;
-    bottom: 10;
+    bottom: 10px; /* Corrected: Added 'px' unit */
     left: 0;
     right: 0;
     height: 8px;
@@ -13,7 +13,8 @@
     border-top: none;
     border-left: none;
     border-right: none;
-    z-index: 15; /* This ensures the border is ON TOP of the tabs */
+    /* FIX: Lower z-index so it's behind the tabs */
+    z-index: 5; 
 }
 
 /* --- TAB BAR & TABS --- */
@@ -21,7 +22,8 @@
     display: flex;
     padding: 0 2rem;
     position: relative;
-    z-index: 10; /* Behind the separator */
+    /* FIX: Higher z-index to ensure tabs are on top */
+    z-index: 10; 
     align-items: flex-end; /* Align to bottom */
 }
 
@@ -48,6 +50,11 @@
     transition: all 0.1s ease-in-out;
 }
 
+.ucp-tab > span {
+    /* FIX: Make sure the text inside the button doesn't steal clicks */
+    pointer-events: none;
+}
+
 .ucp-tab.active, .ucp-tab:hover {
     border-image-source: url('../assets/ucp3/ornament_border_button_hover.png');
 }
@@ -55,5 +62,5 @@
 .ucp-tab.active {
     height: 60px;
     margin-top: -10px;
-    color: var(--ucp-button-text); /* CORRECTED: Text color is now consistent */
+    color: var(--ucp-button-text);
 }

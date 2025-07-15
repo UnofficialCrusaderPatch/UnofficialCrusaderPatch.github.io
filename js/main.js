@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             facade.dataset.videoId = videoId;
             
             const img = document.createElement('img');
-            // FIX: Use hqdefault.jpg as it's more commonly available than sddefault.jpg
             img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
             img.alt = 'Video thumbnail';
             img.loading = 'lazy';
@@ -75,9 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Pre-loads only the main recipe.yml file. Details are fetched on demand.
-     */
     function preloadStoreData() {
         if (!appState.versions.ucp) {
             console.warn("UCP version not available, cannot preload store yet.");
@@ -86,16 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         storeDataPromise = (async () => {
             try {
-                // Step 1: Fetch only the main recipe file. This is fast.
                 const storeObj = await fetchStoreYaml(appState.versions.ucp);
                 appState.store.raw = storeObj;
                 appState.store.items = storeObj.extensions.list;
-
-                // Step 2: Collect only the tags that are already in the recipe file.
                 storeObj.extensions.list.forEach(ext => {
                     (ext.definition.tags || []).forEach(t => appState.store.allTags.add(t));
                 });
-
             } catch (e) {
                 console.error("Failed to preload store data:", e);
                 appState.store.raw = 'error';
@@ -209,17 +201,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const descContainer = document.getElementById("store-desc");
                 descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><p>${T('loading')}</p>`;
 
-                // LAZY LOADING: Fetch details only on click
                 try {
-                    // Fetch definition.yml if we haven't already
                     if (!ext.definition.tags_fetched) {
                         const def = await fetchDefinitionYaml(ext);
                         ext.definition.tags = def.tags || [];
                         (def.tags || []).forEach(t => appState.store.allTags.add(t));
-                        ext.definition.tags_fetched = true; // Mark as fetched
+                        ext.definition.tags_fetched = true;
                     }
 
-                    // Fetch description markdown
                     const urls = buildDescriptionUrl(ext, appState.currentLang);
                     let md = "";
                     for (const u of urls) {
@@ -257,7 +246,9 @@ document.addEventListener('DOMContentLoaded', () => {
         appState.translations = data;
         appState.currentLang = lang;
         document.documentElement.lang = lang;
-        langSelector.value = lang;
+        if (langSelector.value !== lang) {
+            langSelector.value = lang;
+        }
         
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
@@ -265,32 +256,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const activeTab = tabNav.querySelector('.active')?.dataset.tab || 'overview';
-        switchTab(activeTab);
+        await switchTab(activeTab);
     }
 
+    // --- INITIALIZATION ---
     async function init() {
-        const languages = await fetchLocalJson('languages.json');
-        if (languages) {
-            appState.availableLangs = languages;
-            Object.entries(languages).forEach(([code, name]) => {
-                const option = document.createElement('option');
-                option.value = code;
-                option.textContent = name;
-                langSelector.appendChild(option);
-            });
-        }
+        // 1. DISABLE INTERACTION to prevent race conditions during setup
+        tabNav.style.pointerEvents = 'none';
+        tabNav.style.opacity = '0.7';
 
-        Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
-            appState.versions = { gui: guiVer, ucp: ucpVer };
-            document.getElementById("footer-version-info").textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
-            preloadStoreData();
-        }).catch(err => {
-            console.error("Failed to fetch versions:", err);
-            document.getElementById("footer-version-info").textContent = "Version info unavailable";
-        });
-
+        // 2. ATTACH ALL EVENT LISTENERS
         tabNav.addEventListener('click', (e) => {
-            if (e.target.matches('button[data-tab]')) switchTab(e.target.dataset.tab);
+            if (e.target.matches('button[data-tab]')) {
+                switchTab(e.target.dataset.tab);
+            }
         });
 
         langSelector.addEventListener('change', (e) => loadLanguage(e.target.value));
@@ -343,7 +322,43 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        loadLanguage(appState.currentLang);
+        // 3. START NON-BLOCKING BACKGROUND TASKS
+        Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
+            appState.versions = { gui: guiVer, ucp: ucpVer };
+            document.getElementById("footer-version-info").textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
+            preloadStoreData();
+        }).catch(err => {
+            console.error("Failed to fetch versions:", err);
+            document.getElementById("footer-version-info").textContent = "Version info unavailable";
+        });
+
+        // 4. PERFORM SEQUENTIAL UI SETUP
+        try {
+            const languages = await fetchLocalJson('languages.json');
+            if (languages) {
+                appState.availableLangs = languages;
+                Object.entries(languages).forEach(([code, name]) => {
+                    const option = document.createElement('option');
+                    option.value = code;
+                    option.textContent = name;
+                    langSelector.appendChild(option);
+                });
+            }
+            
+            // Load the default language and render the first tab.
+            // We `await` this to ensure the app is fully ready.
+            await loadLanguage(appState.currentLang);
+
+        } catch (error) {
+            console.error("Fatal error during initialization:", error);
+            tabContentArea.innerHTML = createParchmentBox(
+                `<p style="color:red">The application could not be started. Please try refreshing the page.</p>`
+            );
+        } finally {
+            // 5. RE-ENABLE INTERACTION
+            tabNav.style.pointerEvents = 'auto';
+            tabNav.style.opacity = '1';
+        }
     }
 
     init();
