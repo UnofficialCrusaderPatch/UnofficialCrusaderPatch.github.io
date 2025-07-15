@@ -59,7 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
             facade.dataset.videoId = videoId;
             
             const img = document.createElement('img');
-            img.src = `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`;
+            // FIX: Use hqdefault.jpg as it's more commonly available than sddefault.jpg
+            img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
             img.alt = 'Video thumbnail';
             img.loading = 'lazy';
             img.onerror = () => { img.src = `https://i.ytimg.com/vi/${videoId}/default.jpg`; };
