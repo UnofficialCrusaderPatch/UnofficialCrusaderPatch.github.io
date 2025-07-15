@@ -10,28 +10,53 @@ function createParchmentBox(innerHTML) {
 }
 
 /**
- * Renders the content for the Overview tab.
+ * Renders the content for the Overview tab using a video facade.
  * @param {function} T - The translation function.
  * @returns {string} - The HTML string for the overview tab.
  */
 function renderOverview(T) {
+    // YouTube video IDs
+    const videoId1 = 'fTn9QA-dGjY'; // UCP 3.0 Release Trailer
+    const videoId2 = 'xKEmaIit8vE'; // UCP 3.0 AI Features
+
     const content = `
         <h2 class="ucp-header-font">${T('overview_title')}</h2>
         <p class="mb-6">${T('overview_intro')}</p>
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                <h3 class="ucp-header-font">${T('overview_quickstart_title')}</h3>
-                <p class="mb-3">${T('overview_quickstart_text')}</p>
-                <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download inline-block px-4 py-2 rounded-md">${T('download_now')}</a>
+
+        <div class="grid md:grid-cols-2 gap-6 items-start">
+
+            <!-- Left Column: Videos -->
+            <div class="space-y-6">
+                <!-- Video Facade 1 -->
+                <div class="video-facade" data-video-id="${videoId1}">
+                    <img src="https://i.ytimg.com/vi/${videoId1}/hqdefault.jpg" loading="lazy" alt="UCP 3.0 Release Trailer Thumbnail">
+                    <div class="play-icon"></div>
+                </div>
+
+                <!-- Video Facade 2 -->
+                <div class="video-facade" data-video-id="${videoId2}">
+                    <img src="https://i.ytimg.com/vi/${videoId2}/hqdefault.jpg" loading="lazy" alt="UCP 3.0 AI Features Thumbnail">
+                    <div class="play-icon"></div>
+                </div>
             </div>
-            <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                <h3 class="ucp-header-font">${T('overview_contribute_title')}</h3>
-                <p>${T('overview_contribute_text')}</p>
+
+            <!-- Right Column: Info Boxes -->
+            <div class="space-y-6">
+                <div class="bg-ucp-dark-parchment p-4 rounded-md">
+                    <h3 class="ucp-header-font">${T('overview_quickstart_title')}</h3>
+                    <p class="mb-3">${T('overview_quickstart_text')}</p>
+                    <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download inline-block px-4 py-2 rounded-md">${T('download_now')}</a>
+                </div>
+                <div class="bg-ucp-dark-parchment p-4 rounded-md">
+                    <h3 class="ucp-header-font">${T('overview_contribute_title')}</h3>
+                    <p>${T('overview_contribute_text')}</p>
+                </div>
             </div>
         </div>
     `;
     return createParchmentBox(content);
 }
+
 
 /**
  * Renders a list of news items.
@@ -45,66 +70,19 @@ function renderNews(newsItems, T) {
         content = `<p>${T('news_error')}</p>`;
     } else {
         content = newsItems.map(item => {
-            const date = item.name.split('_')[0].replace(/-/g, '.');
+            // Use marked to parse markdown content
+            const htmlContent = item.content ? marked.parse(item.content) : '';
             return `
-                <div class="news-item">
-                    <h3 class="ucp-header-font">${date}</h3>
-                    <div class="prose max-w-none">${marked.parse(item.content)}</div>
+                <div class="news-item prose max-w-none">
+                    ${htmlContent}
                 </div>
             `;
-        }).join('');
+        }).join('<hr class="border-ucp-stone-border/20 my-6">');
     }
     const html = `<h2 class="ucp-header-font">${T('news_title')}</h2><div class="space-y-6">${content}</div>`;
     return createParchmentBox(html);
 }
 
-function renderStore(storeItems, T, allTags = [], selectedTags = [], searchQuery = '') {
-    const filterUI = `
-        <div class="flex flex-wrap gap-4 mb-6 items-center">
-            <div class="relative flex-grow">
-                <input type="search" id="store-search" placeholder="${T('store_search_placeholder')}" value="${searchQuery}" class="w-full p-2 rounded-md bg-ucp-dark-parchment border-2 border-ucp-stone-border focus:border-ucp-gold focus:outline-none text-ucp-text placeholder-ucp-text/70">
-                <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-ucp-stone-border"></i>
-            </div>
-            <div class="relative">
-                <button id="tag-filter-btn" class="ucp-button-small h-full px-4">${T('store_filter_tags')} <i class="fas fa-chevron-down ml-2 text-xs"></i></button>
-                <div id="tag-filter-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-ucp-brown p-4 rounded-md shadow-lg z-20">
-                    <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                        ${allTags.map(tag => `
-                            <label class="flex items-center gap-2 text-ucp-parchment cursor-pointer hover:text-ucp-gold">
-                                <input type="checkbox" class="tag-checkbox" value="${tag}" ${selectedTags.includes(tag) ? 'checked' : ''}>
-                                ${tag}
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-    let content;
-    if (!storeItems) {
-        content = `<p>${T('store_error')}</p>`;
-    } else if (storeItems.length === 0) {
-        content = `<p>${T('store_no_results')}</p>`;
-    } else {
-        content = `<div class="store-grid">${storeItems
-            .map(item => `
-                <div class="store-item">
-                    <h3 class="ucp-header-font text-xl">${item.name}</h3>
-                    ${item.definition && item.definition.tags ? `<div class="flex flex-wrap gap-2 mt-2">${item.definition.tags.map(tag => `<span class="text-xs bg-ucp-stone-border text-white px-2 py-1 rounded-full">${tag}</span>`).join('')}</div>` : ''}
-                    <a href="${item.html_url}" target="_blank" class="text-sm hover:underline mt-4 inline-block">${T('view_on_github')} &rarr;</a>
-                </div>
-            `).join('')}</div>`;
-    }
-
-    const html = `
-        <h2 class="ucp-header-font">${T('store_title')}</h2>
-        <p class="mb-6">${T('store_intro')}</p>
-        ${filterUI}
-        ${content}
-    `;
-    return createParchmentBox(html);
-}
 
 function renderAiFormat(aiData, T) {
     let content;
@@ -141,7 +119,7 @@ function renderFaq(faqData, T) {
         content = faqData.map(item => `
             <div class="faq-item">
                 <h3 class="font-bold text-lg">${item.question}</h3>
-                <div class="mt-1">${item.answer}</div>
+                <div class="mt-1 prose max-w-none">${item.answer}</div>
             </div>
         `).join('');
     }
@@ -153,29 +131,3 @@ function renderLoading(container, T) {
     const html = `<div class="text-center p-8">${T('loading')}</div>`;
     container.innerHTML = createParchmentBox(html);
 }
-
-/**
- * Post‑processes freshly injected HTML:
- *  – Any <iframe> whose src contains "youtube.com"
- *    gets lazy‑loading + a restrictive sandbox so
- *    the heavy YouTube JS bundle is deferred until needed.
- */
-function fixEmbeddedIframes(container) {
-    container.querySelectorAll('iframe[src*="youtube.com"]').forEach(iframe => {
-        // don’t reload if we’ve already patched this one
-        if (iframe.dataset.ucpFixed) return;
-        iframe.dataset.ucpFixed = "1";
-
-        iframe.loading = "lazy";
-        iframe.referrerPolicy = "no-referrer-when-downgrade";
-
-        /* restrict what the sandbox allows:
-           – same‑origin + scripts are needed for YT
-           – presentation lets it go fullscreen
-        */
-        iframe.sandbox =
-            "allow-same-origin allow-scripts allow-presentation";
-    });
-}
-
-window.fixEmbeddedIframes = fixEmbeddedIframes;

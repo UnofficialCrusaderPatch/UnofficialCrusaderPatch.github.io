@@ -29,40 +29,6 @@
     color: var(--ucp-text);
 }
 
-/* --- VIDEO FACADE STYLES --- */
-.video-facade {
-    position: relative;
-    cursor: pointer;
-    background-color: #000;
-    border-radius: 4px;
-    overflow: hidden;
-}
-.video-facade img {
-    width: 100%;
-    height: auto;
-    display: block;
-    opacity: 0.7;
-    transition: opacity 0.2s ease-in-out;
-}
-.video-facade:hover img {
-    opacity: 1;
-}
-.video-facade .play-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-shadow: 0 0 15px black;
-    pointer-events: none; /* Make sure the click goes to the div */
-    transition: transform 0.2s ease-in-out;
-}
-.video-facade:hover .play-icon {
-    transform: translate(-50%, -50%) scale(1.1);
-}
-
-
 /* --- CUSTOM SCROLLBAR (from scrollbar.css) --- */
 .main-content::-webkit-scrollbar {
     width: 12px;
@@ -93,3 +59,66 @@
 .modal-close-btn { background: none; border: none; font-size: 2rem; line-height: 1; cursor: pointer; color: var(--ucp-brown); }
 .modal-body { overflow-y: auto; }
 .hidden { display: none; }
+
+/* --- content split layout (store tab only) ------------------- */
+.ucp-store-split { display:flex; gap:20px; height:100%; }
+.ucp-store-list  { overflow-y:auto; max-height:70vh; flex-basis: 300px; flex-shrink: 0; }
+.ucp-store-row   { padding:4px 6px; cursor:pointer; border-radius: 4px; }
+.ucp-store-row:hover { background:rgba(0,0,0,.1); }
+.ucp-store-desc { overflow-y:auto; flex:1; max-height:70vh; }
+.ucp-store-search{ width:100%; margin-bottom:8px; }
+.ucp-store-row.sel { background: rgba(255,255,0,.25); }
+.ucp-tag-menu {
+    position: absolute;
+    background: var(--ucp-brown);
+    color: var(--ucp-parchment);
+    border: 1px solid var(--ucp-gold);
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 10;
+    margin-top: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+.ucp-tag-menu label { display: block; }
+
+
+/* --- VIDEO FACADE STYLES --- */
+.video-facade {
+    position: relative;
+    cursor: pointer;
+    background-color: #000;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block; /* Make it a block element */
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Maintain aspect ratio */
+}
+.video-facade img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure image covers the area */
+    display: block;
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+.video-facade:hover img {
+    opacity: 1;
+}
+.video-facade .play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55C3.97,2.33,2.26,4.81,1.48,7.74,0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="%23f00"></path><path d="M 45,24 27,14 27,34" fill="%23fff"></path></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: none; /* Make sure the click goes to the div */
+    transition: transform 0.2s ease-in-out;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+}
+.video-facade:hover .play-icon {
+    transform: translate(-50%, -50%) scale(1.1);
+}
