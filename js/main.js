@@ -245,6 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         switchTab("store");      // rerender
                     };
                 });
+
+                document.addEventListener("click", e => {
+                    const m = document.getElementById("tag-menu");
+                    const b = document.getElementById("tag-btn");
+                    if (m && !m.contains(e.target) && !b.contains(e.target)) m.classList.add("hidden");
+                });
                 break;
             }
             case 'ai-format':
