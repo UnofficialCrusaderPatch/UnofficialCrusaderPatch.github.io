@@ -19,6 +19,7 @@
     --ucp-button-text: #e0d6c6;
     --ucp-link-color: #8a5a2a;
     --ucp-main-grey: #a0a0a0;
+    --ucp-text-muted: #5c4d3d;
 }
 
 /* --- CORE LAYOUT --- */
@@ -60,7 +61,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: linear-gradient(to bottom, #4a3c2a, #2c2217);
+    /* FIX: Use a transparent gradient over the body background, fading from black */
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 70%);
 }
 
 .footer-bar {
@@ -71,4 +73,11 @@ body {
     font-size: 0.8rem;
     border-top: 2px solid #333;
     flex-shrink: 0;
+}
+
+/* --- GLOBAL FONT STYLES --- */
+.ucp-header-font {
+    font-family: 'RiverAvenue', cursive;
+    /* FIX: Set header font color to the standard beige button text color */
+    color: var(--ucp-button-text);
 }
