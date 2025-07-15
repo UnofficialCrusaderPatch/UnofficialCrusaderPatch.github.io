@@ -33,7 +33,6 @@ function renderOverview(T) {
     return createParchmentBox(content);
 }
 
-
 /**
  * Renders a list of news items.
  * @param {Array<object>} newsItems - Array of news items with {name, content}.
@@ -46,13 +45,8 @@ function renderNews(newsItems, T) {
         content = `<p>${T('news_error')}</p>`;
     } else {
         content = newsItems.map(item => {
-            // Use marked to parse markdown content
             const htmlContent = item.content ? marked.parse(item.content) : '';
-            return `
-                <div class="news-item prose max-w-none">
-                    ${htmlContent}
-                </div>
-            `;
+            return `<div class="news-item prose max-w-none">${htmlContent}</div>`;
         }).join('<hr class="border-ucp-stone-border/20 my-6">');
     }
     const html = `<h2 class="ucp-header-font">${T('news_title')}</h2><div class="space-y-6">${content}</div>`;
@@ -88,40 +82,20 @@ function renderAiFormat(aiData, T) {
 }
 
 function renderFaq(faqData, T) {
-    // YouTube video IDs
-    const videoId1 = 'fTn9QA-dGjY'; // UCP 3.0 Release Trailer
-    const videoId2 = 'xKEmaIit8vE'; // UCP 3.0 AI Features
-
-    let questionsContent;
+    let content;
     if (!faqData) {
-        questionsContent = `<p>${T('faq_error')}</p>`;
+        content = `<p>${T('faq_error')}</p>`;
     } else {
-        questionsContent = faqData.map(item => `
+        // The answer field can contain HTML, including iframes.
+        // The replacement to a facade will happen in main.js after this is rendered.
+        content = faqData.map(item => `
             <div class="faq-item">
                 <h3 class="font-bold text-lg">${item.question}</h3>
                 <div class="mt-1 prose max-w-none">${item.answer}</div>
             </div>
         `).join('');
     }
-
-    const videosContent = `
-        <h3 class="ucp-header-font mt-8">Tutorial Videos</h3>
-        <div class="grid md:grid-cols-2 gap-6 items-start mt-4">
-            <!-- Video Facade 1 -->
-            <div class="video-facade" data-video-id="${videoId1}">
-                <img src="https://i.ytimg.com/vi/${videoId1}/sddefault.jpg" loading="lazy" alt="UCP 3.0 Release Trailer Thumbnail" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${videoId1}/default.jpg';">
-                <div class="play-icon"></div>
-            </div>
-
-            <!-- Video Facade 2 -->
-            <div class="video-facade" data-video-id="${videoId2}">
-                <img src="https://i.ytimg.com/vi/${videoId2}/sddefault.jpg" loading="lazy" alt="UCP 3.0 AI Features Thumbnail" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${videoId2}/default.jpg';">
-                <div class="play-icon"></div>
-            </div>
-        </div>
-    `;
-
-    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${questionsContent}</div>${videosContent}`;
+    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${content}</div>`;
     return createParchmentBox(html);
 }
 

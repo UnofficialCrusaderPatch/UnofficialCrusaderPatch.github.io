@@ -1,6 +1,7 @@
 // This is the main entry point for the website's JavaScript.
 // It orchestrates the UI, API calls, and event handling.
 
+// Wait for the entire document to be ready
 document.addEventListener('DOMContentLoaded', () => {
     // --- STATE & CONSTANTS ---
     const appState = {
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Promise to hold the asynchronous loading of the store data
     let storeDataPromise = null;
 
     // --- DOM ELEMENTS ---
@@ -32,35 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const creditsContent = document.getElementById('creditsContent');
     const downloadBtn = document.getElementById("downloadBtn");
 
-    /**
-     * Fetches the installer URL from the latest GitHub release.
-     */
-    async function fetchInstallerUrl() {
-        try {
-            const data = await fetchWithCache(
-                "guiLatest",
-                "https://api.github.com/repos/UnofficialCrusaderPatch/UCP3-GUI/releases/latest"
-            );
-            const asset = data?.assets?.find(a => /setup\.exe$/i.test(a.name));
-            return asset ? asset.browser_download_url : data?.html_url;
-        } catch (error) {
-            console.error("Could not fetch installer link:", error);
-            return "https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases"; // Fallback link
-        }
-    }
-
-    /**
-     * Translates a key using the loaded language file.
-     * @param {string} key - The key from the translation file.
-     * @returns {string} - The translated string.
-     */
     const T = (key) => appState.translations[key] || `[${key}]`;
 
-    /**
-     * Fetches a local JSON file (e.g., for translations, FAQ).
-     * @param {string} url - The URL of the JSON file.
-     * @returns {Promise<object|null>}
-     */
     async function fetchLocalJson(url) {
         try {
             const response = await fetch(url);
@@ -74,154 +47,137 @@ document.addEventListener('DOMContentLoaded', () => {
             return null;
         }
     }
-
+    
     /**
-     * Pre-loads the heavy store data in the background.
+     * Finds iframes in a container and replaces them with clickable facades.
+     * @param {HTMLElement} container The element to search within.
      */
+    function createVideoFacades(container) {
+        const iframes = container.querySelectorAll('iframe[src*="youtube.com"]');
+        iframes.forEach(iframe => {
+            const videoIdMatch = iframe.src.match(/embed\/([^?]+)/);
+            if (!videoIdMatch) return;
+            const videoId = videoIdMatch[1];
+            
+            const facade = document.createElement('div');
+            facade.className = 'video-facade';
+            facade.dataset.videoId = videoId;
+            
+            const img = document.createElement('img');
+            img.src = `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`;
+            img.alt = 'Video thumbnail';
+            img.loading = 'lazy';
+            img.onerror = () => { img.src = `https://i.ytimg.com/vi/${videoId}/default.jpg`; };
+            
+            const playIcon = document.createElement('div');
+            playIcon.className = 'play-icon';
+            
+            facade.appendChild(img);
+            facade.appendChild(playIcon);
+            
+            iframe.replaceWith(facade);
+        });
+    }
+
     function preloadStoreData() {
         if (!appState.versions.ucp) {
-            console.error("UCP version not available, cannot preload store.");
+            console.warn("UCP version not available, cannot preload store yet.");
             return;
         }
         
-        // This promise will be awaited only when the user clicks the 'store' tab.
         storeDataPromise = (async () => {
             try {
                 const storeObj = await fetchStoreYaml(appState.versions.ucp);
                 appState.store.raw = storeObj;
                 appState.store.items = storeObj.extensions.list;
 
-                // Collect all tags from the main recipe file
-                for (const ext of storeObj.extensions.list) {
+                const tagPromises = storeObj.extensions.list.map(ext => {
                     (ext.definition.tags || []).forEach(t => appState.store.allTags.add(t));
-                }
-                
-                // Asynchronously fetch missing tags from individual definition.yml files
-                const definitionPromises = storeObj.extensions.list.map(ext => {
                     if (!Array.isArray(ext.definition.tags)) {
                         return fetchDefinitionYaml(ext).then(def => {
                             ext.definition.tags = def.tags || [];
                             (def.tags || []).forEach(t => appState.store.allTags.add(t));
-                        }).catch(() => { /* Ignore failures, just means no extra tags */ });
+                        }).catch(() => {});
                     }
                     return Promise.resolve();
                 });
-                
-                // We don't need to wait for all definitions to load before the store is usable.
-                // This can happen in the background.
-                Promise.all(definitionPromises).then(() => {
-                    console.log("All store definitions loaded and tags updated.");
-                });
-
+                await Promise.all(tagPromises);
             } catch (e) {
                 console.error("Failed to preload store data:", e);
-                appState.store.raw = 'error'; // Mark as failed
-                throw e; // Propagate error to the handler in switchTab
+                appState.store.raw = 'error';
+                throw e;
             }
         })();
     }
 
-    /**
-     * Handles switching between tabs asynchronously.
-     * @param {string} tabId - The ID of the tab to switch to.
-     */
     async function switchTab(tabId) {
         tabNav.querySelectorAll('button').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
-
         renderLoading(tabContentArea, T);
-
-        // Helper to check if the user is still on the same tab before rendering
         const isTabStillActive = () => tabNav.querySelector('.active')?.dataset.tab === tabId;
 
-        switch (tabId) {
-            case 'overview':
-                tabContentArea.innerHTML = renderOverview(T);
-                break;
-
-            case "news":
-                fetchNewsMarkdown().then(markdown => {
-                    if (!isTabStillActive()) return;
-                    const newsItems = markdown ? [{ name: PATHS.NEWS, content: markdown }] : null;
-                    tabContentArea.innerHTML = renderNews(newsItems, T);
-                }).catch(err => {
-                    console.error("Failed to load news:", err);
-                    if (isTabStillActive()) tabContentArea.innerHTML = createParchmentBox(`<p>${T('news_error')}</p>`);
-                });
-                break;
-
-            case "store":
-                try {
-                    // Wait for the preloading to finish if it hasn't already.
-                    if (appState.store.raw !== 'error') {
-                       await storeDataPromise;
-                    }
-                    if (appState.store.raw === 'error' || !appState.store.raw) {
-                       throw new Error("Store data is not available.");
-                    }
-                    
-                    renderStoreTab();
-
-                } catch (e) {
-                    console.error("Store failed to load:", e);
+        try {
+            switch (tabId) {
+                case 'overview':
+                    tabContentArea.innerHTML = renderOverview(T);
+                    break;
+                case "news":
+                    const markdown = await fetchNewsMarkdown();
                     if (isTabStillActive()) {
-                        tabContentArea.innerHTML = createParchmentBox(
-                            `<p style="color:red">Could not load content store.</p><p>Please try again later or check the browser console for errors.</p>`
-                        );
+                        const newsItems = markdown ? [{ name: PATHS.NEWS, content: markdown }] : null;
+                        tabContentArea.innerHTML = renderNews(newsItems, T);
                     }
-                }
-                break;
-            
-            case 'ai-format':
-            case 'faq':
-                const dataType = tabId === 'faq' ? 'faq' : 'ai';
-                const cacheKey = tabId === 'faq' ? 'faqData' : 'aiData';
-                const renderFunc = tabId === 'faq' ? renderFaq : renderAiFormat;
-                const errorKey = tabId === 'faq' ? 'faq_error' : 'ai_format_error';
+                    break;
+                case "store":
+                    await storeDataPromise;
+                    if (isTabStillActive()) renderStoreTab();
+                    break;
+                case 'ai-format':
+                case 'faq':
+                    const dataType = tabId === 'faq' ? 'faq' : 'ai';
+                    const cacheKey = tabId === 'faq' ? 'faqData' : 'aiData';
+                    const renderFunc = tabId === 'faq' ? renderFaq : renderAiFormat;
 
-                // Non-blocking data fetching
-                (async () => {
                     let data = appState[cacheKey][appState.currentLang];
                     if (!data) {
-                        data = await fetchLocalJson(`lang/${dataType}-${appState.currentLang}.json`);
-                        if (!data) { // Fallback to English
-                            data = await fetchLocalJson(`lang/${dataType}-en.json`);
-                        }
-                        appState[cacheKey][appState.currentLang] = data; // Cache it
+                        data = await fetchLocalJson(`lang/${dataType}-${appState.currentLang}.json`) || 
+                               await fetchLocalJson(`lang/${dataType}-en.json`);
+                        appState[cacheKey][appState.currentLang] = data;
                     }
-                    return data;
-                })().then(data => {
+
                     if (isTabStillActive()) {
                         tabContentArea.innerHTML = renderFunc(data, T);
+                        if (tabId === 'faq') {
+                            createVideoFacades(tabContentArea);
+                        }
                     }
-                }).catch(err => {
-                    console.error(`Failed to load ${tabId}:`, err);
-                    if (isTabStillActive()) {
-                        tabContentArea.innerHTML = createParchmentBox(`<p>${T(errorKey)}</p>`);
-                    }
-                });
-                break;
-
-            default:
-                tabContentArea.innerHTML = renderOverview(T);
+                    break;
+                default:
+                    tabContentArea.innerHTML = renderOverview(T);
+            }
+        } catch (error) {
+            console.error(`Failed to load tab "${tabId}":`, error);
+            if (isTabStillActive()) {
+                tabContentArea.innerHTML = createParchmentBox(
+                    `<p style="color:red">Could not load content for this tab.</p>
+                     <p>Please try again later or check the browser console for errors.</p>`
+                );
+            }
         }
     }
 
-    /**
-     * Renders the store tab content and wires up its events.
-     */
     function renderStoreTab() {
-        const query = appState.store.searchQuery.toLowerCase();
-        const selectedTags = appState.store.selectedTags;
+        const { searchQuery, selectedTags, items, allTags } = appState.store;
+        const query = searchQuery.toLowerCase();
         
-        const filteredItems = appState.store.items.filter(ext => {
+        const filteredItems = items.filter(ext => {
             const nameMatch = (ext.definition["display-name"] || ext.definition.name || '').toLowerCase().includes(query);
             const tagsOK = selectedTags.length === 0 || (ext.definition.tags || []).some(t => selectedTags.includes(t));
             return nameMatch && tagsOK;
         });
 
-        const sortedTags = Array.from(appState.store.allTags).sort();
+        const sortedTags = Array.from(allTags).sort();
         const tagDropdown = sortedTags.map(tag =>
             `<label><input type="checkbox" class="ucp-tag-cb" value="${tag}" ${selectedTags.includes(tag) ? "checked" : ""}> ${tag}</label>`
         ).join("<br>");
@@ -231,33 +187,31 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
         </div>`;
 
-        const rows = filteredItems.map((ext, i) =>
-            `<div class="ucp-store-row" data-idx="${filteredItems.indexOf(ext)}">${ext.definition["display-name"]}</div>`
+        const rows = filteredItems.map(ext =>
+            `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"]}</div>`
         ).join("");
 
-        const listPane = `
-            <div class="ucp-store-list">
-                <div style="display:flex; align-items:center; gap:6px">
-                    <input type="search" id="store-search" placeholder="Search…" value="${appState.store.searchQuery}" class="ucp-store-search">
-                    ${tagButton}
-                </div>
-                <div class="ucp-store-list-items" style="margin-top: 8px;">${rows}</div>
-            </div>`;
+        const listPane = `<div class="ucp-store-list">
+            <div style="display:flex; align-items:center; gap:6px">
+                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-store-search">
+                ${tagButton}
+            </div>
+            <div class="ucp-store-list-items" style="margin-top: 8px;">${rows}</div>
+        </div>`;
 
         const rightPane = `<div id="store-desc" class="ucp-store-desc"><p>Select an item…</p></div>`;
         tabContentArea.innerHTML = createParchmentBox(`<div class="ucp-store-split">${listPane}${rightPane}</div>`);
 
-        // --- WIRE EVENTS ---
         document.getElementById("store-search").addEventListener("input", e => {
             appState.store.searchQuery = e.target.value;
-            renderStoreTab(); // Re-render
+            renderStoreTab();
         });
         
         document.querySelectorAll(".ucp-store-row").forEach(row => {
             row.addEventListener("click", async () => {
                 document.querySelectorAll(".ucp-store-row").forEach(r => r.classList.remove("sel"));
                 row.classList.add("sel");
-                const ext = filteredItems[Number(row.dataset.idx)];
+                const ext = items.find(item => item.definition.name === row.dataset.id);
                 const descContainer = document.getElementById("store-desc");
                 descContainer.innerHTML = `<p>${T('loading')}</p>`;
 
@@ -278,23 +232,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll(".ucp-tag-cb").forEach(cb => {
             cb.onchange = e => {
                 const val = e.target.value;
-                if (e.target.checked) {
-                    appState.store.selectedTags.push(val);
-                } else {
-                    appState.store.selectedTags = appState.store.selectedTags.filter(t => t !== val);
-                }
-                renderStoreTab(); // Re-render
+                if (e.target.checked) appState.store.selectedTags.push(val);
+                else appState.store.selectedTags = selectedTags.filter(t => t !== val);
+                renderStoreTab();
             };
         });
     }
 
-    /**
-     * Loads a new language, fetches translations, and re-renders the current tab.
-     * @param {string} lang - The language code (e.g., 'en', 'de').
-     */
     async function loadLanguage(lang) {
         let data = await fetchLocalJson(`lang/${lang}.json`);
-        if (!data) { // Fallback to English
+        if (!data) {
             console.warn(`Translation for '${lang}' not found. Falling back to 'en'.`);
             lang = 'en';
             data = await fetchLocalJson(`lang/en.json`);
@@ -304,23 +251,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.lang = lang;
         langSelector.value = lang;
         
-        // Re-translate all static text on the page
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (T(key) !== `[${key}]`) {
-                el.textContent = T(key);
-            }
+            if (T(key) !== `[${key}]`) el.textContent = T(key);
         });
 
         const activeTab = tabNav.querySelector('.active')?.dataset.tab || 'overview';
         switchTab(activeTab);
     }
 
-    /**
-     * Initializes the application.
-     */
     async function init() {
-        // Fetch languages and populate dropdown
         const languages = await fetchLocalJson('languages.json');
         if (languages) {
             appState.availableLangs = languages;
@@ -332,17 +272,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Fetch versions and start preloading store data in the background
         Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
             appState.versions = { gui: guiVer, ucp: ucpVer };
             document.getElementById("footer-version-info").textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
-            preloadStoreData(); // Kick off the heavy lifting
+            preloadStoreData();
         }).catch(err => {
             console.error("Failed to fetch versions:", err);
             document.getElementById("footer-version-info").textContent = "Version info unavailable";
         });
 
-        // --- EVENT LISTENERS (attached immediately) ---
         tabNav.addEventListener('click', (e) => {
             if (e.target.matches('button[data-tab]')) switchTab(e.target.dataset.tab);
         });
@@ -368,7 +306,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (url) window.open(url, "_blank");
         });
 
-        // Event delegation for video facades and closing the tag menu
         document.addEventListener('click', (e) => {
             const facade = e.target.closest('.video-facade');
             if (facade) {
@@ -378,20 +315,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
                 iframe.setAttribute('allowfullscreen', '');
-                // Use aspect-ratio on the container for sizing
                 iframe.className = 'w-full h-full absolute top-0 left-0';
                 
-                // Create a container to maintain aspect ratio
                 const videoContainer = document.createElement('div');
                 videoContainer.className = 'relative w-full';
-                videoContainer.style.paddingTop = '56.25%'; // 16:9 aspect ratio
+                videoContainer.style.paddingTop = '56.25%';
                 videoContainer.appendChild(iframe);
 
                 facade.replaceWith(videoContainer);
-                return; // Stop further processing
+                return;
             }
             
-            // Close tag menu if clicking outside
             const tagMenu = document.getElementById("tag-menu");
             const tagBtn = document.getElementById("tag-btn");
             if (tagMenu && !tagMenu.classList.contains('hidden')) {
@@ -401,8 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Initial load
-        await loadLanguage(appState.currentLang);
+        loadLanguage(appState.currentLang);
     }
 
     init();

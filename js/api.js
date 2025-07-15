@@ -21,8 +21,7 @@ const PATHS = {
 };
 
 /* -------------------------------------------------------------
-    VERY SMALL LOCAL CACHE (5‑minute TTL) – keeps us under GitHub's
-    60 unauthenticated requests / hour limit.
+    VERY SMALL LOCAL CACHE (5‑minute TTL)
 ------------------------------------------------------------- */
 const CACHE_SECONDS = 300; // 5 minutes
 
@@ -84,10 +83,6 @@ function fetchNewsMarkdown() {
     return fetchRawText(url);
 }
 
-function fetchFileContentByUrl(downloadUrl) {
-    return fetchRawText(downloadUrl);
-}
-
 function fetchCredits() {
     const url = GITHUB_RAW_BASE + REPOS.CREDITS + "/" + PATHS.CREDITS;
     return fetchRawText(url);
@@ -97,112 +92,41 @@ function fetchCredits() {
      STORE (YAML) HELPERS
 ------------------------------------------------------------- */
 function fetchStoreYaml(version) {
-    // Primary: raw file from the tag
-    const rawUrl =
-        `${GITHUB_RAW_BASE}UnofficialCrusaderPatch/` +
-        `UCP3-extensions-store/${version}/recipe.yml`;
-
-    // Fallback: jsDelivr CDN (always CORS‑enabled)
-    const cdnUrl =
-        `https://cdn.jsdelivr.net/gh/UnofficialCrusaderPatch/` +
-        `UCP3-extensions-store@${version}/recipe.yml`;
+    const rawUrl = `${GITHUB_RAW_BASE}UnofficialCrusaderPatch/UCP3-extensions-store/${version}/recipe.yml`;
+    const cdnUrl = `https://cdn.jsdelivr.net/gh/UnofficialCrusaderPatch/UCP3-extensions-store@${version}/recipe.yml`;
 
     return fetchWithCache(`storeYaml_${version}`, rawUrl, false)
         .catch(() => fetchWithCache(`storeYamlCDN_${version}`, cdnUrl, false))
         .then(text => {
-            if (!text) throw new Error("empty YAML");
-            
-            // *** FIX: Check for any available YAML parser ***
-            if (typeof window.jsyaml !== 'undefined') {
-                return window.jsyaml.load(text); // Use full js-yaml if present
-            } else if (typeof window.parseYAML === 'function') {
-                return window.parseYAML(text); // Use the simple parser if present
-            } else {
-                throw new Error("YAML parser not loaded");
+            if (!text) throw new Error("Empty YAML file received from store.");
+            if (typeof window.jsyaml === 'undefined') {
+                throw new Error("YAML parser (js-yaml) not loaded.");
             }
+            return window.jsyaml.load(text); // Use the official library
         });
 }
 
-
-/* chooses best description block for the language the page is in */
-function pickDescription(descArr, lang) {
-    if (!Array.isArray(descArr) || !descArr.length) return "";
-    const exact = descArr.find(d => d.language === lang);
-    const en    = descArr.find(d => d.language === "en");
-    const deflt = descArr.find(d => d.language === "default");
-    return exact || en || deflt || descArr[0];
-}
-
-
-
-/* -------------------------------------------------------------
-    PER‑EXTENSION  helpers  (tags + description)
-------------------------------------------------------------- */
-
-/* download and cache definition.yml so we get the tags array
-    raw.githubusercontent.com/{owner}/{tag}/{location?}/definition.yml    */
 function fetchDefinitionYaml(ext) {
-    const repo  = ext.contents.source.url;              // owner/repo
-    const ref   = ext.contents.source["github-sha"] ||
-                  ext.contents.source["github-tag"];
-    const loc   = ext.contents.source.location
-                    ? ext.contents.source.location + "/"
-                    : "";
+    const repo  = ext.contents.source.url;
+    const ref   = ext.contents.source["github-sha"] || ext.contents.source["github-tag"];
+    const loc   = ext.contents.source.location ? `${ext.contents.source.location}/` : "";
+    const url = `${GITHUB_RAW_BASE}${repo}/${ref}/${loc}definition.yml`;
 
-    const url =
-        GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc + "definition.yml";
-
-    return fetchWithCache("def_" + repo + "_" + ref + "_" + loc, url, false)
+    return fetchWithCache(`def_${repo}_${ref}_${loc}`, url, false)
         .then(text => {
-            if (typeof window.jsyaml !== 'undefined') {
+            if (typeof window.jsyaml !== 'undefined' && text) {
                 return window.jsyaml.load(text);
-            } else if (typeof window.parseYAML === 'function') {
-                return window.parseYAML(text);
             }
-            return {};
-        }).catch(() => ({})); // Return empty object on failure
+            return {}; // Return empty object on failure or if parser is missing
+        }).catch(() => ({}));
 }
 
 /* build the URL for description‑<lang>.md, fall back to en → default */
 function buildDescriptionUrl(ext, lang) {
     const repo  = ext.contents.source.url;
-    const ref   = ext.contents.source["github-sha"] ||
-                  ext.contents.source["github-tag"];
-    const loc   = ext.contents.source.location
-                    ? ext.contents.source.location + "/"
-                    : "";
+    const ref   = ext.contents.source["github-sha"] || ext.contents.source["github-tag"];
+    const loc   = ext.contents.source.location ? `${ext.contents.source.location}/` : "";
     const tryLangs = [lang, "en", "default"];
 
-    return tryLangs.map(l =>
-        GITHUB_RAW_BASE + repo + "/" + ref + "/" + loc +
-        "locale/description-" + l + ".md"
-    );
+    return tryLangs.map(l => `${GITHUB_RAW_BASE}${repo}/${ref}/${loc}locale/description-${l}.md`);
 }
-
-
-
-/* -------------------------------------------------------------
-    PUBLIC API – expose selected helpers globally so main.js and ui.js
-    can call them without using ES‑module syntax. We attach to window.
-------------------------------------------------------------- */
-Object.assign(window, {
-    // constants (useful elsewhere)
-    REPOS,
-    PATHS,
-    // low level
-    fetchApiJson,
-    fetchRawText,
-    fetchWithCache,
-    // versions
-    fetchGuiVersion,
-    fetchUcpVersion,
-    // news / credits
-    fetchNewsMarkdown,
-    fetchCredits,
-    // yaml utils
-    fetchDefinitionYaml,
-    buildDescriptionUrl,
-    fetchFileContentByUrl,
-    fetchStoreYaml,
-    pickDescription
-});
