@@ -2,7 +2,7 @@
 .top-bar::after {
     content: '';
     position: absolute;
-    bottom: 10px;
+    bottom: 10;
     left: 0;
     right: 0;
     height: 8px;
@@ -51,7 +51,6 @@
 .ucp-tab > span {
     pointer-events: none;
 }
-
 .ucp-tab.active, .ucp-tab:hover {
     border-image-source: url('../assets/ucp3/ornament_border_button_hover.png');
 }
@@ -59,5 +58,5 @@
 .ucp-tab.active {
     height: 60px;
     margin-top: -10px;
-    color: var(--ucp-button-text); /* CORRECTED: Text color is now consistent */
+    color: var(--ucp-button-text);
 }
