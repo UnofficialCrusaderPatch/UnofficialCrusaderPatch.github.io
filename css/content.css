@@ -122,3 +122,49 @@
 .video-facade:hover .play-icon {
     transform: translate(-50%, -50%) scale(1.1);
 }
+
+.store-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1rem;
+}
+
+.store-headers-and-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    flex-shrink: 0; /* Prevent this from shrinking */
+}
+
+.store-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.store-content-split {
+    display: grid;
+    grid-template-columns: minmax(300px, 1fr) 2fr; /* Left col is flexible, right is larger */
+    gap: 1.5rem;
+    flex-grow: 1;
+    min-height: 0; /* Critical for children with overflow-y: auto */
+}
+
+.ucp-store-list-container,
+.ucp-store-desc-container {
+    height: 100%;
+}
+
+.ucp-store-list-items {
+    overflow-y: auto;
+    height: 100%;
+    padding: 1rem;
+}
+
+.ucp-store-desc {
+    overflow-y: auto;
+    height: 100%;
+    padding: 1rem;
+}

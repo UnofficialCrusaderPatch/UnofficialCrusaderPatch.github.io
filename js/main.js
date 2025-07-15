@@ -168,26 +168,43 @@ document.addEventListener('DOMContentLoaded', () => {
             `<label><input type="checkbox" class="ucp-tag-cb" value="${tag}" ${selectedTags.includes(tag) ? "checked" : ""}> ${tag}</label>`
         ).join("<br>");
 
-        const tagButton = `<div style="position: relative; display: inline-block;">
-            <button id="tag-btn" class="ucp-button-small" style="margin-left:8px">Tags ▼</button>
-            <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
-        </div>`;
+        const controlsHTML = `
+            <div class="store-controls">
+                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-store-search" style="width: 200px;">
+                <div style="position: relative; display: inline-block;">
+                    <button id="tag-btn" class="ucp-button-small">Tags ▼</button>
+                    <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
+                </div>
+            </div>
+        `;
 
         const rows = filteredItems.map(ext =>
             `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"]}</div>`
         ).join("");
 
-        const listPane = `<div class="ucp-store-list">
-            <div style="display:flex; align-items:center; gap:6px">
-                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-store-search">
-                ${tagButton}
+        const storeLayoutHTML = `
+            <div class="store-container">
+                <div class="store-headers-and-controls">
+                    <h2 class="ucp-header-font">Online Content</h2>
+                    ${controlsHTML}
+                    <h2 class="ucp-header-font">Description</h2>
+                </div>
+                <div class="store-content-split">
+                    <div class="parchment-box ucp-store-list-container">
+                        <div class="ucp-store-list-items">${rows}</div>
+                    </div>
+                    <div class="parchment-box ucp-store-desc-container">
+                        <div id="store-desc" class="ucp-store-desc">
+                            <p>Select an item from the list on the left.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="ucp-store-list-items" style="margin-top: 8px;">${rows}</div>
-        </div>`;
+        `;
 
-        const rightPane = `<div id="store-desc" class="ucp-store-desc"><p>Select an item…</p></div>`;
-        tabContentArea.innerHTML = createParchmentBox(`<div class="ucp-store-split">${listPane}${rightPane}</div>`);
+        tabContentArea.innerHTML = storeLayoutHTML;
 
+        // --- RE-WIRE EVENTS ---
         document.getElementById("store-search").addEventListener("input", e => {
             appState.store.searchQuery = e.target.value;
             renderStoreTab();
@@ -199,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.classList.add("sel");
                 const ext = items.find(item => item.definition.name === row.dataset.id);
                 const descContainer = document.getElementById("store-desc");
-                descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><p>${T('loading')}</p>`;
+                descContainer.innerHTML = `<p>${T('loading')}</p>`;
 
                 try {
                     if (!ext.definition.tags_fetched) {
@@ -217,9 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if (!md) md = "_No description available._";
                     
-                    descContainer.innerHTML = `<h2 class="ucp-header-font">${ext.definition["display-name"]}</h2><div class="prose">${marked.parse(md)}</div>`;
+                    descContainer.innerHTML = `<div class="prose">${marked.parse(md)}</div>`;
                 } catch (err) {
-                    descContainer.innerHTML += `<p style="color:red">Could not load details for this item.</p>`;
+                    descContainer.innerHTML = `<p style="color:red">Could not load details for this item.</p>`;
                 }
             });
         });
@@ -252,6 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
+            // FIX: Don't re-translate the footer if it already has version info
+            if (el.id === 'footer-version-info' && !T(key)) return;
             if (T(key) !== `[${key}]`) el.textContent = T(key);
         });
 
@@ -259,16 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
         await switchTab(activeTab);
     }
 
-    // --- INITIALIZATION ---
     async function init() {
-        // 1. DISABLE INTERACTION to prevent race conditions during setup
         tabNav.style.pointerEvents = 'none';
         tabNav.style.opacity = '0.7';
 
-        // 2. ATTACH ALL EVENT LISTENERS
+        // ATTACH ALL EVENT LISTENERS
         tabNav.addEventListener('click', (e) => {
-            if (e.target.matches('button[data-tab]')) {
-                switchTab(e.target.dataset.tab);
+            const tabButton = e.target.closest('button[data-tab]');
+            if (tabButton) {
+                switchTab(tabButton.dataset.tab);
             }
         });
 
@@ -322,17 +340,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 3. START NON-BLOCKING BACKGROUND TASKS
+        // START NON-BLOCKING BACKGROUND TASKS
         Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
             appState.versions = { gui: guiVer, ucp: ucpVer };
-            document.getElementById("footer-version-info").textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
+            const footerInfo = document.getElementById("footer-version-info");
+            // FIX: Remove the i18n attribute to prevent it from being overwritten
+            footerInfo.removeAttribute('data-i18n');
+            footerInfo.textContent = `GUI ${guiVer || "-"} | UCP ${ucpVer || "-"}`;
             preloadStoreData();
         }).catch(err => {
             console.error("Failed to fetch versions:", err);
-            document.getElementById("footer-version-info").textContent = "Version info unavailable";
+            const footerInfo = document.getElementById("footer-version-info");
+            footerInfo.removeAttribute('data-i18n');
+            footerInfo.textContent = "Version info unavailable";
         });
 
-        // 4. PERFORM SEQUENTIAL UI SETUP
+        // PERFORM SEQUENTIAL UI SETUP
         try {
             const languages = await fetchLocalJson('languages.json');
             if (languages) {
@@ -345,8 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
-            // Load the default language and render the first tab.
-            // We `await` this to ensure the app is fully ready.
             await loadLanguage(appState.currentLang);
 
         } catch (error) {
@@ -355,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `<p style="color:red">The application could not be started. Please try refreshing the page.</p>`
             );
         } finally {
-            // 5. RE-ENABLE INTERACTION
+            // RE-ENABLE INTERACTION
             tabNav.style.pointerEvents = 'auto';
             tabNav.style.opacity = '1';
         }
