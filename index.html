@@ -17,6 +17,19 @@
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+
+    <script>
+    /* tiny helper written inline so we can use it in the onerror handler */
+    function yamlCdnFailed() {
+        console.warn("[YAML] cdn.jsdelivr.net failed – trying unpkg fallback…");
+        var tag = document.createElement("script");
+        tag.src = "https://unpkg.com/yaml@2.4.5/dist/yaml.min.js";
+        tag.onload  = () => console.log("[YAML] loaded via unpkg");
+        tag.onerror = () => console.error("[YAML] fallback failed – YAML will be undefined");
+        document.head.appendChild(tag);
+    }
+    </script>
+
     <script src="https://cdn.jsdelivr.net/npm/yaml@2.4.5/dist/yaml.min.js" defer></script>
     
     <!-- Main JavaScript files -->
