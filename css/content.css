@@ -16,7 +16,6 @@
 
     background-image: url('../assets/ucp3/parchment_bg.png');
     background-color: var(--ucp-parchment);
-    /* FIX: Padding is removed from the box itself to make the content flush with the border */
     padding: 0; 
     min-height: 100%;
     display: flex;
@@ -90,7 +89,6 @@
     flex-shrink: 0;
 }
 
-/* FIX: Specific rule to make ONLY these headers beige */
 .store-headers-and-controls .ucp-header-font {
     color: var(--ucp-button-text);
 }
@@ -118,14 +116,12 @@
 .ucp-store-list-items {
     overflow-y: auto;
     height: 100%;
-    /* FIX: Padding moved here from the parent box */
     padding: 1rem;
 }
 
 .ucp-store-desc {
     overflow-y: auto;
     height: 100%;
-    /* FIX: Padding moved here from the parent box */
     padding: 1rem;
 }
 
@@ -206,4 +202,10 @@
 }
 .video-facade:hover .play-icon {
     transform: translate(-50%, -50%) scale(1.1);
+}
+
+.parchment-box .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px; /* Optional: for a nicer look */
 }
