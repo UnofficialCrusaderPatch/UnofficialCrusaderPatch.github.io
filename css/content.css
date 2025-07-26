@@ -6,6 +6,7 @@
     scrollbar-gutter: stable;
     max-width: 1080px;
     min-height: 0px;
+    margin: auto;
 }
 
 .parchment-box {
