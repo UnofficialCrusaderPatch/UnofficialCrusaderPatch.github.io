@@ -5,6 +5,7 @@
     padding: 1.5rem;
     scrollbar-gutter: stable;
     max-width: 1080px;
+    min-height: 0px;
 }
 
 .parchment-box {
@@ -120,7 +121,7 @@
 .ucp-store-list-items {
     overflow-y: auto;
     height: 100%;
-    padding: 1rem;
+    padding: 0;
 }
 
 .ucp-store-desc {
