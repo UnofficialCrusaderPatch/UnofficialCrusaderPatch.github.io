@@ -61,7 +61,7 @@
         url("../assets/ucp3/scroll_bar_middle.png"),
         radial-gradient(40% 100% at center bottom, var(--ucp-main-grey) 0%, rgba(0, 0, 0, 0) 100%);
     background-repeat: no-repeat, repeat-y, no-repeat;
-    background-position: center bottom, center center, center center;
+    background-position: center bottom, center top, center center;
 }
 
 /* --- MODAL --- */
