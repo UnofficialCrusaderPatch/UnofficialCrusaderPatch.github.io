@@ -10,7 +10,8 @@ const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/";
 const REPOS = {
     NEWS   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch", // contains NEWS.md
     STORE  : "UnofficialCrusaderPatch/UCP3-extensions-store",   // branch‑aware store
-    CREDITS: "UnofficialCrusaderPatch/UCP3-GUI"                 // credits.md lives here
+    CREDITS: "UnofficialCrusaderPatch/UCP3-GUI",                // credits.md lives here
+    WIKI   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch3" // The repo the wiki belongs to
 };
 
 // Paths inside those repositories
@@ -85,6 +86,15 @@ function fetchNewsMarkdown() {
 
 function fetchCredits() {
     const url = GITHUB_RAW_BASE + REPOS.CREDITS + "/" + PATHS.CREDITS;
+    return fetchRawText(url);
+}
+
+/* -------------------------------------------------------------
+  WIKI HELPERS
+------------------------------------------------------------- */
+function fetchWikiPageMarkdown(pageName) {
+    // Note: Wiki content uses a different raw URL structure.
+    const url = `${GITHUB_RAW_BASE}wiki/${REPOS.WIKI}/${pageName}.md`;
     return fetchRawText(url);
 }
 

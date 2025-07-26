@@ -30,8 +30,10 @@
     "tab_overview"      : "Übersicht",
     "tab_news"          : "Neuigkeiten",
     "tab_store"         : "Inhalte",
-    "tab_ai_format"     : "KI-Format",
+    "tab_wiki"          : "Wiki",
     "tab_faq"           : "FAQ",
     "modal_credits_ttl" : "Mitwirkende & Lizenz",
-    "footer_loading": "Versionen werden geladen…"
+    "footer_loading": "Versionen werden geladen…",
+    "wiki_title": "UCP Wiki & Dokumentation",
+    "wiki_error": "Der Wiki-Inhalt konnte nicht geladen werden. Bitte versuche es später erneut."
 }

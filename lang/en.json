@@ -16,12 +16,6 @@
     "store_search_placeholder": "Search by name...",
     "store_filter_tags": "Filter by Tags",
     "view_on_github": "View on GitHub",
-    "ai_format_title": "AI Character Format",
-    "ai_format_intro": "The UCP uses a detailed set of parameters to define the behavior of AI lords. Below is a reference for the available fields.",
-    "ai_format_error": "Could not load AI parameter data.",
-    "ai_param_field": "Field",
-    "ai_param_values": "Acceptable Values",
-    "ai_param_description": "Description",
     "faq_title": "Frequently Asked Questions",
     "faq_error": "Could not load the FAQ.",
     "btn_github"        : "GitHub",
@@ -30,8 +24,11 @@
     "tab_overview"      : "Overview",
     "tab_news"          : "News",
     "tab_store"         : "Content",
-    "tab_ai_format"     : "AI Format",
+    "tab_wiki"          : "Wiki",
     "tab_faq"           : "FAQ",
     "modal_credits_ttl" : "Credits & License",
-    "footer_loading": "loading versions…"
+    "footer_loading": "loading versions…",
+    "wiki_title": "UCP Wiki & Documentation",
+    "wiki_error": "Could not load the wiki content. Please try again later."
+
 }

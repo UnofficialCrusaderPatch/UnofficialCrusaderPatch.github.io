@@ -8,7 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
         availableLangs: {},
         translations: {},
         faqData: {},
-        aiData: {},
+        wiki: {
+            sidebarMd: null,
+            mainMd: null,
+            currentPage: 'Home'
+        },
         versions: { gui: null, ucp: null },
         store: {
             raw: null,
@@ -119,24 +123,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     await storeDataPromise;
                     if (isTabStillActive()) renderStoreTab();
                     break;
-                case 'ai-format':
+                case 'wiki':
+                    await renderWikiTab();
+                    break;
                 case 'faq':
-                    const dataType = tabId === 'faq' ? 'faq' : 'ai';
-                    const cacheKey = tabId === 'faq' ? 'faqData' : 'aiData';
-                    const renderFunc = tabId === 'faq' ? renderFaq : renderAiFormat;
-
-                    let data = appState[cacheKey][appState.currentLang];
+                    let data = appState.faqData[appState.currentLang];
                     if (!data) {
-                        data = await fetchLocalJson(`lang/${dataType}-${appState.currentLang}.json`) || 
-                               await fetchLocalJson(`lang/${dataType}-en.json`);
-                        appState[cacheKey][appState.currentLang] = data;
+                        data = await fetchLocalJson(`lang/faq-${appState.currentLang}.json`) || 
+                               await fetchLocalJson(`lang/faq-en.json`);
+                        appState.faqData[appState.currentLang] = data;
                     }
 
                     if (isTabStillActive()) {
-                        tabContentArea.innerHTML = renderFunc(data, T);
-                        if (tabId === 'faq') {
-                            createVideoFacades(tabContentArea);
-                        }
+                        tabContentArea.innerHTML = renderFaq(data, T);
+                        createVideoFacades(tabContentArea);
                     }
                     break;
                 default:
@@ -260,6 +260,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 else appState.store.selectedTags = selectedTags.filter(t => t !== val);
                 renderStoreTab();
             };
+        });
+        }
+
+        async function renderWikiTab() {
+        // Load sidebar and initial page content only once.
+        if (!appState.wiki.sidebarMd) {
+            try {
+                const [sidebarMd, mainMd] = await Promise.all([
+                    fetchWikiPageMarkdown('_Sidebar'),
+                    fetchWikiPageMarkdown('Home')
+                ]);
+                appState.wiki.sidebarMd = sidebarMd;
+                appState.wiki.mainMd = mainMd;
+            } catch (e) {
+                console.error("Wiki fetch failed", e);
+                tabContentArea.innerHTML = createParchmentBox(
+                    `<p style="color:red">Could not load the wiki.</p>`
+                );
+                return; // Use return instead of break
+            }
+        }
+
+        // Render the initial wiki structure.
+        tabContentArea.innerHTML = renderWiki(appState.wiki.sidebarMd, appState.wiki.mainMd, T);
+
+        // Add a single event listener to the container to handle all wiki link clicks.
+        tabContentArea.addEventListener('click', async (e) => {
+            const link = e.target.closest('a');
+            
+            // Check if it's an internal wiki link (relative path)
+            if (link && link.href && link.hostname === location.hostname) {
+                // Ensure this listener only acts if we are on the wiki tab
+                const activeTab = tabNav.querySelector('.active')?.dataset.tab;
+                if (activeTab !== 'wiki') return;
+                
+                e.preventDefault(); // Stop the browser from navigating away
+                
+                const pageName = link.getAttribute('href').split('/').pop();
+                if (!pageName || pageName === appState.wiki.currentPage) return; // Don't reload same page
+                
+                const mainPane = document.getElementById('wiki-main-content');
+                mainPane.innerHTML = `<p>${T('loading')}</p>`;
+                
+                try {
+                    const newMd = await fetchWikiPageMarkdown(pageName);
+                    appState.wiki.mainMd = newMd;
+                    appState.wiki.currentPage = pageName;
+                    mainPane.innerHTML = marked.parse(newMd);
+                } catch (err) {
+                    mainPane.innerHTML = `<p style="color:red">Could not load page: ${pageName}</p>`;
+                }
+            }
         });
     }
 

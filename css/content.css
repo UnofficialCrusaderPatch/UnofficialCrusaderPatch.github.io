@@ -209,3 +209,48 @@
     height: auto;
     border-radius: 4px; /* Optional: for a nicer look */
 }
+
+/* --- ADDED WIKI STYLES --- */
+.wiki-split {
+    display: grid;
+    grid-template-columns: 220px 1fr; /* Sidebar width and main content */
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.wiki-sidebar {
+    position: sticky;
+    top: 1rem; /* Stick to top while scrolling */
+    max-height: calc(100vh - 250px); /* Adjust height based on your layout */
+    overflow-y: auto;
+    padding-right: 1rem;
+    border-right: 2px solid rgba(0,0,0,0.1);
+}
+
+/* General styling for markdown-generated content */
+.prose h1, .prose h2, .prose h3 {
+    font-family: 'RiverAvenue', cursive;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+}
+
+.prose a {
+    text-decoration: underline;
+    font-weight: bold;
+    color: var(--ucp-link-color);
+}
+.prose a:hover {
+    color: var(--ucp-text);
+}
+
+.prose code {
+    background-color: rgba(0,0,0,0.08);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: monospace;
+}

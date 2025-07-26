@@ -54,32 +54,26 @@ function renderNews(newsItems, T) {
 }
 
 
-function renderAiFormat(aiData, T) {
-    let content;
-    if (!aiData || !aiData.categories) {
-        content = `<p>${T('ai_format_error')}</p>`;
-    } else {
-        content = `<p class="mb-6">${T('ai_format_intro')}</p>`;
-        for (const category of aiData.categories) {
-            content += `<h3 class="ucp-header-font mt-6 mb-2">${category.title}</h3>`;
-            content += `<div class="overflow-x-auto"><table class="ai-param-table"><thead><tr>
-                <th>${T('ai_param_field')}</th>
-                <th>${T('ai_param_values')}</th>
-                <th>${T('ai_param_description')}</th>
-            </tr></thead><tbody>`;
-            category.params.forEach((param, index) => {
-                content += `<tr class="${index % 2 === 0 ? 'bg-black bg-opacity-5' : ''}">
-                    <td class="font-semibold">${param.field}</td>
-                    <td>${param.values}</td>
-                    <td>${param.description}</td>
-                </tr>`;
-            });
-            content += `</tbody></table></div>`;
-        }
+function renderWiki(sidebarMd, mainMd, T) {
+    if (!sidebarMd || !mainMd) {
+        return createParchmentBox(`<p>${T('wiki_error') || 'Could not load the wiki content.'}</p>`);
     }
-    const html = `<h2 class="ucp-header-font">${T('ai_format_title')}</h2>${content}`;
-    return createParchmentBox(html);
+
+    // Use marked.js to convert markdown to HTML
+    const sidebarHtml = marked.parse(sidebarMd);
+    const mainHtml = marked.parse(mainMd);
+
+    const content = `
+        <h2 class="ucp-header-font">${T('wiki_title') || 'UCP Wiki'}</h2>
+        <div class="wiki-split">
+            <div id="wiki-sidebar" class="wiki-sidebar prose">${sidebarHtml}</div>
+            <div id="wiki-main-content" class="wiki-main-content prose">${mainHtml}</div>
+        </div>
+    `;
+
+    return createParchmentBox(content);
 }
+
 
 function renderFaq(faqData, T) {
     let content;
