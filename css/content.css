@@ -45,7 +45,7 @@
     height: 7px;
 }
 
-.parchment-box::-webkit-scrollbar-track:start:vertical,
+.parchment-box::-webkit-scrollbar-track-piece:start:vertical,
 .modal-body::-webkit-scrollbar-track:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
@@ -60,7 +60,7 @@
     background-image:
         url("../assets/ucp3/scroll_bar_bottom.png"),
         url("../assets/ucp3/scroll_bar_middle.png");
-
+        
     background-repeat: no-repeat, repeat-y;
     background-position: bottom;
 
