@@ -62,9 +62,7 @@
         url("../assets/ucp3/scroll_bar_middle.png"); 
 
     background-repeat: no-repeat, repeat-y;
-
     background-position: center bottom, center;
-
     -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
     mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
 }
