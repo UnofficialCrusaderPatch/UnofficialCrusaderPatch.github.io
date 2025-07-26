@@ -49,19 +49,25 @@
 .modal-body::-webkit-scrollbar-track-piece:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
-    background-position: top bottom;
+    background-position: top center;
 }
 
-.parchment-boxsad::-webkit-scrollbar-thumb:vertical,
-.modal-bodyasd::-webkit-scrollbar-thumb:vertical {
-    background-color: transparent;
-    box-shadow: none;
-    background-image:
-        url("../assets/ucp3/scroll_bar_bottom.png"),
-        url("../assets/ucp3/scroll_bar_middle.png"),
-        radial-gradient(40% 100% at center bottom, var(--ucp-main-grey) 0%, rgba(0, 0, 0, 0) 100%);
-    background-repeat: no-repeat, repeat-y, no-repeat;
-    background-position: center bottom, center center, center center;
+/* Use this new rule for the thumb to avoid the "double image" */
+.parchment-box::-webkit-scrollbar-thumb:vertical,
+.modal-body::-webkit-scrollbar-thumb:vertical {
+    /* The main body of the thumb is a simple, solid color */
+    background-color: var(--ucp-main-grey);
+
+    /* We use a border to apply the end-cap image */
+    border: 8px solid transparent;
+    border-top: 0;
+    border-bottom: 8px solid transparent;
+
+    border-image-source: url('../assets/ucp3/scroll_bar_bottom.png');
+    border-image-slice: 8 fill;
+    border-image-width: 8px;
+    border-image-outset: 0px;
+    border-image-repeat: stretch;
 }
 
 /* --- MODAL --- */
