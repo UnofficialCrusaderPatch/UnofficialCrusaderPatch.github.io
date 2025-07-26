@@ -93,11 +93,10 @@ function fetchCredits() {
   WIKI HELPERS
 ------------------------------------------------------------- */
 function fetchWikiPageMarkdown(pageName) {
-    // Wikis are their own git repos. The URL needs to point to the '.wiki'
-    // repository and include the branch name (usually 'master' for wikis).
-    const wikiRepo = `${REPOS.WIKI}.wiki`;
-    const branch = 'master';
-    const url = `${GITHUB_RAW_BASE}${wikiRepo}/${branch}/${pageName}.md`;
+    // This special URL format correctly fetches raw content from a repo's wiki.
+    // It uses raw.github.com (not raw.githubusercontent.com) and a /wiki/ path.
+    // GitHub handles the redirect to the actual content file.
+    const url = `https://raw.github.com/wiki/${REPOS.WIKI}/${pageName}`;
     return fetchRawText(url);
 }
 
