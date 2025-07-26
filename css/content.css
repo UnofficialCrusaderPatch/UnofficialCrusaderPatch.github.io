@@ -49,7 +49,7 @@
 .modal-body::-webkit-scrollbar-track-piece:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
-    background-position: center bottom;
+    background-position: top center;
 }
 
 .parchment-box::-webkit-scrollbar-thumb:vertical,
