@@ -46,7 +46,7 @@
 }
 
 .parchment-box::-webkit-scrollbar-track-piece:start:vertical,
-.modal-body::-webkit-scrollbar-track-piece:start:vertical {
+.modal-body::-webkit-scrollbar-track:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
     background-position: center bottom;
@@ -56,31 +56,14 @@
 .modal-body::-webkit-scrollbar-thumb:vertical {
     background-color: transparent;
     box-shadow: none;
-
-    /*
-     * A stack of three background layers, drawn from top to bottom:
-    */
     background-image:
-        /* Layer 1 (Topmost): A gradient that is transparent on top
-           and a solid parchment color on the bottom. This "blocks"
-           the track's image on the bottom half of the thumb.
-        */
-        linear-gradient(to bottom,
-            transparent 0%,
-            transparent 50%,
-            var(--ucp-parchment) 50%,
-            var(--ucp-parchment) 100%
-        ),
-
-        /* Layer 2: The decorative end cap */
         url("../assets/ucp3/scroll_bar_bottom.png"),
-
-        /* Layer 3: The thumb's own chain texture */
-        url("../assets/ucp3/scroll_bar_middle.png");
-
-    /* The repeat and position settings must match the three layers above */
-    background-repeat: no-repeat, no-repeat, repeat-y;
-    background-position: center, center bottom, center;
+        url("../assets/ucp3/scroll_bar_middle.png"),
+        radial-gradient(40% 100% at center bottom, var(--ucp-main-grey) 0%, rgba(0, 0, 0, 0) 100%);
+    background-repeat: no-repeat, repeat-y, no-repeat;
+    background-position: bottom;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
+    mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
 }
 
 /* --- MODAL --- */
