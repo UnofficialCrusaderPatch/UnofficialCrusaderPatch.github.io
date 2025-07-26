@@ -59,8 +59,8 @@
 
     background-image:
         url("../assets/ucp3/scroll_bar_bottom.png"),
-        url("../assets/ucp3/scroll_bar_middle.png"),
-        radial-gradient(40% 100% at center bottom, var(--ucp-main-grey) 0%, rgba(0, 0, 0, 0) 100%);
+        url("../assets/ucp3/scroll_bar_middle.png");
+        
     background-repeat: no-repeat, repeat-y;
     background-position: bottom;
 
