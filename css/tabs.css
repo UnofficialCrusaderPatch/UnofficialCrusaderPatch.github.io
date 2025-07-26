@@ -23,6 +23,8 @@
     position: relative;
     z-index: 10; /* Behind the separator */
     align-items: flex-end; /* Align to bottom */
+    margin: auto;
+    width: fit-content;
 }
 
 .ucp-tab {

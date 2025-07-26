@@ -1,12 +1,12 @@
 /* --- MAIN CONTENT AREA --- */
 .main-content {
     flex-grow: 1;
-    overflow-y: unset;
     padding: 1.5rem;
-    scrollbar-gutter: stable;
     max-width: 1080px;
     min-height: 0px;
     margin: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .parchment-box {
@@ -16,21 +16,17 @@
     border-style: solid;
     border-width: 8px;
     border-color: transparent;
-
     background-image: url('../assets/ucp3/parchment_bg_smooth.png');
     background-color: var(--ucp-parchment);
-    padding: 0; 
-    min-height: 100%;
+    color: var(--ucp-text);
+    
     display: flex;
     flex-direction: column;
-
-    padding-left: 1rem;
-    padding-right: 1rem;
     overflow-y: auto;
-}
 
-.parchment-box {
-    color: var(--ucp-text);
+    padding: 0 1rem;
+    flex-grow: 1;
+    min-height: 0;
 }
 
 .parchment-box a {
@@ -42,17 +38,15 @@
     color: var(--ucp-text);
 }
 
-/* --- CUSTOM SCROLLBAR (Applied to main content AND store lists) --- */
-.main-content::-webkit-scrollbar,
-.ucp-store-list-items::-webkit-scrollbar,
-.ucp-store-desc::-webkit-scrollbar {
+/* --- CUSTOM SCROLLBAR (Applied to store lists and parchment box) --- */
+.parchment-box::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
     width: 12px;
     height: 7px;
 }
 
-.main-content::-webkit-scrollbar-track-piece:start:vertical,
-.ucp-store-list-items::-webkit-scrollbar-track-piece:start:vertical,
-.ucp-store-desc::-webkit-scrollbar-track-piece:start:vertical {
+.parchment-box::-webkit-scrollbar-track-piece:start:vertical,
+.modal-body::-webkit-scrollbar-track-piece:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
     background-position: center bottom;
@@ -111,24 +105,6 @@
     gap: 1rem;
     flex-grow: 1;
     min-height: 0;
-}
-
-.ucp-store-list-container,
-.ucp-store-desc-container {
-    height: 100%;
-    min-height: 0;
-}
-
-.ucp-store-list-items {
-    overflow-y: auto;
-    height: 100%;
-    padding: 0;
-}
-
-.ucp-store-desc {
-    overflow-y: auto;
-    height: 100%;
-    padding: 1rem;
 }
 
 .ucp-store-row {
