@@ -49,11 +49,11 @@
 .modal-body::-webkit-scrollbar-track-piece:start:vertical {
     background-image: url("../assets/ucp3/scroll_bar_middle.png");
     background-repeat: no-repeat repeat;
-    background-position: top center;
+    background-position: top bottom;
 }
 
-.parchment-box::-webkit-scrollbar-thumb:vertical,
-.modal-body::-webkit-scrollbar-thumb:vertical {
+.parchment-boxsad::-webkit-scrollbar-thumb:vertical,
+.modal-bodyasd::-webkit-scrollbar-thumb:vertical {
     background-color: transparent;
     box-shadow: none;
     background-image:
