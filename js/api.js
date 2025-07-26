@@ -11,7 +11,7 @@ const REPOS = {
     NEWS   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch", // contains NEWS.md
     STORE  : "UnofficialCrusaderPatch/UCP3-extensions-store",   // branch‑aware store
     CREDITS: "UnofficialCrusaderPatch/UCP3-GUI",                // credits.md lives here
-    WIKI   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch3" // The repo the wiki belongs to
+    WIKI   : "UnofficialCrusaderPatch/UCP-Wiki" // The repo the wiki belongs to
 };
 
 // Paths inside those repositories

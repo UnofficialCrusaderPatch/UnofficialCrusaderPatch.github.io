@@ -14,7 +14,7 @@
     border-width: 8px;
     border-color: transparent;
 
-    background-image: url('../assets/ucp3/parchment_bg.png');
+    background-image: url('../assets/ucp3/parchment_bg_smooth.png');
     background-color: var(--ucp-parchment);
     padding: 0; 
     min-height: 100%;
@@ -66,7 +66,7 @@
 
 /* --- MODAL --- */
 .modal-overlay { position: fixed; inset: 0; background-color: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 50; }
-.modal-content { background-image: url('../assets/ucp3/parchment_bg.png'); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); padding: 1.5rem; max-width: 42rem; width: 100%; max-height: 80vh; display: flex; flex-direction: column; border: 2px solid var(--ucp-gold); }
+.modal-content { background-image: url('../assets/ucp3/parchment_bg_smooth.png'); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); padding: 1.5rem; max-width: 42rem; width: 100%; max-height: 80vh; display: flex; flex-direction: column; border: 2px solid var(--ucp-gold); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 .modal-close-btn { background: none; border: none; font-size: 2rem; line-height: 1; cursor: pointer; color: var(--ucp-brown); }
 .modal-body { overflow-y: auto; }
