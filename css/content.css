@@ -9,24 +9,37 @@
     flex-direction: column;
 }
 
-.parchment-box {
+.parchment-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+
     border-image: url('../assets/ucp3/ornament_border_shadow.png');
     border-image-slice: 16;
     border-image-repeat: round;
     border-style: solid;
-    border-width: 8px;
+    border-width: 12px;
     border-color: transparent;
+
+    /* Put the border layer behind the scrollbar but in front of content */
+    z-index: 5; 
+    pointer-events: none; 
+}
+
+.parchment-box {
     background-image: url('../assets/ucp3/parchment_bg_smooth.png');
     background-color: var(--ucp-parchment);
     color: var(--ucp-text);
-    
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
 
-    padding: 0 1rem;
+    position: relative; /* For positioning the scrollbar inside */
+    display: flex;
     flex-grow: 1;
     min-height: 0;
+    overflow: hidden; /* Hide anything that spills out */
+    padding: 0; /* Padding is now on the inner wrapper */
+}
+.parchment-box::-webkit-scrollbar {
+    display: none;
 }
 
 .parchment-box a {
@@ -38,34 +51,17 @@
     color: var(--ucp-text);
 }
 
-/* --- CUSTOM SCROLLBAR (Applied to store lists and parchment box) --- */
-.parchment-box::-webkit-scrollbar,
-.modal-body::-webkit-scrollbar {
-    width: 12px;
-    height: 7px;
+.parchment-content-wrapper {
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: scroll; /* This is now the scrollable element */
+    padding: 0 1rem; /* The padding is now here */
+
+    /* Hide native scrollbar */
+    scrollbar-width: none; /* Firefox */
 }
-
-.parchment-box::-webkit-scrollbar-track-piece:start:vertical,
-.modal-body::-webkit-scrollbar-track:start:vertical {
-    background-image: url("../assets/ucp3/scroll_bar_middle.png");
-    background-repeat: no-repeat repeat;
-    background-position: center bottom;
-}
-
-.parchment-box::-webkit-scrollbar-thumb:vertical,
-.modal-body::-webkit-scrollbar-thumb:vertical {
-    background-color: transparent;
-    box-shadow: none;
-
-    background-image:
-        url("../assets/ucp3/scroll_bar_bottom.png"),
-        url("../assets/ucp3/scroll_bar_middle.png");
-        
-    background-repeat: no-repeat, repeat-y;
-    background-position: bottom;
-
-    -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
-    mask-image: linear-gradient(to bottom, transparent 50%, black 50%);
+.parchment-content-wrapper::-webkit-scrollbar {
+    display: none; /* Webkit */
 }
 
 /* --- MODAL --- */
@@ -239,4 +235,69 @@
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-family: monospace;
+}
+
+/* --- CUSTOM CHAIN SCROLLBAR V3 (FINAL) --- */
+.custom-scrollbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: 7px; /* YOUR EXACT WIDTH */
+    display: flex;
+    flex-direction: column;
+    z-index: 10; /* Raise it ABOVE the parchment border image */
+}
+
+.scrollbar-top {
+    width: 100%;
+    height: 11px; /* YOUR EXACT HEIGHT */
+    background-image: url('../assets/ucp3/scroll_bar_top.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.scrollbar-track {
+    position: relative;
+    width: 100%;
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+.chain-visuals {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    min-height: 8px; /* Height of your bottom cap */
+    cursor: grab;
+    
+    /* COMBINED BACKGROUNDS TO ELIMINATE GAPS */
+    background-image: 
+        url('../assets/ucp3/scroll_bar_bottom.png'), /* Layer 2: Bottom cap (on top) */
+        url('../assets/ucp3/scroll_bar_middle.png');  /* Layer 1: Repeating middle */
+    
+    background-repeat: 
+        no-repeat,  /* Don't repeat the cap */
+        repeat-y;   /* Repeat the middle part */
+        
+    background-position: 
+        bottom center, /* Pin cap to the absolute bottom */
+        bottom center; /* Align repeating grid to the bottom */
+
+    /* Set explicit sizes to prevent gaps and distortion */
+    background-size: 
+        7px 8px,   /* Size of bottom cap image */
+        100% 8px;  /* Width of 100%, height of one middle link */
+}
+
+.chain-visuals:active {
+    cursor: grabbing;
+}
+
+/* DELETE these old rules as they are no longer needed */
+.chain-middle,
+.chain-bottom-cap {
+    display: none;
 }

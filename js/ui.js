@@ -1,12 +1,26 @@
 // This file contains all functions that manipulate the DOM to render content.
 
 /**
- * Creates the main content wrapper with a parchment background.
+ * Creates the main content wrapper with a parchment background AND its custom scrollbar INSIDE.
  * @param {string} innerHTML - The HTML content to place inside the box.
  * @returns {string}
  */
 function createParchmentBox(innerHTML) {
-    return `<div class="parchment-box">${innerHTML}</div>`;
+    return `
+        <div class="parchment-box">
+            <div class="parchment-content-wrapper">
+                ${innerHTML}
+            </div>
+            <div class="custom-scrollbar">
+                <div class="scrollbar-top"></div>
+                <div class="scrollbar-track">
+                    <div class="chain-visuals">
+                        <!-- This is now intentionally empty. All visuals are on its background. -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 /**

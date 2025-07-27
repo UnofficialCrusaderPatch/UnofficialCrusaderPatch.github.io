@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
             }
         }
+        initializeAllCustomScrollbars();
     }
 
     function renderStoreTab() {
@@ -261,9 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderStoreTab();
             };
         });
-        }
+        initializeAllCustomScrollbars();
+    }
 
-        async function renderWikiTab() {
+    async function renderWikiTab() {
         // Load sidebar and initial page content only once.
         if (!appState.wiki.sidebarMd) {
             try {
@@ -313,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+        initializeAllCustomScrollbars();
     }
 
     async function loadLanguage(lang) {
@@ -355,9 +358,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         creditsBtn.addEventListener('click', async () => {
             creditsModal.classList.remove('hidden');
-            creditsContent.innerHTML = T('loading');
+            
+            // Use the createParchmentBox function to wrap the loading text
+            creditsContent.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
+            initializeAllCustomScrollbars(); // Initialize for the loading state
+
             const markdown = await fetchCredits();
-            creditsContent.innerHTML = markdown ? marked.parse(markdown) : 'Could not load credits.';
+            const creditsHtml = markdown ? marked.parse(markdown) : 'Could not load credits.';
+            
+            // Re-render with the final content
+            creditsContent.innerHTML = createParchmentBox(creditsHtml);
+            
+            // Initialize the scrollbar again for the final content
+            initializeAllCustomScrollbars();
         });
 
         closeCreditsBtn.addEventListener('click', () => creditsModal.classList.add('hidden'));
@@ -440,6 +453,133 @@ document.addEventListener('DOMContentLoaded', () => {
             tabNav.style.pointerEvents = 'auto';
             tabNav.style.opacity = '1';
         }
+    }
+
+    /**
+     * Finds all custom scrollbars that haven't been initialized yet and activates them.
+     */
+    function initializeAllCustomScrollbars() {
+        // The container is now the parchment-box itself.
+        const scrollbarContainers = document.querySelectorAll('.parchment-box:not([data-scrollbar-active])');
+
+        scrollbarContainers.forEach(container => {
+            // Mark as active to prevent re-initializing
+            container.dataset.scrollbarActive = 'true';
+
+            // --- Element References (Find children within this specific container) ---
+            const contentWrapper = container.querySelector('.parchment-content-wrapper');
+            const track = container.querySelector('.scrollbar-track');
+            const chainVisuals = container.querySelector('.chain-visuals');
+
+            if (!contentWrapper || !track || !chainVisuals) {
+                return;
+            }
+
+            // --- Constants ---
+            const BOTTOM_CAP_HEIGHT = 8; // IMPORTANT: Must match CSS height of .chain-bottom-cap
+
+            // --- State Variables ---
+            let isDragging = false;
+            let startY;
+            let startScrollTop;
+            let scrollInterval;
+
+            // --- Core Function: Update chain length from content scroll (REVISED LOGIC) ---
+            function updateChain() {
+                requestAnimationFrame(() => {
+                    const scrollHeight = contentWrapper.scrollHeight;
+                    const clientHeight = contentWrapper.clientHeight;
+                    
+                    if (scrollHeight <= clientHeight) {
+                        chainVisuals.style.display = 'none';
+                        return;
+                    }
+                    chainVisuals.style.display = 'flex';
+
+                    const trackHeight = track.clientHeight;
+                    const maxScrollTop = scrollHeight - clientHeight;
+                    const scrollTop = contentWrapper.scrollTop;
+                    
+                    // Calculate the percentage of the content that has been scrolled
+                    const scrollPercentage = maxScrollTop > 0 ? (scrollTop / maxScrollTop) : 0;
+
+                    // This is the available space for the chain to "grow" into, excluding the cap's final position
+                    const availableTrackHeight = trackHeight - BOTTOM_CAP_HEIGHT;
+
+                    // The length of the middle part of the chain is the percentage of the available track height
+                    const middleChainHeight = scrollPercentage * availableTrackHeight;
+                    
+                    // The total height of the visual container is the middle part plus the cap itself.
+                    // This correctly positions the bottom cap at the scrolled percentage.
+                    const totalChainHeight = middleChainHeight + BOTTOM_CAP_HEIGHT;
+
+                    chainVisuals.style.height = `${totalChainHeight}px`;
+                });
+            }
+
+            // --- Event Handlers for Dragging the Chain ---
+            chainVisuals.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                isDragging = true;
+                startY = e.clientY;
+                startScrollTop = contentWrapper.scrollTop;
+            });
+
+            const mouseMoveHandler = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+
+                const deltaY = e.clientY - startY;
+                const trackHeight = track.clientHeight;
+                const scrollHeight = contentWrapper.scrollHeight;
+                const clientHeight = contentWrapper.clientHeight;
+                
+                const scrollableDist = scrollHeight - clientHeight;
+                const trackDist = trackHeight > BOTTOM_CAP_HEIGHT ? trackHeight - BOTTOM_CAP_HEIGHT : 1;
+                
+                const scrollDelta = deltaY * (scrollableDist / trackDist);
+                contentWrapper.scrollTop = startScrollTop + scrollDelta;
+            };
+            document.addEventListener('mousemove', mouseMoveHandler);
+
+            const mouseUpHandler = () => {
+                isDragging = false;
+            };
+            document.addEventListener('mouseup', mouseUpHandler);
+            
+            // --- Event Handlers for Clicking the Track ---
+            const startContinuousScroll = (direction) => {
+                if (scrollInterval) clearInterval(scrollInterval);
+                scrollInterval = setInterval(() => {
+                    contentWrapper.scrollTop += 10 * direction;
+                }, 16);
+            };
+            
+            const stopContinuousScroll = () => {
+                clearInterval(scrollInterval);
+            };
+            
+            track.addEventListener('mousedown', (e) => {
+                if (e.target !== track) return;
+                const rect = track.getBoundingClientRect();
+                const clickY = e.clientY - rect.top;
+                const chainHeight = chainVisuals.offsetHeight;
+                
+                if (clickY > chainHeight) {
+                    startContinuousScroll(1);
+                }
+            });
+            
+            document.addEventListener('mouseup', stopContinuousScroll);
+            document.addEventListener('mouseleave', stopContinuousScroll);
+
+            // --- Initial & Dynamic Updates ---
+            contentWrapper.addEventListener('scroll', updateChain);
+            new ResizeObserver(updateChain).observe(contentWrapper);
+            new ResizeObserver(updateChain).observe(container);
+            updateChain();
+        });
     }
 
     init();
