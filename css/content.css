@@ -241,7 +241,7 @@
 .custom-scrollbar {
     position: absolute;
     top: 8px;
-    right: 8px;
+    right: 9px;
     bottom: 8px;
     width: 7px; /* YOUR EXACT WIDTH */
     display: flex;
@@ -251,7 +251,7 @@
 
 .scrollbar-top {
     width: 100%;
-    height: 11px; /* YOUR EXACT HEIGHT */
+    height: 0px; /* YOUR EXACT HEIGHT */
     background-image: url('../assets/ucp3/scroll_bar_top.png');
     background-repeat: no-repeat;
     background-position: center;
@@ -275,8 +275,8 @@
     
     /* COMBINED BACKGROUNDS TO ELIMINATE GAPS */
     background-image: 
-        url('../assets/ucp3/scroll_bar_bottom.png'), /* Layer 2: Bottom cap (on top) */
-        url('../assets/ucp3/scroll_bar_middle.png');  /* Layer 1: Repeating middle */
+        url('../assets/ucp3/scroll_bar_bottom.png'),
+        url('../assets/ucp3/scroll_bar_middle.png');
     
     background-repeat: 
         no-repeat,  /* Don't repeat the cap */
