@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"] || ext.definition.name}</div>`
         ).join("");
 
+        // --- THIS IS THE CORRECTED HTML STRUCTURE ---
         const storeLayoutHTML = `
             <div class="store-container">
                 <div class="store-headers-and-controls">
@@ -193,12 +194,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2 class="ucp-header-font">Description</h2>
                 </div>
                 <div class="store-content-split">
+                    <!-- Box 1: List Container -->
                     <div class="parchment-box ucp-store-list-container">
-                        <div class="ucp-store-list-items">${rows}</div>
+                        <div class="parchment-content-wrapper">
+                            <div class="ucp-store-list-items">${rows}</div>
+                        </div>
+                        <div class="custom-scrollbar">
+                            <div class="scrollbar-top"></div>
+                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                        </div>
                     </div>
+
+                    <!-- Box 2: Description Container -->
                     <div class="parchment-box ucp-store-desc-container">
-                        <div id="store-desc" class="ucp-store-desc">
-                            <p>Select an item from the list on the left.</p>
+                        <div class="parchment-content-wrapper">
+                            <div id="store-desc" class="ucp-store-desc prose">
+                                <p>Select an item from the list on the left.</p>
+                            </div>
+                        </div>
+                        <div class="custom-scrollbar">
+                            <div class="scrollbar-top"></div>
+                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
                         </div>
                     </div>
                 </div>
@@ -264,6 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderStoreTab();
             };
         });
+        
+        // This call will now correctly find and activate the scrollbars here.
         initializeAllCustomScrollbars();
     }
 
