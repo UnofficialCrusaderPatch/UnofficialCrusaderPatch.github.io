@@ -5,7 +5,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
 .header-left, .header-right { 
@@ -51,25 +51,38 @@
     border-image: url('../assets/ucp3/button_ucp.png') 8 fill;
     background-color: transparent;
     color: var(--ucp-button-text);
-    padding: 0.5rem 1.5rem;
-    font-size: 1.1rem;
+    font-size: 1.4rem; 
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;
     font-family: 'RiverAvenue', cursive;
+
+    position: relative; 
+    
+    padding: 0.5rem 2.8rem 0.5rem 6.8rem; 
 }
 
 #downloadBtn:hover { 
     border-image-source: url('../assets/ucp3/button_ucp_hover.png'); 
 }
 
+.download-logo-overlay {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    height: 80px; 
+    width: auto;
+}
+
 .ucp-select {
-    appearance: none; /* Remove default dropdown arrow */
+    appearance: none;
     background-color: rgba(0, 0, 0, 0.6);
     color: var(--ucp-button-text);
     border: 1px solid var(--ucp-gold);
     border-radius: 4px;
-    padding: 0.4rem 1rem 0.4rem 2.5rem; /* Left padding for icon */
+    padding: 0.4rem 1rem 0.4rem 2.5rem;
     font-size: 0.9rem;
     font-family: 'RiverAvenue', cursive;
     background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
