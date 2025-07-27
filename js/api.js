@@ -76,6 +76,32 @@ function fetchUcpVersion() {
     ).then(data => data?.tag_name?.replace(/^v/i, "") || null);
 }
 
+function fetchInstallerUrl() {
+    const cacheKey = "installerUrl";
+    const url = "https://api.github.com/repos/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/latest";
+
+    return fetchWithCache(cacheKey, url, true).then(data => {
+        if (!data || !data.assets || data.assets.length === 0) {
+            console.error("No assets found in the latest release.");
+            return null;
+        }
+
+        const installerAsset = data.assets.find(asset => 
+            asset.name.toLowerCase().endsWith('.exe')
+        );
+
+        if (!installerAsset) {
+            console.error("No .exe installer asset found in the latest release.");
+            return null;
+        }
+
+        return installerAsset.browser_download_url;
+    }).catch(err => {
+        console.error("Failed to fetch installer URL:", err);
+        return null;
+    });
+}
+
 /* -------------------------------------------------------------
     NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */

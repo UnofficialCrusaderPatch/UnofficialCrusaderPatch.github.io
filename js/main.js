@@ -406,24 +406,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         creditsModal.addEventListener('mousedown', (e) => {
-            // Only register a potential close if the click STARTS on the overlay itself.
             if (e.target === creditsModal) {
                 isPotentialOverlayClick = true;
             }
         });
 
         creditsModal.addEventListener('mouseup', (e) => {
-            // Only close if the click ENDS on the overlay AND it started there.
             if (e.target === creditsModal && isPotentialOverlayClick) {
                 creditsModal.classList.add('hidden');
             }
-            // Reset the flag after every mouseup, no matter what.
             isPotentialOverlayClick = false;
         });
 
         downloadBtn.addEventListener("click", async () => {
             downloadBtn.disabled = true;
-            const url = await fetchInstallerUrl();
+            const url = await fetchInstallerUrl(); 
             downloadBtn.disabled = false;
             if (url) window.open(url, "_blank");
         });
