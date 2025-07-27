@@ -156,86 +156,47 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeAllCustomScrollbars();
     }
 
-    function renderStoreTab() {
-        const { searchQuery, selectedTags, items, allTags } = appState.store;
+    function updateStoreList() {
+        const { searchQuery, selectedTags, items } = appState.store;
         const query = searchQuery.toLowerCase();
-        
-        const filteredItems = items.filter(ext => {
-            const nameMatch = (ext.definition["display-name"] || ext.definition.name || '').toLowerCase().includes(query);
-            const tagsOK = selectedTags.length === 0 || (ext.definition.tags || []).some(t => selectedTags.includes(t));
-            return nameMatch && tagsOK;
-        });
 
-        const sortedTags = Array.from(allTags).sort();
-        const tagDropdown = sortedTags.map(tag =>
-            `<label><input type="checkbox" class="ucp-tag-cb" value="${tag}" ${selectedTags.includes(tag) ? "checked" : ""}> ${tag}</label>`
-        ).join("<br>");
-
-        const controlsHTML = `
-            <div class="store-controls">
-                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-search-input">
-                <div style="position: relative; display: inline-block;">
-                    <button id="tag-btn" class="ucp-button-small">Tags ▼</button>
-                    <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
-                </div>
-            </div>
-        `;
+        const filteredItems = items
+            .filter(ext => {
+                const nameMatch = (ext.definition["display-name"] || ext.definition.name || '').toLowerCase().includes(query);
+                const tagsOK = selectedTags.length === 0 || (ext.definition.tags || []).some(t => selectedTags.includes(t));
+                return nameMatch && tagsOK;
+            })
+            // ADD THIS LINE TO SORT THE RESULTS ALPHABETICALLY
+            .sort((a, b) => {
+                const nameA = a.definition["display-name"] || a.definition.name || '';
+                const nameB = b.definition["display-name"] || b.definition.name || '';
+                return nameA.localeCompare(nameB);
+            });
 
         const rows = filteredItems.map(ext =>
             `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"] || ext.definition.name}</div>`
         ).join("");
 
-        // --- THIS IS THE CORRECTED HTML STRUCTURE ---
-        const storeLayoutHTML = `
-            <div class="store-container">
-                <div class="store-headers-and-controls">
-                    <h2 class="ucp-header-font">Online Content</h2>
-                    ${controlsHTML}
-                    <h2 class="ucp-header-font">Description</h2>
-                </div>
-                <div class="store-content-split">
-                    <!-- Box 1: List Container -->
-                    <div class="parchment-box ucp-store-list-container">
-                        <div class="parchment-content-wrapper">
-                            <div class="ucp-store-list-items">${rows}</div>
-                        </div>
-                        <div class="custom-scrollbar">
-                            <div class="scrollbar-top"></div>
-                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
-                        </div>
-                    </div>
+        const listContainer = document.querySelector('.ucp-store-list-items');
+        if (listContainer) {
+            listContainer.innerHTML = rows;
+            // After creating the new rows, make them clickable
+            attachStoreRowListeners();
+        }
+    }
 
-                    <!-- Box 2: Description Container -->
-                    <div class="parchment-box ucp-store-desc-container">
-                        <div class="parchment-content-wrapper">
-                            <div id="store-desc" class="ucp-store-desc prose">
-                                <p>Select an item from the list on the left.</p>
-                            </div>
-                        </div>
-                        <div class="custom-scrollbar">
-                            <div class="scrollbar-top"></div>
-                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+    function attachStoreRowListeners() {
+        const { items } = appState.store;
+        // The incorrect line "const T = appState.translations;" has been removed.
+        // The function will now correctly use the 'T' function from the parent scope.
 
-        tabContentArea.innerHTML = storeLayoutHTML;
-
-        // --- RE-WIRE EVENTS ---
-        document.getElementById("store-search").addEventListener("input", e => {
-            appState.store.searchQuery = e.target.value;
-            renderStoreTab();
-        });
-        
         document.querySelectorAll(".ucp-store-row").forEach(row => {
             row.addEventListener("click", async (e) => {
                 document.querySelectorAll(".ucp-store-row").forEach(r => r.classList.remove("sel"));
                 row.classList.add("sel");
                 const ext = items.find(item => item.definition.name === row.dataset.id);
                 const descContainer = document.getElementById("store-desc");
-                descContainer.innerHTML = `<p>${T('loading')}</p>`;
+                descContainer.innerHTML = `<p>${T('loading')}</p>`; // This will now work correctly
 
                 try {
                     if (!ext.definition.tags_fetched) {
@@ -270,19 +231,83 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+    }
 
+    function renderStoreTab() {
+        const { searchQuery, selectedTags, allTags } = appState.store;
+        
+        const sortedTags = Array.from(allTags).sort();
+        const tagDropdown = sortedTags.map(tag =>
+            `<label><input type="checkbox" class="ucp-tag-cb" value="${tag}" ${selectedTags.includes(tag) ? "checked" : ""}> ${tag}</label>`
+        ).join("<br>");
+
+        const controlsHTML = `
+            <div class="store-controls">
+                <input type="search" id="store-search" placeholder="Search…" value="${searchQuery}" class="ucp-search-input">
+                <div style="position: relative; display: inline-block;">
+                    <button id="tag-btn" class="ucp-button-small">Tags ▼</button>
+                    <div id="tag-menu" class="ucp-tag-menu hidden">${tagDropdown}</div>
+                </div>
+            </div>
+        `;
+
+        const storeLayoutHTML = `
+            <div class="store-container">
+                <div class="store-headers-and-controls">
+                    <h2 class="ucp-header-font">Online Content</h2>
+                    ${controlsHTML}
+                    <h2 class="ucp-header-font">Description</h2>
+                </div>
+                <div class="store-content-split">
+                    <div class="parchment-box ucp-store-list-container">
+                        <div class="parchment-content-wrapper">
+                            <div class="ucp-store-list-items"></div>
+                        </div>
+                        <div class="custom-scrollbar">
+                            <div class="scrollbar-top"></div>
+                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                        </div>
+                    </div>
+                    <div class="parchment-box ucp-store-desc-container">
+                        <div class="parchment-content-wrapper">
+                            <div id="store-desc" class="ucp-store-desc prose">
+                                <p>Select an item from the list on the left.</p>
+                            </div>
+                        </div>
+                        <div class="custom-scrollbar">
+                            <div class="scrollbar-top"></div>
+                            <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        tabContentArea.innerHTML = storeLayoutHTML;
+
+        // --- RE-WIRE EVENTS ---
+        document.getElementById("store-search").addEventListener("input", e => {
+            appState.store.searchQuery = e.target.value;
+            updateStoreList(); // Only update the list, don't re-render everything
+        });
+        
         document.getElementById("tag-btn").onclick = () => document.getElementById("tag-menu").classList.toggle("hidden");
         
         document.querySelectorAll(".ucp-tag-cb").forEach(cb => {
             cb.onchange = e => {
                 const val = e.target.value;
-                if (e.target.checked) appState.store.selectedTags.push(val);
-                else appState.store.selectedTags = selectedTags.filter(t => t !== val);
-                renderStoreTab();
+                if (e.target.checked) {
+                    appState.store.selectedTags.push(val);
+                } else {
+                    appState.store.selectedTags = appState.store.selectedTags.filter(t => t !== val);
+                }
+                updateStoreList(); // Only update the list
             };
         });
         
-        // This call will now correctly find and activate the scrollbars here.
+        // Populate the list for the first time
+        updateStoreList();
+        
         initializeAllCustomScrollbars();
     }
 
