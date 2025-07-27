@@ -60,14 +60,29 @@
     <span id="footer-version-info" data-i18n="footer_loading">loading versions…</span>
 </footer>
 
-<!-- ─────────── CREDITS MODAL ─────────── -->
+<!-- ─────────── CREDITS MODAL (RESTRUCTURED) ─────────── -->
 <div id="creditsModal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalCreditsTtl" class="ucp-header-font" data-i18n="modal_credits_ttl">Credits & License</h2>
-            <button id="closeCreditsBtn" class="modal-close-btn">&times;</button>
+    <!-- This div is now a parchment-box itself -->
+    <div class="modal-content parchment-box">
+        
+        <!-- This is the new scrollable area -->
+        <div class="parchment-content-wrapper">
+            <div class="modal-header">
+                <h2 id="modalCreditsTtl" class="ucp-header-font" data-i18n="modal_credits_ttl">Credits & License</h2>
+                <button id="closeCreditsBtn" class="modal-close-btn">&times;</button>
+            </div>
+            <!-- The markdown content will be injected here -->
+            <div id="creditsContent" class="prose"></div>
         </div>
-        <div id="creditsContent" class="modal-body"></div>
+
+        <!-- The custom scrollbar will be added here by CSS -->
+        <div class="custom-scrollbar">
+            <div class="scrollbar-top"></div>
+            <div class="scrollbar-track">
+                <div class="chain-visuals"></div>
+            </div>
+        </div>
+
     </div>
 </div>
 

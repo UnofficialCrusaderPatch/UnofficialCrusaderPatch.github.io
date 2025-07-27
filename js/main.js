@@ -359,23 +359,42 @@ document.addEventListener('DOMContentLoaded', () => {
         creditsBtn.addEventListener('click', async () => {
             creditsModal.classList.remove('hidden');
             
-            // Use the createParchmentBox function to wrap the loading text
-            creditsContent.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
-            initializeAllCustomScrollbars(); // Initialize for the loading state
+            // Find the new target for our content
+            const creditsTarget = document.getElementById('creditsContent');
+            if (!creditsTarget) return;
 
+            creditsTarget.innerHTML = `<p>${T('loading')}</p>`;
+
+            // Fetch the markdown content
             const markdown = await fetchCredits();
             const creditsHtml = markdown ? marked.parse(markdown) : 'Could not load credits.';
             
-            // Re-render with the final content
-            creditsContent.innerHTML = createParchmentBox(creditsHtml);
-            
-            // Initialize the scrollbar again for the final content
+            // Inject the final HTML
+            creditsTarget.innerHTML = creditsHtml;
+
             initializeAllCustomScrollbars();
         });
 
-        closeCreditsBtn.addEventListener('click', () => creditsModal.classList.add('hidden'));
-        creditsModal.addEventListener('click', (e) => {
-            if (e.target === creditsModal) creditsModal.classList.add('hidden');
+        let isPotentialOverlayClick = false;
+
+        closeCreditsBtn.addEventListener('click', () => {
+            creditsModal.classList.add('hidden');
+        });
+
+        creditsModal.addEventListener('mousedown', (e) => {
+            // Only register a potential close if the click STARTS on the overlay itself.
+            if (e.target === creditsModal) {
+                isPotentialOverlayClick = true;
+            }
+        });
+
+        creditsModal.addEventListener('mouseup', (e) => {
+            // Only close if the click ENDS on the overlay AND it started there.
+            if (e.target === creditsModal && isPotentialOverlayClick) {
+                creditsModal.classList.add('hidden');
+            }
+            // Reset the flag after every mouseup, no matter what.
+            isPotentialOverlayClick = false;
         });
 
         downloadBtn.addEventListener("click", async () => {
