@@ -54,8 +54,8 @@
 .parchment-content-wrapper {
     flex-grow: 1;
     min-height: 0;
-    overflow-y: scroll; /* This is now the scrollable element */
-    padding: 0 1rem; /* The padding is now here */
+    overflow-y: scroll;
+    padding: 0 1rem;
 
     /* Hide native scrollbar */
     scrollbar-width: none; /* Firefox */
@@ -148,6 +148,10 @@
 }
 .ucp-store-row:hover { background:rgba(0,0,0,.1); }
 .ucp-store-row.sel { background: rgba(255,255,0,.25); }
+
+.ucp-store-list-items {
+    padding: 1rem 0px;
+}
 
 .ucp-tag-menu {
     position: absolute;
