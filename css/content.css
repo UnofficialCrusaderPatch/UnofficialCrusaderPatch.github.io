@@ -278,7 +278,7 @@
 .custom-scrollbar {
     position: absolute;
     top: 8px;
-    right: 9px;
+    right: 11px;
     bottom: 8px;
     width: 7px; /* YOUR EXACT WIDTH */
     display: flex;
@@ -307,26 +307,33 @@
     left: 0;
     top: 0;
     width: 100%;
-    min-height: 8px; /* Height of your bottom cap */
+    min-height: 18px; /* Correct: Height of your bottom cap */
     cursor: grab;
     
-    /* COMBINED BACKGROUNDS TO ELIMINATE GAPS */
+    /* NEW: Create a dedicated 18px space at the bottom for the cap */
+    padding-bottom: 18px; 
+    
+    /* --- The Multi-Background Setup --- */
     background-image: 
-        url('../assets/ucp3/scroll_bar_bottom.png'),
-        url('../assets/ucp3/scroll_bar_middle.png');
+        url('../assets/ucp3/scroll_bar_bottom_hook.png'), /* Layer 2: The Cap */
+        url('../assets/ucp3/scroll_bar_middle.png');      /* Layer 1: The repeating chain */
     
     background-repeat: 
-        no-repeat,  /* Don't repeat the cap */
-        repeat-y;   /* Repeat the middle part */
+        no-repeat,
+        repeat-y;
         
     background-position: 
-        bottom center, /* Pin cap to the absolute bottom */
-        bottom center; /* Align repeating grid to the bottom */
+        bottom center, /* Position cap at the bottom */
+        bottom center; /* Also align the repeating grid to the bottom */
 
-    /* Set explicit sizes to prevent gaps and distortion */
+    /* THIS IS THE KEY TO THE FIX: Clip backgrounds to different areas */
+    background-clip: 
+        padding-box,   /* The cap will ONLY render in the padding area */
+        content-box;   /* The repeating chain will ONLY render in the content area (above the padding) */
+
     background-size: 
-        7px 8px,   /* Size of bottom cap image */
-        100% 8px;  /* Width of 100%, height of one middle link */
+        7px 18px,   /* Size of bottom cap image */
+        100% 8px;   /* Size of one middle link */
 }
 
 .chain-visuals:active {

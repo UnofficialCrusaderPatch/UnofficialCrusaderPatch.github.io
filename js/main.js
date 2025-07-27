@@ -555,7 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // --- Constants ---
-            const BOTTOM_CAP_HEIGHT = 8; // IMPORTANT: Must match CSS height of .chain-bottom-cap
+            const BOTTOM_CAP_HEIGHT = 18; // IMPORTANT: Must match CSS height of .chain-bottom-cap
 
             // --- State Variables ---
             let isDragging = false;
