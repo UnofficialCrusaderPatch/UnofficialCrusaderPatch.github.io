@@ -7,6 +7,7 @@
     margin: auto;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .parchment-box::before {
@@ -54,7 +55,7 @@
 .parchment-content-wrapper {
     flex-grow: 1;
     min-height: 0;
-    overflow-y: scroll;
+    overflow-y: scroll; 
     padding: 0 1rem;
 
     /* Hide native scrollbar */
@@ -110,6 +111,7 @@
     flex-direction: column;
     height: 100%;
     gap: 0.5rem;
+    width: 100%
 }
 
 .store-headers-and-controls {

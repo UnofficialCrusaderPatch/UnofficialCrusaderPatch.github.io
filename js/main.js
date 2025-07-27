@@ -264,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
                     descContainer.innerHTML = `${descriptionHeader}<div class="prose">${marked.parse(md)}</div>`;
+                    descContainer.closest('.parchment-content-wrapper')?.dispatchEvent(new Event('scroll'));
                 } catch (err) {
                     descContainer.innerHTML = `<p style="color:red">Could not load details for this item.</p>`;
                 }
