@@ -104,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tabNav.querySelectorAll('button').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
+        history.pushState(null, '', '#' + tabId);
+
         renderLoading(tabContentArea, T);
         const isTabStillActive = () => tabNav.querySelector('.active')?.dataset.tab === tabId;
 
@@ -337,9 +339,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (el.id === 'footer-version-info' && el.dataset.i18n === 'loaded') return;
             if (T(key) !== `[${key}]`) el.textContent = T(key);
         });
-
-        const activeTab = tabNav.querySelector('.active')?.dataset.tab || 'overview';
-        await switchTab(activeTab);
     }
 
     async function init() {
@@ -351,6 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const tabButton = e.target.closest('button[data-tab]');
             if (tabButton) {
                 switchTab(tabButton.dataset.tab);
+            }
+        });
+
+        window.addEventListener('popstate', () => {
+            const tabIdFromHash = window.location.hash.substring(1) || 'overview';
+            if (document.querySelector(`[data-tab="${tabIdFromHash}"]`)) {
+                switchTab(tabIdFromHash);
             }
         });
 
@@ -460,7 +466,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
+            // 1. Load the language text first, without switching tabs.
             await loadLanguage(appState.currentLang);
+
+            // 2. NOW, determine the correct tab from the URL hash.
+            const initialTab = window.location.hash.substring(1) || 'overview';
+
+            // 3. Switch to that tab.
+            if (document.querySelector(`[data-tab="${initialTab}"]`)) {
+                // We don't need to await this on initial load.
+                switchTab(initialTab);
+            } else {
+                // Fallback if the hash is invalid for some reason.
+                switchTab('overview');
+            }
 
         } catch (error) {
             console.error("Fatal error during initialization:", error);
