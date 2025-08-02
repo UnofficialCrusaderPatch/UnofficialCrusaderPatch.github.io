@@ -197,3 +197,5 @@ function buildDescriptionUrl(ext, lang) {
 
     return tryLangs.map(l => `${GITHUB_RAW_BASE}${repo}/${ref}/${loc}locale/description-${l}.md`);
 }
+
+console.log("✅ api.js has been loaded and executed.");
