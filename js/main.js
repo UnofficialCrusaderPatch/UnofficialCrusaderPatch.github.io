@@ -311,57 +311,142 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeAllCustomScrollbars();
     }
 
+    /**
+     * Recursively renders the wiki file tree into an HTML list for the sidebar.
+     * @param {Array} tree - The nested array of files and directories.
+     * @returns {string} - The generated HTML string.
+     */
+    function renderSidebarFromTree(tree) {
+        let html = '<ul>';
+        for (const item of tree) {
+            if (item.type === 'dir') {
+                html += `<li><span class="folder">${item.name.replace(/-/g, ' ')}</span>`;
+                html += renderSidebarFromTree(item.children); // Recursive call
+                html += '</li>';
+            } else {
+                // Use data-path attribute to store the clean path for fetching
+                html += `<li><a href="#" data-path="${item.path}">${item.name.replace(/-/g, ' ')}</a></li>`;
+            }
+        }
+        html += '</ul>';
+        return html;
+    }
+
+    /**
+     * Scans the main wiki content for h2/h3 headers and generates a table of contents.
+     */
+    function generateTableOfContents() {
+        const mainPane = document.querySelector('.parchment-content-wrapper'); // Target the scrollable area
+        const tocPane = document.getElementById('wiki-toc');
+        if (!mainPane || !tocPane) return;
+
+        const headers = mainPane.querySelectorAll('h2, h3');
+        if (headers.length < 2) {
+            tocPane.innerHTML = ''; // No ToC for short pages
+            return;
+        }
+
+        let tocHtml = '<ul>';
+        headers.forEach((header, index) => {
+            const id = `header-${index}`;
+            header.id = id;
+            const indentClass = header.tagName === 'H3' ? 'indent' : '';
+            tocHtml += `<li class="${indentClass}"><a href="#${id}">${header.textContent}</a></li>`;
+        });
+        tocHtml += '</ul>';
+
+        tocPane.innerHTML = tocHtml;
+    }
+
     async function renderWikiTab() {
-        // Load sidebar and initial page content only once.
-        if (!appState.wiki.sidebarMd) {
+        // --- Initial Setup ---
+        if (!appState.wiki.sidebarTree) {
+            renderLoading(tabContentArea, T);
             try {
-                const [sidebarMd, mainMd] = await Promise.all([
-                    fetchWikiPageMarkdown('_Sidebar'),
+                const [tree, mainMd] = await Promise.all([
+                    fetchWikiTree(),
                     fetchWikiPageMarkdown('Home')
                 ]);
-                appState.wiki.sidebarMd = sidebarMd;
+                appState.wiki.sidebarTree = tree;
                 appState.wiki.mainMd = mainMd;
+                appState.wiki.currentPage = 'Home';
             } catch (e) {
                 console.error("Wiki fetch failed", e);
-                tabContentArea.innerHTML = createParchmentBox(
-                    `<p style="color:red">Could not load the wiki.</p>`
-                );
-                return; // Use return instead of break
+                tabContentArea.innerHTML = renderWiki(null, T('wiki_error'), T);
+                return;
             }
         }
 
-        // Render the initial wiki structure.
-        tabContentArea.innerHTML = renderWiki(appState.wiki.sidebarMd, appState.wiki.mainMd, T);
+        const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
+        tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
 
-        // Add a single event listener to the container to handle all wiki link clicks.
-        tabContentArea.addEventListener('click', async (e) => {
+        // Initial setup calls
+        generateTableOfContents();
+        initializeAllCustomScrollbars();
+
+        // --- Dynamic Content Loading via Event Delegation ---
+        const wikiContainer = tabContentArea.querySelector('.wiki-container');
+        if (wikiContainer.dataset.listenerAttached) return; // Prevent adding multiple listeners
+        wikiContainer.dataset.listenerAttached = 'true';
+
+        wikiContainer.addEventListener('click', async (e) => {
             const link = e.target.closest('a');
+            const isSidebarLink = link && link.hasAttribute('data-path');
+            const isTocLink = link && link.getAttribute('href')?.startsWith('#');
+
+            if (isTocLink) {
+                // Let the browser handle smooth scrolling to the anchor
+                return;
+            }
             
-            // Check if it's an internal wiki link (relative path)
-            if (link && link.href && link.hostname === location.hostname) {
-                // Ensure this listener only acts if we are on the wiki tab
-                const activeTab = tabNav.querySelector('.active')?.dataset.tab;
-                if (activeTab !== 'wiki') return;
+            if (isSidebarLink) {
+                e.preventDefault();
+                const pagePath = link.dataset.path;
+                if (pagePath === appState.wiki.currentPage) return;
+
+                const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
+                const tocPane = document.getElementById('wiki-toc');
                 
-                e.preventDefault(); // Stop the browser from navigating away
-                
-                const pageName = link.getAttribute('href').split('/').pop();
-                if (!pageName || pageName === appState.wiki.currentPage) return; // Don't reload same page
-                
-                const mainPane = document.getElementById('wiki-main-content');
-                mainPane.innerHTML = `<p>${T('loading')}</p>`;
+                // Show loading state
+                mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
+                tocPane.innerHTML = '';
                 
                 try {
-                    const newMd = await fetchWikiPageMarkdown(pageName);
+                    const newMd = await fetchWikiPageMarkdown(pagePath);
                     appState.wiki.mainMd = newMd;
-                    appState.wiki.currentPage = pageName;
-                    mainPane.innerHTML = marked.parse(newMd);
+                    appState.wiki.currentPage = pagePath;
+
+                    mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
+                    generateTableOfContents();
+                    initializeAllCustomScrollbars();
                 } catch (err) {
-                    mainPane.innerHTML = `<p style="color:red">Could not load page: ${pageName}</p>`;
+                    mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Could not load page: ${pagePath}</p>`);
                 }
             }
         });
-        initializeAllCustomScrollbars();
+    }
+
+    function generateTableOfContents() {
+        const mainPane = document.getElementById('wiki-main-content');
+        const tocPane = document.getElementById('wiki-toc');
+        if (!mainPane || !tocPane) return;
+
+        const headers = mainPane.querySelectorAll('h2, h3');
+        if (headers.length < 2) {
+            tocPane.innerHTML = ''; // Don't show ToC for short pages
+            return;
+        }
+
+        let tocHtml = '<ul>';
+        headers.forEach((header, index) => {
+            const id = `header-${index}`;
+            header.id = id; // Add an ID to the header to link to it
+            const indentClass = header.tagName === 'H3' ? 'indent' : '';
+            tocHtml += `<li class="${indentClass}"><a href="#${id}">${header.textContent}</a></li>`;
+        });
+        tocHtml += '</ul>';
+
+        tocPane.innerHTML = tocHtml;
     }
 
     async function loadLanguage(lang) {

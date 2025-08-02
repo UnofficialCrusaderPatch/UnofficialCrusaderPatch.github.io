@@ -68,24 +68,26 @@ function renderNews(newsItems, T) {
 }
 
 
-function renderWiki(sidebarMd, mainMd, T) {
-    if (!sidebarMd || !mainMd) {
+function renderWiki(sidebarHtml, mainMd, T) {
+    if (!mainMd) { // Sidebar can be empty, but main content must exist
         return createParchmentBox(`<p>${T('wiki_error') || 'Could not load the wiki content.'}</p>`);
     }
 
-    // Use marked.js to convert markdown to HTML
-    const sidebarHtml = marked.parse(sidebarMd);
-    const mainHtml = marked.parse(mainMd);
+    const mainContentHtml = marked.parse(mainMd);
 
-    const content = `
-        <h2 class="ucp-header-font">${T('wiki_title') || 'UCP Wiki'}</h2>
-        <div class="wiki-split">
-            <div id="wiki-sidebar" class="wiki-sidebar prose">${sidebarHtml}</div>
-            <div id="wiki-main-content" class="wiki-main-content prose">${mainHtml}</div>
+    // This now returns the full 3-column grid structure.
+    // The sidebars are outside the parchment box for a cleaner layout.
+    return `
+        <div class="wiki-container">
+            <nav id="wiki-sidebar" class="prose">${sidebarHtml}</nav>
+            
+            <main id="wiki-main-content-wrapper">
+                ${createParchmentBox(mainContentHtml)}
+            </main>
+            
+            <aside id="wiki-toc" class="prose"></aside>
         </div>
     `;
-
-    return createParchmentBox(content);
 }
 
 
