@@ -324,8 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += renderSidebarFromTree(item.children);
                 html += '</li>';
             } else {
-                // CRITICAL CHANGE: The href now contains the full hash path.
-                // The data-path is still used for easy access to the fetch path.
+                // WICHTIG: Das href-Attribut MUSS mit #wiki/ beginnen
                 html += `<li><a href="#wiki/${item.path}" data-path="${item.path}">${item.name.replace(/-/g, ' ')}</a></li>`;
             }
         }
@@ -359,75 +358,92 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function renderWikiTab() {
-        // Determine the target page from the full URL hash
+        // Bestimmt die Zielseite aus dem vollständigen URL-Hash
         const hash = window.location.hash.substring(1);
         let targetPage = 'Home';
         if (hash.startsWith('wiki/')) {
-            targetPage = hash.substring(5); // Get the part after "wiki/"
+            targetPage = hash.substring(5); // Holt den Teil nach "wiki/"
         }
 
-        // --- Initial Setup: Fetch data only if it's not already loaded ---
+        // --- Erstmaliges Setup: Daten nur laden, wenn sie noch nicht vorhanden sind ---
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
                 const [tree, mainMd] = await Promise.all([
                     fetchWikiTree(),
-                    fetchWikiPageMarkdown(targetPage) // Fetch the correct initial page
+                    fetchWikiPageMarkdown(targetPage) // Lädt die korrekte initiale Seite
                 ]);
                 appState.wiki.sidebarTree = tree;
                 appState.wiki.mainMd = mainMd;
                 appState.wiki.currentPage = targetPage;
             } catch (e) {
                 console.error("Wiki fetch failed", e);
-                tabContentArea.innerHTML = renderWiki(null, `Error loading page: ${targetPage}`, T);
+                tabContentArea.innerHTML = renderWiki(null, `Fehler beim Laden der Seite: ${targetPage}`, T);
                 return;
             }
         }
 
-        // --- Render the layout ---
+        // --- Layout rendern ---
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
         generateTableOfContents();
         initializeAllCustomScrollbars();
 
-        // --- Attach a single, smart event listener for all wiki navigation ---
+        // --- Einen einzigen, intelligenten Event-Listener für die gesamte Wiki-Navigation anhängen ---
         const wikiContainer = tabContentArea.querySelector('.wiki-container');
-        if (wikiContainer.dataset.listenerAttached === 'true') return;
+        if (wikiContainer.dataset.listenerAttached === 'true') return; // Verhindert das Hinzufügen mehrerer Listener
         wikiContainer.dataset.listenerAttached = 'true';
 
         wikiContainer.addEventListener('click', async (e) => {
             if (tabNav.querySelector('.active')?.dataset.tab !== 'wiki') return;
 
+            // Klick auf den Collapse-Button behandeln
+            const toggleButton = e.target.closest('#wiki-sidebar-toggle');
+            if (toggleButton) {
+                const sidebar = document.getElementById('wiki-sidebar');
+                sidebar.classList.toggle('is-collapsed');
+                toggleButton.textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
+                return;
+            }
+
+            // Den eigentlichen Link finden, auf den geklickt wurde
             const link = e.target.closest('a');
-            // Ignore clicks that are not on links or are for external sites/page anchors
-            if (!link || !link.href || link.href.includes('#') === false) return;
-
-            // This is an internal wiki link we need to handle
-            e.preventDefault();
             
-            const targetHash = link.hash; // e.g., #wiki/Some/Page
-            if (targetHash === window.location.hash) return; // Don't reload same page
+            // Klicks ignorieren, die keine internen Wiki-Links sind
+            if (!link || !link.hash || !link.hash.startsWith('#wiki/')) {
+                return;
+            }
+            
+            // **DAS IST DIE ENTSCHEIDENDE ZEILE**
+            // Verhindert, dass der Browser die Seite neu lädt oder wegnavigiert.
+            e.preventDefault();
 
-            // Update the URL in the browser bar
+            const targetHash = link.hash;
+            if (targetHash === window.location.hash) return; // Dieselbe Seite nicht neu laden
+
+            // Die URL in der Browserleiste manuell aktualisieren
             history.pushState(null, '', targetHash);
 
-            // Now, load the content for the new page
-            const pagePath = targetHash.substring(5); // Get path from hash
+            // Jetzt den Inhalt für die neue Seite laden
+            const pagePath = targetHash.substring(6); // Holt den Pfad aus dem Hash (nach #wiki/)
             const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
             const tocPane = document.getElementById('wiki-toc');
-                
+
             mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
-            if (tocPane) tocPane.innerHTML = '';
-                
+            if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
+            
             try {
                 const newMd = await fetchWikiPageMarkdown(pagePath);
                 appState.wiki.mainMd = newMd;
                 appState.wiki.currentPage = pagePath;
+
                 mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
                 generateTableOfContents();
                 initializeAllCustomScrollbars();
+                // Nach dem Laden zum Seitenanfang scrollen
+                mainContentWrapper.querySelector('.parchment-content-wrapper').scrollTop = 0;
             } catch (err) {
-                mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Could not load page: ${pagePath}</p>`);
+                mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Seite konnte nicht geladen werden: ${pagePath}</p>`);
             }
         });
     }
