@@ -336,16 +336,16 @@ document.addEventListener('DOMContentLoaded', () => {
      * Scans the main wiki content for h2/h3 headers and generates a table of contents.
      */
     function generateTableOfContents() {
-        const mainPane = document.querySelector('.parchment-content-wrapper'); // Target the scrollable area
-        const tocPane = document.getElementById('wiki-toc');
+        const mainPane = document.querySelector('#wiki-main-content-wrapper .parchment-content-wrapper');
+        const tocPane = document.getElementById('wiki-toc-content'); // <-- UPDATED ID
         if (!mainPane || !tocPane) return;
 
+        // ... rest of the function is the same
         const headers = mainPane.querySelectorAll('h2, h3');
         if (headers.length < 2) {
-            tocPane.innerHTML = ''; // No ToC for short pages
+            tocPane.innerHTML = '';
             return;
         }
-
         let tocHtml = '<ul>';
         headers.forEach((header, index) => {
             const id = `header-${index}`;
@@ -354,12 +354,11 @@ document.addEventListener('DOMContentLoaded', () => {
             tocHtml += `<li class="${indentClass}"><a href="#${id}">${header.textContent}</a></li>`;
         });
         tocHtml += '</ul>';
-
         tocPane.innerHTML = tocHtml;
     }
 
     async function renderWikiTab() {
-        // --- Initial Setup ---
+        // --- Initial Setup: Fetch data only if it's not already loaded ---
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
@@ -377,45 +376,64 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // --- Render the initial layout ---
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
 
-        // Initial setup calls
+        // --- Call helpers to populate ToC and initialize scrollbars ---
         generateTableOfContents();
         initializeAllCustomScrollbars();
 
-        // --- Dynamic Content Loading via Event Delegation ---
+        // --- Attach a single, smart event listener to the entire tab content area ---
         const wikiContainer = tabContentArea.querySelector('.wiki-container');
-        if (wikiContainer.dataset.listenerAttached) return; // Prevent adding multiple listeners
+        if (wikiContainer.dataset.listenerAttached === 'true') return;
         wikiContainer.dataset.listenerAttached = 'true';
 
         wikiContainer.addEventListener('click', async (e) => {
+            // Only act if we are on the wiki tab
+            if (tabNav.querySelector('.active')?.dataset.tab !== 'wiki') return;
+            
+            // Handle sidebar collapse button
+            const toggleButton = e.target.closest('#wiki-sidebar-toggle');
+            if (toggleButton) {
+                const sidebar = document.getElementById('wiki-sidebar');
+                sidebar.classList.toggle('is-collapsed');
+                toggleButton.textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
+                return; // Stop further processing
+            }
+
             const link = e.target.closest('a');
-            const isSidebarLink = link && link.hasAttribute('data-path');
-            const isTocLink = link && link.getAttribute('href')?.startsWith('#');
+            if (!link) return; // Exit if the click was not on a link
+
+            const isSidebarLink = link.hasAttribute('data-path');
+            const isTocLink = link.getAttribute('href')?.startsWith('#');
 
             if (isTocLink) {
-                // Let the browser handle smooth scrolling to the anchor
+                // This is a link in the Table of Contents.
+                // Let the browser handle the smooth scroll. No preventDefault needed.
                 return;
             }
             
             if (isSidebarLink) {
+                // This is a link in the main navigation sidebar.
+                // We MUST prevent the default browser action.
                 e.preventDefault();
                 const pagePath = link.dataset.path;
-                if (pagePath === appState.wiki.currentPage) return;
+                if (pagePath === appState.wiki.currentPage) return; // Don't reload the same page
 
                 const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
                 const tocPane = document.getElementById('wiki-toc');
                 
                 // Show loading state
                 mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
-                tocPane.innerHTML = '';
+                if (tocPane) tocPane.innerHTML = '';
                 
                 try {
                     const newMd = await fetchWikiPageMarkdown(pagePath);
                     appState.wiki.mainMd = newMd;
                     appState.wiki.currentPage = pagePath;
 
+                    // Re-render the main content, generate new ToC, and re-init its scrollbar
                     mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
                     generateTableOfContents();
                     initializeAllCustomScrollbars();

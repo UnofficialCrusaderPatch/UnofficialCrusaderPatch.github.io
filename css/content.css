@@ -11,7 +11,7 @@
 }
 
 .main-content:has(.wiki-container) {
-    max-width: 100%;
+    max-width: 1688px; /* Allow wiki to be wider */
 }
 
 .parchment-box::before {
@@ -264,74 +264,116 @@
     border-radius: 4px;
 }
 
-/* --- NEW WIKI LAYOUT & STYLES (REPLACES OLD .wiki-split) --- */
+/* --- NEW WIKI LAYOUT & STYLES --- */
 .wiki-container {
     display: grid;
-    grid-template-columns: 250px minmax(0, 1fr) 250px; /* Left Sidebar | Main Content | Right ToC */
+    grid-template-columns: 280px minmax(0, 1fr) 280px; /* Desktop: 3 columns */
     gap: 1.5rem;
-    align-items: start;
+    align-items: stretch;
     height: 100%;
     width: 100%;
 }
 
+/* Styling for both sidebars */
 #wiki-sidebar, #wiki-toc {
-    position: sticky;
-    top: 1rem;
-    max-height: calc(100vh - 170px); /* Adjust based on your header/footer height */
-    overflow-y: auto;
-    padding-right: 1rem;
+    background-color: rgba(0, 0, 0, 0.1); /* Dark see-through shade */
     font-size: 0.95rem;
-    scrollbar-width: thin;
-}
-#wiki-sidebar::-webkit-scrollbar, #wiki-toc::-webkit-scrollbar { width: 6px; }
-#wiki-sidebar::-webkit-scrollbar-thumb, #wiki-toc::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 3px;
+    display: flex; /* Needed for flex-grow on content wrapper */
+    flex-direction: column;
+    min-height: 0;
 }
 
-#wiki-main-content-wrapper {
+#wiki-sidebar.is-collapsed .parchment-content-wrapper #wiki-sidebar-content,
+#wiki-sidebar.is-collapsed .custom-scrollbar {
+    display: none; /* Hides content when collapsed */
+}
+
+.wiki-sidebar-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem 0.5rem 0; /* Adjust padding */
+    flex-shrink: 0;
+}
+.wiki-sidebar-header .ucp-header-font {
+    margin: 0;
+}
+#wiki-sidebar-toggle {
+    padding: 0.2rem 0.6rem; /* Make button smaller */
+    font-size: 0.8rem;
+}
+
+#wiki-sidebar .parchment-content-wrapper,
+#wiki-toc .parchment-content-wrapper {
+    /* Wrappers now need to be flex containers too */
+    display: flex;
+    flex-direction: column;
+}
+
+#wiki-sidebar-content, #wiki-toc-content {
+    overflow-y: auto; /* Content inside the wrapper scrolls */
     min-height: 0;
-    height: 100%;
+    scrollbar-width: none;
+}
+#wiki-sidebar-content::-webkit-scrollbar, #wiki-toc-content::-webkit-scrollbar {
+    display: none;
 }
 
 #wiki-sidebar li .folder {
     font-family: 'RiverAvenue', cursive;
     font-size: 1.1em;
-    color: var(--ucp-text);
     margin-top: 0.75em;
-    cursor: default;
-    display: block;
 }
 #wiki-sidebar li ul {
     padding-left: 1rem;
     border-left: 1px solid rgba(0,0,0,0.1);
 }
 #wiki-sidebar li a { display: block; padding: 4px 0; }
-#wiki-toc ul { margin-top: 0.5em; }
-#wiki-toc li a { display: block; padding: 3px 0; }
-#wiki-toc .indent { padding-left: 1rem; }
+#wiki-toc-content ul { margin-top: 0.5em; }
+#wiki-toc-content li a { display: block; padding: 3px 0; }
+#wiki-toc-content .indent { padding-left: 1rem; }
 
 
 /* --- WIKI RESPONSIVE BREAKPOINTS --- */
+
+/* Medium screens (tablets) */
 @media (max-width: 1024px) {
-    .wiki-container {
-        grid-template-columns: 240px minmax(0, 1fr);
+    .main-content:has(.wiki-container) {
+        max-width: 100%;
+        padding: 1rem;
     }
+
+    .wiki-container {
+        /* Switch to vertical stacking */
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr; /* Sidebar row, Content row */
+    }
+
     #wiki-toc {
-        display: none;
+        display: none; /* Right sidebar vanishes */
+    }
+    
+    #wiki-sidebar {
+        /* Take up 1/3rd of the viewport height */
+        max-height: 33vh;
+        min-height: 120px; /* Minimum height for header/button */
+    }
+
+    #wiki-sidebar.is-collapsed {
+        max-height: 60px; /* Height of just the header */
+        min-height: 60px;
     }
 }
+
+/* Small screens (phones) */
 @media (max-width: 768px) {
-    .wiki-container {
-        grid-template-columns: minmax(0, 1fr);
+    .main-content:has(.wiki-container) {
+        padding: 0.5rem;
     }
+    
     #wiki-sidebar {
-       display: none;
-    }
-    #wiki-main-content-wrapper .parchment-content-wrapper {
-        padding-left: 0.5rem;
-        padding-right: 1rem;
+        /* Take up 1/2 of the viewport height */
+        max-height: 50vh;
     }
 }
 

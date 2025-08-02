@@ -69,23 +69,49 @@ function renderNews(newsItems, T) {
 
 
 function renderWiki(sidebarHtml, mainMd, T) {
-    if (!mainMd) { // Sidebar can be empty, but main content must exist
+    if (!mainMd) {
         return createParchmentBox(`<p>${T('wiki_error') || 'Could not load the wiki content.'}</p>`);
     }
 
     const mainContentHtml = marked.parse(mainMd);
 
-    // This now returns the full 3-column grid structure.
-    // The sidebars are outside the parchment box for a cleaner layout.
+    // This version adds a header and a collapse button to the sidebar structure.
     return `
         <div class="wiki-container">
-            <nav id="wiki-sidebar" class="prose">${sidebarHtml}</nav>
+            <nav id="wiki-sidebar" class="parchment-box">
+                <div class="parchment-content-wrapper">
+                    <div class="wiki-sidebar-header">
+                        <h3 class="ucp-header-font">Navigation</h3>
+                        <button id="wiki-sidebar-toggle" class="ucp-button-small">Collapse</button>
+                    </div>
+                    <div id="wiki-sidebar-content">${sidebarHtml}</div>
+                </div>
+                <div class="custom-scrollbar">
+                    <div class="scrollbar-top"></div>
+                    <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                </div>
+            </nav>
             
-            <main id="wiki-main-content-wrapper">
-                ${createParchmentBox(mainContentHtml)}
+            <main id="wiki-main-content-wrapper" class="parchment-box">
+                <div class="parchment-content-wrapper">${mainContentHtml}</div>
+                <div class="custom-scrollbar">
+                    <div class="scrollbar-top"></div>
+                    <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                </div>
             </main>
             
-            <aside id="wiki-toc" class="prose"></aside>
+            <aside id="wiki-toc" class="parchment-box">
+                <div class="parchment-content-wrapper">
+                    <div class="wiki-sidebar-header">
+                        <h3 class="ucp-header-font">On This Page</h3>
+                    </div>
+                    <div id="wiki-toc-content"></div>
+                </div>
+                 <div class="custom-scrollbar">
+                    <div class="scrollbar-top"></div>
+                    <div class="scrollbar-track"><div class="chain-visuals"></div></div>
+                </div>
+            </aside>
         </div>
     `;
 }
