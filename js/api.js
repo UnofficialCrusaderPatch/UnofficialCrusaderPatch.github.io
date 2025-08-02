@@ -11,7 +11,7 @@ const REPOS = {
     NEWS   : "UnofficialCrusaderPatch/UnofficialCrusaderPatch", // contains NEWS.md
     STORE  : "UnofficialCrusaderPatch/UCP3-extensions-store",   // branch‑aware store
     CREDITS: "UnofficialCrusaderPatch/UCP3-GUI",                // credits.md lives here
-    WIKI   : "UnofficialCrusaderPatch/UCP-Wiki" // The repo the wiki belongs to
+    WIKI   : "UnofficialCrusaderPatch/UCP-Wiki"                 // The repo the wiki belongs to
 };
 
 // Paths inside those repositories
@@ -121,6 +121,38 @@ function fetchCredits() {
 function fetchWikiPageMarkdown(pageName) {
     const url = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${pageName}.md`;
     return fetchRawText(url);
+}
+
+async function fetchWikiTree(path = 'docs') {
+    const url = `${GITHUB_API_BASE}${REPOS.WIKI}/contents/${path}`;
+    // Use a unique cache key to avoid conflicts with other API calls
+    const contents = await fetchWithCache(`tree_${path}`, url, true);
+
+    // Filter out non-essentials and sort folders first, then files
+    const sortedContents = contents
+        .filter(item => !item.name.startsWith('.') && item.name !== 'images')
+        .sort((a, b) => {
+            if (a.type === b.type) return a.name.localeCompare(b.name);
+            return a.type === 'dir' ? -1 : 1;
+        });
+
+    const tree = [];
+    for (const item of sortedContents) {
+        if (item.type === 'dir') {
+            tree.push({
+                name: item.name,
+                type: 'dir',
+                children: await fetchWikiTree(item.path)
+            });
+        } else if (item.name.endsWith('.md')) {
+            tree.push({
+                name: item.name.replace('.md', ''),
+                path: item.path.replace('docs/', '').replace('.md', ''),
+                type: 'file'
+            });
+        }
+    }
+    return tree;
 }
 
 /* -------------------------------------------------------------
