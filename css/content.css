@@ -162,7 +162,7 @@
 .ucp-store-row.sel { background: rgba(255,255,0,.25); }
 
 .ucp-store-list-items {
-    padding: 1rem 0px;
+    padding: 10px 0px 0px 0px;;
 }
 
 .store-list-header {
@@ -558,7 +558,7 @@
 
 /* Small screens (phones) */
 @media (max-width: 768px) {
-        
+
     #wiki-sidebar {
         /* Take up 1/2 of the viewport height */
         max-height: 50vh;
