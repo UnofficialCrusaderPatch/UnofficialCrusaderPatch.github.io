@@ -343,23 +343,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadWikiPage(pagePath) {
-        const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
-        const tocPane = document.getElementById('wiki-toc');
+        // This is the main <main> element which IS the parchment box
+        const mainParchmentBox = document.getElementById('wiki-main-content-wrapper'); 
+        
+        // FIND the inner content area that needs updating
+        const mainContentArea = mainParchmentBox.querySelector('.parchment-content-wrapper');
+        const tocPane = document.getElementById('wiki-toc-content');
 
-        mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
-        if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
+        // Handle cases where elements might not be found
+        if (!mainContentArea || !tocPane) {
+            console.error("Wiki content or TOC element not found!");
+            return;
+        }
+
+        // UPDATE only the inner HTML for the loading message
+        mainContentArea.innerHTML = `<p>${T('loading')}</p>`;
+        tocPane.innerHTML = '';
         
         try {
             const newMd = await fetchWikiPageMarkdown(pagePath, appState.currentLang);
             appState.wiki.mainMd = newMd;
             appState.wiki.currentPage = pagePath;
 
-            mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
+            // UPDATE only the inner HTML with the new, parsed content
+            mainContentArea.innerHTML = marked.parse(newMd); 
+            
             generateTableOfContents();
-            initializeAllCustomScrollbars();
-            mainContentWrapper.querySelector('.parchment-content-wrapper').scrollTop = 0;
+            initializeAllCustomScrollbars(); // Re-check scrollbars as content height changed
+            mainContentArea.scrollTop = 0; // Scroll to top
         } catch (err) {
-            mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Could not load page: ${pagePath}</p>`);
+            mainContentArea.innerHTML = `<p style="color:red">Could not load page: ${pagePath}</p>`;
         }
     }
 

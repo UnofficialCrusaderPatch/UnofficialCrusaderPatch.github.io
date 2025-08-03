@@ -29,6 +29,6 @@ Für detaillierte Anweisungen und Fehlerbehebungen schauen Sie bitte in unsere T
 <div class="quick-links">
     <a href="#" onclick="document.getElementById('tabStore').click(); return false;">Store durchsuchen</a>
     <a href="#" onclick="document.getElementById('tabFaq').click(); return false;">FAQ lesen</a>
-    <a href="#" onclick="document.getElementById('tabWiki').click(); return false;">Visit the Wiki</a>
+    <a href="/#wiki" onclick="document.getElementById('tabWiki').click(); return false;">Das Wiki besuchen</a>
     <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch" target="_blank">Haupt-GitHub-Projekt</a>
 </div>
