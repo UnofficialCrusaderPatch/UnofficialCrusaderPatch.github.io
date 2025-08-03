@@ -23,6 +23,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    const wikiRenderer = new marked.Renderer();
+    wikiRenderer.image = function(href, title, text) {
+        const url = (typeof href === 'object' && href !== null) ? href.href : href;
+
+        // Now, perform the null/empty check on the extracted URL string
+        if (!url) {
+            return text;
+        }
+
+        // Proceed with the logic, but using the 'url' variable
+        if (!/^(https?:)?\/\//.test(url)) {
+            const currentPagePath = appState.wiki.currentPage || '';
+            const lastSlash = currentPagePath.lastIndexOf('/');
+            const basePath = (lastSlash > -1) ? currentPagePath.substring(0, lastSlash) : '';
+            
+            const absoluteHref = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${basePath ? basePath + '/' : ''}${url.replace('./', '')}`;
+            
+            return `<img src="${absoluteHref}" alt="${text}"${title ? ` title="${title}"` : ''}>`;
+        }
+        
+        return `<img src="${url}" alt="${text}"${title ? ` title="${title}"` : ''}>`;
+    };
+
     let storeDataPromise = null;
 
     // --- DOM ELEMENTS ---
@@ -366,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.wiki.currentPage = pagePath;
 
             // UPDATE only the inner HTML with the new, parsed content
-            mainContentArea.innerHTML = marked.parse(newMd); 
+            mainContentArea.innerHTML = marked.parse(newMd, { renderer: wikiRenderer }); // Use our custom renderer
             
             generateTableOfContents();
             initializeAllCustomScrollbars(); // Re-check scrollbars as content height changed
@@ -414,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Render the page structure
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
-        tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
+        tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T, wikiRenderer);
         generateTableOfContents();
         initializeAllCustomScrollbars();
 

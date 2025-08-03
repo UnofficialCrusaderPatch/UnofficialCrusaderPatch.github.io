@@ -44,12 +44,12 @@ function renderNews(newsItems, T) {
 }
 
 
-function renderWiki(sidebarHtml, mainMd, T) {
+function renderWiki(sidebarHtml, mainMd, T, renderer) {
     if (!mainMd) {
         return createParchmentBox(`<p>${T('wiki_error') || 'Could not load the wiki content.'}</p>`);
     }
 
-    const mainContentHtml = marked.parse(mainMd);
+    const mainContentHtml = marked.parse(mainMd, { renderer: renderer });
 
     // This version adds a header and a collapse button to the sidebar structure.
     return `
