@@ -30,11 +30,27 @@ A few are bundled with the installer, and you can find many more in the content 
 There are a few tutorials available. For a video quickstart, feel free to watch this excellent tutorial made by Krarilotus.
 
 **English: SHC AI character design basics with UCP (ft wolfkiller rat)**
-<iframe src="https://www.youtube.com/embed/g_p9g_N4Y-I"></iframe>
+<div class="video-container-static" data-video-id="8WgSMmWNzvQ">
+    <div class="video-thumbnail">
+        <img src="https://i.ytimg.com/vi/8WgSMmWNzvQ/0.jpg" loading="lazy" alt="Video Thumbnail">
+        <div class="play-button"></div>
+    </div>
+    <div class="video-iframe">
+        <iframe loading="lazy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+</div>
 
 ***
 ### Is there a tutorial on how to make my own castles?
 There are many tutorials available on YouTube. For a video quickstart on how the game uses AI castles, feel free to watch this tutorial.
 
-**English: SHC AIV Editor setup, tips & tricks**
-<iframe src="https://www.youtube.com/embed/U3l08M1aB2Q"></iframe>
+**English: AIV Editor - Beginners Guide**
+<div class="video-container-static" data-video-id="xKEmaIit8vE">
+    <div class="video-thumbnail">
+        <img src="https://i.ytimg.com/vi/xKEmaIit8vE/0.jpg" loading="lazy" alt="Video Thumbnail">
+        <div class="play-button"></div>
+    </div>
+    <div class="video-iframe">
+        <iframe loading="lazy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+</div>

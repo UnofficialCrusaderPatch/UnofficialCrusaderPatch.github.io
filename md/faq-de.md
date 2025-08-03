@@ -30,11 +30,27 @@ Einige sind im Installer enthalten, und viele weitere findest du in den Content-
 Es gibt einige Anleitungen. Für einen schnellen Video-Einstieg kannst du dir dieses exzellente Tutorial von Krarilotus ansehen.
 
 **Englisch: SHC AI character design basics with UCP (ft wolfkiller rat)**
-<iframe src="https://www.youtube.com/embed/g_p9g_N4Y-I"></iframe>
+<div class="video-container-static" data-video-id="8WgSMmWNzvQ">
+    <div class="video-thumbnail">
+        <img src="https://i.ytimg.com/vi/8WgSMmWNzvQ/0.jpg" loading="lazy" alt="Video Thumbnail">
+        <div class="play-button"></div>
+    </div>
+    <div class="video-iframe">
+        <iframe loading="lazy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+</div>
 
 ***
 ### Gibt es ein Tutorial, wie ich meine eigenen Burgen bauen kann?
 Auf YouTube gibt es viele Anleitungen. Für einen Video-Überblick, wie das Spiel KI-Burgen verwendet, kannst du dir dieses Tutorial ansehen.
 
-**Englisch: SHC AIV Editor setup, tips & tricks**
-<iframe src="https://www.youtube.com/embed/U3l08M1aB2Q"></iframe>
+**Englisch: AIV Editor - Beginners Guide**
+<div class="video-container-static" data-video-id="xKEmaIit8vE">
+    <div class="video-thumbnail">
+        <img src="https://i.ytimg.com/vi/xKEmaIit8vE/0.jpg" loading="lazy" alt="Video Thumbnail">
+        <div class="play-button"></div>
+    </div>
+    <div class="video-iframe">
+        <iframe loading="lazy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+</div>

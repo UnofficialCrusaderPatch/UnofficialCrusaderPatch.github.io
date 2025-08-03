@@ -29,6 +29,6 @@ For detailed instructions and troubleshooting, please check out our **FAQ** and 
 <div class="quick-links">
     <a href="#" onclick="document.getElementById('tabStore').click(); return false;">Browse Content Store</a>
     <a href="#" onclick="document.getElementById('tabFaq').click(); return false;">Read the FAQ</a>
-    <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch3/wiki" target="_blank">Visit the Modding Wiki</a>
+    <a href="/#wiki" onclick="document.getElementById('tabWiki').click(); return false;">Visit the Wiki</a>
     <a href="https://github.com/UnofficialCrusaderPatch/UnofficialCrusaderPatch" target="_blank">Main GitHub Project</a>
 </div>

@@ -64,12 +64,14 @@
     overflow-y: scroll; 
     padding-left: 1.5rem;
     padding-right: 1.4rem;
+    padding-bottom: 0.5rem;
 
     /* Hide native scrollbar */
     scrollbar-width: none; /* Firefox */
 }
 .parchment-content-wrapper::-webkit-scrollbar {
     display: none; /* Webkit */
+
 }
 
 /* --- MODAL --- */
@@ -190,54 +192,40 @@
     margin-top: 0.25rem;
 }
 
-/* --- VIDEO FACADE & PLAYER STYLES --- */
-.video-player-container {
-    position: relative;
-    width: 100%; /* Expands to full available width */
-    aspect-ratio: 16 / 9; /* Maintains video shape without black bars */
-    margin: 1.5rem 0;
-}
+/* --- STATIC VIDEO PLAYER STYLES --- */
 
-.video-player-container iframe {
-    position: absolute;
+.video-container-static {
+    position: relative;
     width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    border: none;
-}
-
-/* This styles the SMALL initial preview image on the page */
-.prose .video-facade {
-    position: relative;
-    display: block;
-    cursor: pointer;
+    max-width: 560px; /* Controls the initial preview size */
+    margin: 1.5rem auto;
+    aspect-ratio: 16 / 9;
     background-color: #000;
     border-radius: 4px;
     overflow: hidden;
-    width: 100%;
-    
-    /* These !important flags will FORCE the facade to be smaller and centered */
-    max-width: 480px !important;
-    margin: 1.5rem auto !important;
-    
-    aspect-ratio: 16 / 9;
     box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
 }
 
-.prose .video-facade:hover {
-    transform: scale(1.03);
-}
-
-.prose .video-facade img {
+.video-thumbnail {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    display: block;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;      /* This is for vertical centering */
+    justify-content: center;  /* This is for horizontal centering */
 }
 
-.prose .video-facade .play-icon {
+.video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.play-button {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -245,9 +233,35 @@
     width: 68px;
     height: 48px;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55C3.97,2.33,2.26,4.81,1.48,7.74,0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="%23f00"></path><path d="M 45,24 27,14 27,34" fill="%23fff"></path></svg>');
-    background-repeat: no-repeat;
+}
+
+.video-iframe {
+    width: 100%;
+    height: 100%;
+    /* The iframe is hidden until the container gets the 'is-playing' class */
+    visibility: hidden;
+}
+
+.video-iframe iframe {
+    width: 100%;
+    height: 100%;
+}
+
+/* When is-playing is added, hide the thumbnail and show the video */
+.video-container-static.is-playing .video-thumbnail {
+    opacity: 0;
     pointer-events: none;
 }
+
+.video-container-static.is-playing .video-iframe {
+    visibility: visible;
+}
+
+/* Add this new rule to expand the video when playing */
+.video-container-static.is-playing {
+    max-width: 100%;
+}
+
 
 /* --- GENERAL PROSE STYLES FOR MARKDOWN --- */
 .prose h1, .prose h2, .prose h3 {
@@ -488,8 +502,18 @@
     cursor: grabbing;
 }
 
-/* DELETE these old rules as they are no longer needed */
-.chain-middle,
-.chain-bottom-cap {
-    display: none;
+/* --- Quick Links List on Overview Tab --- */
+.quick-links {
+    display: flex;
+    flex-direction: column; /* Stack the links vertically */
+    gap: 0.5rem;           /* Add some space between each link */
+    padding-left: 1.5rem;  /* Indent the entire list from the left */
+    margin-top: 1rem;      /* Add some space above the list */
+}
+
+/* Add a classic bullet point to each link */
+.quick-links a::before {
+    content: '•';          /* The bullet character */
+    margin-right: 0.75rem; /* Space between the bullet and the text */
+    color: var(--ucp-text);
 }

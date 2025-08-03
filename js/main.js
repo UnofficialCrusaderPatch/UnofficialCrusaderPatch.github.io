@@ -51,35 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function createVideoFacades(container) {
-        // This selector now finds any standard YouTube embed iframe
-        const iframes = container.querySelectorAll('iframe[src*="youtube.com/embed/"]');
-        iframes.forEach(iframe => {
-            const videoIdMatch = iframe.src.match(/embed\/([^?]+)/);
-            if (!videoIdMatch) return;
-            const videoId = videoIdMatch[1];
-
-            const facade = document.createElement('a');
-            facade.href = `https://www.youtube.com/watch?v=${videoId}`;
-            facade.target = '_blank';
-            facade.className = 'video-facade';
-            facade.dataset.videoId = videoId;
-
-            const img = document.createElement('img');
-            img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-            img.alt = 'Video thumbnail';
-            img.loading = 'lazy';
-
-            const playIcon = document.createElement('div');
-            playIcon.className = 'play-icon';
-
-            facade.appendChild(img);
-            facade.appendChild(playIcon);
-
-            iframe.replaceWith(facade);
-        });
-    }
-
     function preloadStoreData() {
         if (!appState.versions.ucp) {
             console.warn("UCP version not available, cannot preload store yet.");
@@ -153,8 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         tabContentArea.innerHTML = createParchmentBox(
                             `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="prose">${faqHtml}</div>`
                         );
-                        // After rendering, find and convert all iframes to facades
-                        createVideoFacades(tabContentArea);
                     }
                     break;
                 default:
@@ -588,29 +557,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (url) window.open(url, "_blank");
         });
 
+        // --- Video Click Handler ---
         document.addEventListener('click', (e) => {
-            // --- Video Facade Click Logic ---
-            const facade = e.target.closest('.video-facade');
-            if (facade) {
-                e.preventDefault();
-                const videoId = facade.dataset.videoId;
-
-                const videoContainer = document.createElement('div');
-                videoContainer.className = 'video-player-container';
-
-                const iframe = document.createElement('iframe');
-                // This is the corrected URL
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-                iframe.setAttribute('frameborder', '0');
-                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-                iframe.setAttribute('allowfullscreen', '');
-
-                videoContainer.appendChild(iframe);
-                facade.replaceWith(videoContainer);
-                return;
+            const thumbnail = e.target.closest('.video-thumbnail');
+            if (thumbnail) {
+                const container = thumbnail.closest('.video-container-static');
+                const videoId = container.dataset.videoId;
+                const iframe = container.querySelector('iframe');
+                
+                // Set the src with autoplay and show the video
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+                container.classList.add('is-playing');
             }
 
-            // --- Tag Menu Click Logic ---
+            // --- Tag Menu Click Logic (we keep this part) ---
             const tagMenu = document.getElementById("tag-menu");
             if (tagMenu && !tagMenu.classList.contains('hidden')) {
                 const tagBtn = document.getElementById("tag-btn");
