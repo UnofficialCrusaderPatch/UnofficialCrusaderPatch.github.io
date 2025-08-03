@@ -24,30 +24,6 @@ function createParchmentBox(innerHTML) {
 }
 
 /**
- * Renders the content for the Overview tab.
- * @param {function} T - The translation function.
- * @returns {string} - The HTML string for the overview tab.
- */
-function renderOverview(T) {
-    const content = `
-        <h2 class="ucp-header-font">${T('overview_title')}</h2>
-        <p class="mb-6">${T('overview_intro')}</p>
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                <h3 class="ucp-header-font">${T('overview_quickstart_title')}</h3>
-                <p class="mb-3">${T('overview_quickstart_text')}</p>
-                <a href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases" target="_blank" class="ucp-button-download inline-block px-4 py-2 rounded-md">${T('download_now')}</a>
-            </div>
-            <div class="bg-ucp-dark-parchment p-4 rounded-md">
-                <h3 class="ucp-header-font">${T('overview_contribute_title')}</h3>
-                <p>${T('overview_contribute_text')}</p>
-            </div>
-        </div>
-    `;
-    return createParchmentBox(content);
-}
-
-/**
  * Renders a list of news items.
  * @param {Array<object>} newsItems - Array of news items with {name, content}.
  * @param {function} T - The translation function.

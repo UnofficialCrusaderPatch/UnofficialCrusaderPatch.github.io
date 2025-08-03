@@ -122,10 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             switch (tabId) {
                 case 'overview':
-                    tabContentArea.innerHTML = renderOverview(T);
+                    const overviewMd = await fetchOverviewMarkdown(appState.currentLang);
+                    if (isTabStillActive()) {
+                        const overviewHtml = marked.parse(overviewMd);
+                        tabContentArea.innerHTML = createParchmentBox(
+                            `<div class="prose">${overviewHtml}</div>`
+                        );
+                    }
                     break;
                 case "news":
-                    const markdown = await fetchNewsMarkdown();
+                    const markdown = await fetchNewsMarkdown(appState.currentLang);
                     if (isTabStillActive()) {
                         const newsItems = markdown ? [{ name: PATHS.NEWS, content: markdown }] : null;
                         tabContentArea.innerHTML = renderNews(newsItems, T);
@@ -375,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
         
         try {
-            const newMd = await fetchWikiPageMarkdown(pagePath);
+            const newMd = await fetchWikiPageMarkdown(pagePath, appState.currentLang);
             appState.wiki.mainMd = newMd;
             appState.wiki.currentPage = pagePath;
 
@@ -400,7 +406,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
-                const [tree, mainMd] = await Promise.all([fetchWikiTree(), fetchWikiPageMarkdown(targetPage)]);
+                const [tree, mainMd] = await Promise.all([
+                    fetchWikiTree(),
+                    fetchWikiPageMarkdown(targetPage, appState.currentLang) // This line is updated
+                ]);
                 appState.wiki.sidebarTree = tree;
                 appState.wiki.mainMd = mainMd;
                 appState.wiki.currentPage = targetPage;
@@ -413,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Subsequent load: if the page is different, fetch only the new page
         else if (appState.wiki.currentPage !== targetPage) {
             try {
-                appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage);
+                appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage, appState.currentLang);
                 appState.wiki.currentPage = targetPage;
             } catch (e) {
                 console.error(`Failed to fetch wiki page: ${targetPage}`, e);

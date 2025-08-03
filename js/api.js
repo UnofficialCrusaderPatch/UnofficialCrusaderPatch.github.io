@@ -114,11 +114,39 @@ function fetchInstallerUrl() {
 }
 
 /* -------------------------------------------------------------
+    Overview Markdown
+------------------------------------------------------------- */
+
+function fetchOverviewMarkdown(lang) {
+    const defaultUrl = 'md/overview-en.md';
+    const localizedUrl = `md/overview-${lang}.md`;
+
+    // Try to fetch the localized version first, if it fails, fetch the English default.
+    return fetch(localizedUrl)
+        .then(response => {
+            if (!response.ok) return fetch(defaultUrl);
+            return response;
+        })
+        .then(response => response.text())
+        .catch(() => fetch(defaultUrl).then(res => res.text()));
+}
+
+/* -------------------------------------------------------------
     NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */
-function fetchNewsMarkdown() {
-    const url = GITHUB_RAW_BASE + REPOS.NEWS + "/HEAD/" + PATHS.NEWS;
-    return fetchRawText(url);
+function fetchNewsMarkdown(lang) {
+    // We'll assume you create local news files like you did for the overview
+    const defaultUrl = 'md/news-en.md';
+    const localizedUrl = `md/news-${lang}.md`;
+
+    // This logic is similar to the new overview function
+    return fetch(localizedUrl)
+        .then(response => {
+            if (!response.ok) return fetch(defaultUrl);
+            return response;
+        })
+        .then(response => response.text())
+        .catch(() => fetch(defaultUrl).then(res => res.text()));
 }
 
 function fetchCredits() {
@@ -129,9 +157,14 @@ function fetchCredits() {
 /* -------------------------------------------------------------
   WIKI HELPERS
 ------------------------------------------------------------- */
-function fetchWikiPageMarkdown(pageName) {
-    const url = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${pageName}.md`;
-    return fetchRawText(url);
+function fetchWikiPageMarkdown(pageName, lang) {
+    // This will try to fetch from a structure like /docs/de/Home.md
+    // and fall back to /docs/Home.md
+    const localizedUrl = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${lang}/${pageName}.md`;
+    const defaultUrl = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${pageName}.md`;
+
+    return fetchRawText(localizedUrl)
+        .catch(() => fetchRawText(defaultUrl));
 }
 
 /**
