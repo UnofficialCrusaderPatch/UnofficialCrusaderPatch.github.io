@@ -22,22 +22,33 @@ const PATHS = {
 };
 
 /* -------------------------------------------------------------
-    VERY SMALL LOCAL CACHE (5‑minute TTL)
+    VERY SMALL LOCAL CACHE (5‑minute TTL)
 ------------------------------------------------------------- */
 const CACHE_SECONDS = 300; // 5 minutes
 
 function fetchWithCache(key, url, asJson = true) {
-    const now   = Date.now();
+    const now = Date.now();
     const cached = JSON.parse(localStorage.getItem(key) || "null");
     if (cached && now - cached.time < CACHE_SECONDS * 1000) {
         return Promise.resolve(cached.data);
     }
 
-    return fetch(url, {
-        headers: { "Accept": "application/vnd.github.v3+json" }
-    })
+    const headers = {
+        "Accept": "application/vnd.github.v3+json"
+    };
+
+    // Use the Personal Access Token if it's available (from js/config.js)
+    // This dramatically increases the API rate limit for development.
+    if (typeof GITHUB_PAT !== 'undefined' && GITHUB_PAT) {
+        headers['Authorization'] = `token ${GITHUB_PAT}`;
+    }
+
+    return fetch(url, { headers }) // Pass the updated headers object
         .then(r => {
-            if (!r.ok) throw new Error(`GitHub API request failed: ${r.status}`);
+            if (!r.ok) {
+                 // Throw an error that includes the status for easier debugging
+                throw new Error(`GitHub API request failed: ${r.status}`);
+            }
             return asJson ? r.json() : r.text();
         })
         .then(data => {
@@ -123,36 +134,74 @@ function fetchWikiPageMarkdown(pageName) {
     return fetchRawText(url);
 }
 
-async function fetchWikiTree(path = 'docs') {
-    const url = `${GITHUB_API_BASE}${REPOS.WIKI}/contents/${path}`;
-    // Use a unique cache key to avoid conflicts with other API calls
-    const contents = await fetchWithCache(`tree_${path}`, url, true);
+/**
+ * Fetches the entire wiki file structure in a single, non-recursive API call.
+ * This is vastly more efficient than recursively calling the 'contents' endpoint.
+ */
+async function fetchWikiTree() {
+    // This API endpoint gets the entire file list recursively in one go.
+    const url = `${GITHUB_API_BASE}${REPOS.WIKI}/git/trees/main?recursive=1`;
+    const cacheKey = `tree_recursive_${REPOS.WIKI}`;
 
-    // Filter out non-essentials and sort folders first, then files
-    const sortedContents = contents
-        .filter(item => !item.name.startsWith('.') && item.name !== 'images')
-        .sort((a, b) => {
+    const { tree: flatTree } = await fetchWithCache(cacheKey, url, true);
+
+    const root = [];
+    const dirs = {}; // A map to quickly find directory objects
+
+    // Filter for only markdown files within the 'docs/' directory
+    const wikiFiles = flatTree.filter(item =>
+        item.path.startsWith('docs/') &&
+        item.path.endsWith('.md') &&
+        item.type === 'blob'
+    );
+
+    for (const item of wikiFiles) {
+        // Path relative to 'docs/', e.g., "User-Guides/Getting-Started/Installation.md"
+        const relativePath = item.path.substring(5);
+        const parts = relativePath.split('/');
+        const fileName = parts.pop().replace(/\.md$/, '');
+
+        let currentLevel = root;
+        let pathAccumulator = '';
+
+        // Create directory structures as needed
+        for (const part of parts) {
+            pathAccumulator += (pathAccumulator ? '/' : '') + part;
+            
+            let dirNode = dirs[pathAccumulator];
+            if (!dirNode) {
+                dirNode = {
+                    name: part.replace(/-/g, ' '),
+                    type: 'dir',
+                    children: []
+                };
+                dirs[pathAccumulator] = dirNode;
+                currentLevel.push(dirNode);
+            }
+            currentLevel = dirNode.children;
+        }
+
+        // Add the file to the final correct level
+        currentLevel.push({
+            name: fileName.replace(/-/g, ' '),
+            path: relativePath.replace(/\.md$/, ''),
+            type: 'file'
+        });
+    }
+    
+    // Sort folders first, then files, at every level
+    const sortNodes = (nodes) => {
+        nodes.sort((a, b) => {
             if (a.type === b.type) return a.name.localeCompare(b.name);
             return a.type === 'dir' ? -1 : 1;
         });
-
-    const tree = [];
-    for (const item of sortedContents) {
-        if (item.type === 'dir') {
-            tree.push({
-                name: item.name,
-                type: 'dir',
-                children: await fetchWikiTree(item.path)
-            });
-        } else if (item.name.endsWith('.md')) {
-            tree.push({
-                name: item.name.replace('.md', ''),
-                path: item.path.replace('docs/', '').replace('.md', ''),
-                type: 'file'
-            });
-        }
-    }
-    return tree;
+        nodes.forEach(node => {
+            if (node.type === 'dir') sortNodes(node.children);
+        });
+    };
+    
+    sortNodes(root);
+    return root;
 }
 
 /* -------------------------------------------------------------
