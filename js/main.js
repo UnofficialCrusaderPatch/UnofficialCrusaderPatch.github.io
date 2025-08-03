@@ -357,94 +357,97 @@ document.addEventListener('DOMContentLoaded', () => {
         tocPane.innerHTML = tocHtml;
     }
 
+    async function loadWikiPage(pagePath) {
+        const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
+        const tocPane = document.getElementById('wiki-toc');
+
+        // Show loading state
+        mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
+        if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
+        
+        try {
+            const newMd = await fetchWikiPageMarkdown(pagePath);
+            appState.wiki.mainMd = newMd;
+            appState.wiki.currentPage = pagePath;
+
+            mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
+            generateTableOfContents();
+            initializeAllCustomScrollbars();
+            // Scroll to the top of the new content
+            mainContentWrapper.querySelector('.parchment-content-wrapper').scrollTop = 0;
+        } catch (err) {
+            mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Could not load page: ${pagePath}</p>`);
+        }
+    }
+
     async function renderWikiTab() {
-        // Bestimmt die Zielseite aus dem vollständigen URL-Hash
+        // Determine the target page from the full URL hash
         const hash = window.location.hash.substring(1);
         let targetPage = 'Home';
         if (hash.startsWith('wiki/')) {
-            targetPage = hash.substring(5); // Holt den Teil nach "wiki/"
+            targetPage = hash.substring(5);
         }
 
-        // --- Erstmaliges Setup: Daten nur laden, wenn sie noch nicht vorhanden sind ---
+        // --- Initial Setup: Fetch data only if it's not already loaded ---
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
-                const [tree, mainMd] = await Promise.all([
-                    fetchWikiTree(),
-                    fetchWikiPageMarkdown(targetPage) // Lädt die korrekte initiale Seite
-                ]);
+                const [tree, mainMd] = await Promise.all([fetchWikiTree(), fetchWikiPageMarkdown(targetPage)]);
                 appState.wiki.sidebarTree = tree;
                 appState.wiki.mainMd = mainMd;
                 appState.wiki.currentPage = targetPage;
             } catch (e) {
                 console.error("Wiki fetch failed", e);
-                tabContentArea.innerHTML = renderWiki(null, `Fehler beim Laden der Seite: ${targetPage}`, T);
+                tabContentArea.innerHTML = renderWiki(null, `Error loading page: ${targetPage}`, T);
                 return;
             }
+        } else if (appState.wiki.currentPage !== targetPage) {
+            // If the tree is loaded but we're on the wrong page (e.g., from a direct link)
+            appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage);
+            appState.wiki.currentPage = targetPage;
         }
 
-        // --- Layout rendern ---
+        // --- Render the layout ---
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
         generateTableOfContents();
         initializeAllCustomScrollbars();
 
-        // --- Einen einzigen, intelligenten Event-Listener für die gesamte Wiki-Navigation anhängen ---
-        const wikiContainer = tabContentArea.querySelector('.wiki-container');
-        if (wikiContainer.dataset.listenerAttached === 'true') return; // Verhindert das Hinzufügen mehrerer Listener
-        wikiContainer.dataset.listenerAttached = 'true';
+        // --- Attach a single, smart event listener for ALL wiki navigation ---
+        if (tabContentArea.dataset.wikiListenerAttached === 'true') return;
+        tabContentArea.dataset.wikiListenerAttached = 'true';
 
-        wikiContainer.addEventListener('click', async (e) => {
+        tabContentArea.addEventListener('click', async (e) => {
             if (tabNav.querySelector('.active')?.dataset.tab !== 'wiki') return;
+            
+            const link = e.target.closest('a');
+            if (!link) return;
 
-            // Klick auf den Collapse-Button behandeln
-            const toggleButton = e.target.closest('#wiki-sidebar-toggle');
-            if (toggleButton) {
+            // Handle sidebar collapse button separately if it's inside a link
+            if (e.target.closest('#wiki-sidebar-toggle')) {
                 const sidebar = document.getElementById('wiki-sidebar');
                 sidebar.classList.toggle('is-collapsed');
-                toggleButton.textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
+                e.target.closest('#wiki-sidebar-toggle').textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
+                return;
+            }
+            
+            // Let the browser handle external links and on-page anchors
+            if (link.target === '_blank' || link.protocol.startsWith('http') || link.getAttribute('href').startsWith('#')) {
                 return;
             }
 
-            // Den eigentlichen Link finden, auf den geklickt wurde
-            const link = e.target.closest('a');
-            
-            // Klicks ignorieren, die keine internen Wiki-Links sind
-            if (!link || !link.hash || !link.hash.startsWith('#wiki/')) {
-                return;
-            }
-            
-            // **DAS IST DIE ENTSCHEIDENDE ZEILE**
-            // Verhindert, dass der Browser die Seite neu lädt oder wegnavigiert.
+            // --- At this point, we know it's an internal wiki link. Handle it. ---
             e.preventDefault();
 
-            const targetHash = link.hash;
-            if (targetHash === window.location.hash) return; // Dieselbe Seite nicht neu laden
+            // Get the path from the href attribute. It will be root-relative.
+            // The getAttribute('href') is crucial as it returns the raw value.
+            const relativePath = link.getAttribute('href').replace('.md', '');
+            const targetHash = `#wiki/${relativePath}`;
 
-            // Die URL in der Browserleiste manuell aktualisieren
+            if (targetHash === window.location.hash) return; // Don't reload the same page
+
             history.pushState(null, '', targetHash);
-
-            // Jetzt den Inhalt für die neue Seite laden
-            const pagePath = targetHash.substring(6); // Holt den Pfad aus dem Hash (nach #wiki/)
-            const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
-            const tocPane = document.getElementById('wiki-toc');
-
-            mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
-            if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
-            
-            try {
-                const newMd = await fetchWikiPageMarkdown(pagePath);
-                appState.wiki.mainMd = newMd;
-                appState.wiki.currentPage = pagePath;
-
-                mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
-                generateTableOfContents();
-                initializeAllCustomScrollbars();
-                // Nach dem Laden zum Seitenanfang scrollen
-                mainContentWrapper.querySelector('.parchment-content-wrapper').scrollTop = 0;
-            } catch (err) {
-                mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Seite konnte nicht geladen werden: ${pagePath}</p>`);
-            }
+            await loadWikiPage(relativePath);
         });
     }
 
