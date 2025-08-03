@@ -104,7 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         tabNav.querySelectorAll('button').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
-        history.pushState(null, '', '#' + tabId);
+
+        // Only update history if this is a new navigation action
+        if (updateHistory) {
+            // For wiki, we preserve the full hash path if it exists
+            const currentHash = window.location.hash.substring(1);
+            if (tabId === 'wiki' && currentHash.startsWith('wiki/')) {
+                history.pushState(null, '', `#${currentHash}`);
+            } else {
+                history.pushState(null, '', `#${tabId}`);
+            }
+        }
 
         renderLoading(tabContentArea, T);
         const isTabStillActive = () => tabNav.querySelector('.active')?.dataset.tab === tabId;
@@ -361,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainContentWrapper = document.getElementById('wiki-main-content-wrapper');
         const tocPane = document.getElementById('wiki-toc');
 
-        // Show loading state
         mainContentWrapper.innerHTML = createParchmentBox(`<p>${T('loading')}</p>`);
         if (tocPane) tocPane.querySelector('#wiki-toc-content').innerHTML = '';
         
@@ -373,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContentWrapper.innerHTML = createParchmentBox(marked.parse(newMd));
             generateTableOfContents();
             initializeAllCustomScrollbars();
-            // Scroll to the top of the new content
             mainContentWrapper.querySelector('.parchment-content-wrapper').scrollTop = 0;
         } catch (err) {
             mainContentWrapper.innerHTML = createParchmentBox(`<p style="color:red">Could not load page: ${pagePath}</p>`);
@@ -381,14 +389,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function renderWikiTab() {
-        // Determine the target page from the full URL hash
         const hash = window.location.hash.substring(1);
         let targetPage = 'Home';
         if (hash.startsWith('wiki/')) {
             targetPage = hash.substring(5);
         }
 
-        // --- Initial Setup: Fetch data only if it's not already loaded ---
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
@@ -402,76 +408,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
         } else if (appState.wiki.currentPage !== targetPage) {
-            // If the tree is loaded but we're on the wrong page (e.g., from a direct link)
             appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage);
             appState.wiki.currentPage = targetPage;
         }
 
-        // --- Render the layout ---
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
         generateTableOfContents();
         initializeAllCustomScrollbars();
 
-        // --- Attach a single, smart event listener for ALL wiki navigation ---
         if (tabContentArea.dataset.wikiListenerAttached === 'true') return;
         tabContentArea.dataset.wikiListenerAttached = 'true';
 
         tabContentArea.addEventListener('click', async (e) => {
             if (tabNav.querySelector('.active')?.dataset.tab !== 'wiki') return;
             
-            const link = e.target.closest('a');
-            if (!link) return;
-
-            // Handle sidebar collapse button separately if it's inside a link
-            if (e.target.closest('#wiki-sidebar-toggle')) {
+            const toggleButton = e.target.closest('#wiki-sidebar-toggle');
+            if (toggleButton) {
                 const sidebar = document.getElementById('wiki-sidebar');
                 sidebar.classList.toggle('is-collapsed');
-                e.target.closest('#wiki-sidebar-toggle').textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
+                toggleButton.textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
                 return;
             }
             
-            // Let the browser handle external links and on-page anchors
-            if (link.target === '_blank' || link.protocol.startsWith('http') || link.getAttribute('href').startsWith('#')) {
+            const link = e.target.closest('a');
+            if (!link || link.target === '_blank' || link.protocol.startsWith('http')) return;
+
+            const href = link.getAttribute('href');
+
+            // This is a true on-page anchor link (e.g., in the Table of Contents)
+            if (href.startsWith('#') && !href.startsWith('#wiki/')) {
                 return;
             }
 
-            // --- At this point, we know it's an internal wiki link. Handle it. ---
+            // --- At this point, it's an internal link we must handle ---
             e.preventDefault();
 
-            // Get the path from the href attribute. It will be root-relative.
-            // The getAttribute('href') is crucial as it returns the raw value.
-            const relativePath = link.getAttribute('href').replace('.md', '');
-            const targetHash = `#wiki/${relativePath}`;
+            let pagePath;
+            if (href.startsWith('#wiki/')) {
+                // It's a sidebar link with a full hash path
+                pagePath = href.substring(6);
+            } else {
+                // It's an in-content link with a relative path
+                pagePath = href.replace('.md', '');
+            }
 
-            if (targetHash === window.location.hash) return; // Don't reload the same page
+            const targetHash = `#wiki/${pagePath}`;
+            if (targetHash === window.location.hash) return;
 
             history.pushState(null, '', targetHash);
-            await loadWikiPage(relativePath);
+            await loadWikiPage(pagePath);
         });
-    }
-
-    function generateTableOfContents() {
-        const mainPane = document.getElementById('wiki-main-content');
-        const tocPane = document.getElementById('wiki-toc');
-        if (!mainPane || !tocPane) return;
-
-        const headers = mainPane.querySelectorAll('h2, h3');
-        if (headers.length < 2) {
-            tocPane.innerHTML = ''; // Don't show ToC for short pages
-            return;
-        }
-
-        let tocHtml = '<ul>';
-        headers.forEach((header, index) => {
-            const id = `header-${index}`;
-            header.id = id; // Add an ID to the header to link to it
-            const indentClass = header.tagName === 'H3' ? 'indent' : '';
-            tocHtml += `<li class="${indentClass}"><a href="#${id}">${header.textContent}</a></li>`;
-        });
-        tocHtml += '</ul>';
-
-        tocPane.innerHTML = tocHtml;
     }
 
     async function loadLanguage(lang) {
@@ -509,13 +496,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('popstate', () => {
             const hash = window.location.hash.substring(1) || 'overview';
-            let initialTab = hash.split('/')[0]; // Get the base part, e.g., "wiki" or "news"
+            const tabId = hash.split('/')[0] || 'overview';
 
-            if (document.querySelector(`[data-tab="${initialTab}"]`)) {
-                switchTab(initialTab);
-            } else {
-                // Fallback if the hash is invalid
-                switchTab('overview');
+            if (document.querySelector(`[data-tab="${tabId}"]`)) {
+                // We don't want to push a new history state when going back/forward
+                switchTab(tabId, false); 
             }
         });
 
@@ -622,28 +607,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             
-            // 1. Load the language text first, without switching tabs.
             await loadLanguage(appState.currentLang);
 
-            // 2. NOW, determine the correct tab from the URL hash.
-            const initialTab = window.location.hash.substring(1) || 'overview';
+            // Routing Logic
+            const hash = window.location.hash.substring(1) || 'overview';
+            const initialTab = hash.split('/')[0] || 'overview';
 
-            // 3. Switch to that tab.
             if (document.querySelector(`[data-tab="${initialTab}"]`)) {
-                // We don't need to await this on initial load.
-                switchTab(initialTab);
+                // Call the content loading logic directly for the correct tab
+                await switchTab(initialTab, false); 
             } else {
-                // Fallback if the hash is invalid for some reason.
-                switchTab('overview');
+                await switchTab('overview', false);
             }
 
         } catch (error) {
             console.error("Fatal error during initialization:", error);
             tabContentArea.innerHTML = createParchmentBox(
-                `<p style="color:red">The application could not be started. Please try refreshing the page.</p>`
+                `<p style="color:red">The application could not be started.</p>`
             );
         } finally {
-            // RE-ENABLE INTERACTION
             tabNav.style.pointerEvents = 'auto';
             tabNav.style.opacity = '1';
         }
