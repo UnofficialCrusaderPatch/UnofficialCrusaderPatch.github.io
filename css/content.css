@@ -324,14 +324,39 @@
     font-size: 1.1em;
     margin-top: 0.75em;
 }
-#wiki-sidebar li ul {
-    padding-left: 1rem;
-    border-left: 1px solid rgba(0,0,0,0.1);
+
+/* Target ALL lists in the sidebar to reset them */
+#wiki-sidebar ul {
+    list-style: none; /* Removes the bullet points (*) */
+    margin: 0;        /* Removes the top/bottom spacing */
+    padding-left: 0;  /* Removes the large left indentation */
 }
-#wiki-sidebar li a { display: block; padding: 4px 0; }
-#wiki-toc-content ul { margin-top: 0.5em; }
-#wiki-toc-content li a { display: block; padding: 3px 0; }
-#wiki-toc-content .indent { padding-left: 1rem; }
+
+/* Specifically re-apply indentation ONLY for nested lists (sub-folders) */
+#wiki-sidebar li ul {
+    padding-left: 1rem; /* This creates the nice indent for sub-items */
+    border-left: 1px solid rgba(0,0,0,0.1);
+    margin-top: 0.25rem; /* Adds a little space above a nested list */
+}
+
+#wiki-sidebar li a {
+    display: block;
+    padding: 4px 0;
+}
+
+/* --- Table of Contents Styles --- */
+#wiki-toc-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.5em 0 0 0;
+}
+#wiki-toc-content li a {
+    display: block;
+    padding: 3px 0;
+}
+#wiki-toc-content .indent {
+    padding-left: 1rem;
+}
 
 
 /* --- WIKI RESPONSIVE BREAKPOINTS --- */
