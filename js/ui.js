@@ -92,25 +92,6 @@ function renderWiki(sidebarHtml, mainMd, T) {
     `;
 }
 
-
-function renderFaq(faqData, T) {
-    let content;
-    if (!faqData) {
-        content = `<p>${T('faq_error')}</p>`;
-    } else {
-        // The answer field can contain HTML, including iframes.
-        // The replacement to a facade will happen in main.js after this is rendered.
-        content = faqData.map(item => `
-            <div class="faq-item">
-                <h3 class="font-bold text-lg">${item.question}</h3>
-                <div class="mt-1 prose max-w-none">${item.answer}</div>
-            </div>
-        `).join('');
-    }
-    const html = `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="space-y-6">${content}</div>`;
-    return createParchmentBox(html);
-}
-
 function renderLoading(container, T) {
     const html = `<div class="text-center p-8">${T('loading')}</div>`;
     container.innerHTML = createParchmentBox(html);

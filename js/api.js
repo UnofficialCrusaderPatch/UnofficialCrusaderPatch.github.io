@@ -114,7 +114,7 @@ function fetchInstallerUrl() {
 }
 
 /* -------------------------------------------------------------
-    Overview Markdown
+    Overview and FAQ Markdown
 ------------------------------------------------------------- */
 
 function fetchOverviewMarkdown(lang) {
@@ -130,6 +130,20 @@ function fetchOverviewMarkdown(lang) {
         })
         .then(response => response.text())
         .catch(() => fetch(defaultUrl, fetchOptions).then(res => res.text())); // And here
+}
+
+function fetchFaqMarkdown(lang) {
+    const defaultUrl = 'md/faq-en.md';
+    const localizedUrl = `md/faq-${lang}.md`;
+    const fetchOptions = { cache: 'reload' };
+
+    return fetch(localizedUrl, fetchOptions)
+        .then(response => {
+            if (!response.ok) return fetch(defaultUrl, fetchOptions);
+            return response;
+        })
+        .then(response => response.text())
+        .catch(() => fetch(defaultUrl, fetchOptions).then(res => res.text()));
 }
 
 /* -------------------------------------------------------------

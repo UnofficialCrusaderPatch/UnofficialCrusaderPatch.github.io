@@ -42,6 +42,8 @@
     min-height: 0;
     overflow: hidden; /* Hide anything that spills out */
     padding: 0; /* Padding is now on the inner wrapper */
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 .parchment-box::-webkit-scrollbar {
     display: none;
@@ -188,7 +190,22 @@
     margin-top: 0.25rem;
 }
 
-/* --- VIDEO FACADE & MODAL PLAYER STYLES --- */
+/* --- VIDEO FACADE & PLAYER STYLES --- */
+.video-player-container {
+    position: relative;
+    width: 100%; /* Expands to full available width */
+    aspect-ratio: 16 / 9; /* Maintains video shape without black bars */
+    margin: 1.5rem 0;
+}
+
+.video-player-container iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: none;
+}
 
 /* This styles the SMALL initial preview image on the page */
 .prose .video-facade {
@@ -200,9 +217,9 @@
     overflow: hidden;
     width: 100%;
     
-    /* This sets the smaller, fixed maximum size */
-    max-width: 480px;
-    margin: 1.5rem auto; /* Centers the facade */
+    /* These !important flags will FORCE the facade to be smaller and centered */
+    max-width: 480px !important;
+    margin: 1.5rem auto !important;
     
     aspect-ratio: 16 / 9;
     box-shadow: 0 3px 10px rgba(0,0,0,0.3);
@@ -230,39 +247,6 @@
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55C3.97,2.33,2.26,4.81,1.48,7.74,0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="%23f00"></path><path d="M 45,24 27,14 27,34" fill="%23fff"></path></svg>');
     background-repeat: no-repeat;
     pointer-events: none;
-}
-
-/* This styles the LARGE video player pop-up */
-.video-modal-content {
-    position: relative;
-    width: 90vw;
-    max-width: 1280px; /* Max size for large screens */
-    background: #000;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-#video-player-container {
-    width: 100%;
-    aspect-ratio: 16 / 9; /* Enforces perfect video shape, no black bars */
-}
-
-#video-player-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-/* Position the close button for the video modal */
-#closeVideoBtn {
-    position: absolute;
-    top: -40px;
-    right: 0;
-    font-size: 2.5rem;
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-    line-height: 1;
 }
 
 /* --- GENERAL PROSE STYLES FOR MARKDOWN --- */
@@ -443,7 +427,7 @@
     position: absolute;
     top: 8px;
     right: 11px;
-    bottom: 8px;
+    bottom: 11px;
     width: 7px; /* YOUR EXACT WIDTH */
     display: flex;
     flex-direction: column;

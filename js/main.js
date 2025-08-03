@@ -52,35 +52,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function createVideoFacades(container) {
-        // Find iframes from the old UCP system, which have a specific URL format
-        const iframes = container.querySelectorAll('iframe[src*="googleusercontent.com/youtube.com"]');
+        // This selector now finds any standard YouTube embed iframe
+        const iframes = container.querySelectorAll('iframe[src*="youtube.com/embed/"]');
         iframes.forEach(iframe => {
-            // Extract the YouTube Video ID from the src
             const videoIdMatch = iframe.src.match(/embed\/([^?]+)/);
             if (!videoIdMatch) return;
             const videoId = videoIdMatch[1];
-            
-            const facade = document.createElement('a'); // Use an anchor tag for semantics
+
+            const facade = document.createElement('a');
             facade.href = `https://www.youtube.com/watch?v=${videoId}`;
-            facade.target = '_blank'; // Open in new tab as a fallback
+            facade.target = '_blank';
             facade.className = 'video-facade';
             facade.dataset.videoId = videoId;
-            
+
             const img = document.createElement('img');
-            // Fetch the highest resolution thumbnail
-            img.src = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+            img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
             img.alt = 'Video thumbnail';
             img.loading = 'lazy';
-            // If max-res fails, fall back to high-quality
-            img.onerror = () => { img.src = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`; };
-            
+
             const playIcon = document.createElement('div');
             playIcon.className = 'play-icon';
-            
+
             facade.appendChild(img);
             facade.appendChild(playIcon);
-            
-            // Replace the old iframe with our new, efficient facade
+
             iframe.replaceWith(facade);
         });
     }
@@ -152,15 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     await renderWikiTab();
                     break;
                 case 'faq':
-                    let data = appState.faqData[appState.currentLang];
-                    if (!data) {
-                        data = await fetchLocalJson(`lang/faq-${appState.currentLang}.json`) || 
-                               await fetchLocalJson(`lang/faq-en.json`);
-                        appState.faqData[appState.currentLang] = data;
-                    }
-
+                    const faqMd = await fetchFaqMarkdown(appState.currentLang);
                     if (isTabStillActive()) {
-                        tabContentArea.innerHTML = renderFaq(data, T);
+                        const faqHtml = marked.parse(faqMd);
+                        tabContentArea.innerHTML = createParchmentBox(
+                            `<h2 class="ucp-header-font">${T('faq_title')}</h2><div class="prose">${faqHtml}</div>`
+                        );
+                        // After rendering, find and convert all iframes to facades
                         createVideoFacades(tabContentArea);
                     }
                     break;
@@ -596,41 +589,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.addEventListener('click', (e) => {
+            // --- Video Facade Click Logic ---
             const facade = e.target.closest('.video-facade');
             if (facade) {
-                e.preventDefault(); // Prevent the link from opening a new tab
+                e.preventDefault();
                 const videoId = facade.dataset.videoId;
 
-                // Create a container that will hold the iframe and maintain a 16:9 aspect ratio
                 const videoContainer = document.createElement('div');
-                videoContainer.style.position = 'relative';
-                videoContainer.style.paddingTop = '56.25%'; // 16:9 Aspect Ratio
-                videoContainer.style.backgroundColor = '#000';
+                videoContainer.className = 'video-player-container';
 
                 const iframe = document.createElement('iframe');
-                // Use the privacy-enhanced URL and enable autoplay
-                iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
-
-                // Apply styles to make the iframe fill the container
-                iframe.style.position = 'absolute';
-                iframe.style.top = '0';
-                iframe.style.left = '0';
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
+                // This is the corrected URL
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
                 iframe.setAttribute('frameborder', '0');
-                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
                 iframe.setAttribute('allowfullscreen', '');
 
                 videoContainer.appendChild(iframe);
-
-                // Replace the facade with the new video player
                 facade.replaceWith(videoContainer);
                 return;
             }
-            
+
+            // --- Tag Menu Click Logic ---
             const tagMenu = document.getElementById("tag-menu");
-            const tagBtn = document.getElementById("tag-btn");
             if (tagMenu && !tagMenu.classList.contains('hidden')) {
+                const tagBtn = document.getElementById("tag-btn");
                 if (!tagMenu.contains(e.target) && e.target !== tagBtn) {
                     tagMenu.classList.add("hidden");
                 }
