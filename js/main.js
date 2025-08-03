@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })();
     }
 
-    async function switchTab(tabId) {
+    async function switchTab(tabId, updateHistory = true) {
         tabNav.querySelectorAll('button').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
