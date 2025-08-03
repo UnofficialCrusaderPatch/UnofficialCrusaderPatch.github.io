@@ -62,3 +62,9 @@
     margin-top: -10px;
     color: var(--ucp-button-text);
 }
+
+@media (max-width: 1024px) {
+    .tab-bar {
+        display: none;
+    }
+}

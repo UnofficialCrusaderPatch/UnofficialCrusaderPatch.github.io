@@ -558,10 +558,7 @@
 
 /* Small screens (phones) */
 @media (max-width: 768px) {
-    .main-content:has(.wiki-container) {
-        padding: 0.5rem;
-    }
-    
+        
     #wiki-sidebar {
         /* Take up 1/2 of the viewport height */
         max-height: 50vh;

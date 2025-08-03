@@ -633,6 +633,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // --- Mobile Menu Logic ---
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mobileMenuDropdown = document.getElementById('mobile-menu-dropdown');
+        const mobileCurrentTab = document.getElementById('mobile-current-tab');
+        const mainTabs = tabNav.querySelectorAll('button[data-tab]');
+
+        // 1. Populate the dropdown menu from the existing tabs
+        mainTabs.forEach(tab => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.dataset.tab = tab.dataset.tab;
+            link.textContent = tab.textContent;
+            mobileMenuDropdown.appendChild(link);
+        });
+
+        // 2. Handle clicks on the toggle button
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent the document click listener from firing
+            mobileMenuDropdown.classList.toggle('hidden');
+        });
+
+        // 3. Handle clicks on the dropdown links
+        mobileMenuDropdown.addEventListener('click', (e) => {
+            e.preventDefault();
+            const link = e.target.closest('a[data-tab]');
+            if (link) {
+                const tabId = link.dataset.tab;
+                switchTab(tabId); // Switch to the correct tab
+                mobileCurrentTab.textContent = link.textContent; // Update the button text
+                mobileMenuDropdown.classList.add('hidden'); // Close the menu
+            }
+        });
+
+        // 4. Close the menu if clicking anywhere else on the page
+        document.addEventListener('click', () => {
+            if (!mobileMenuDropdown.classList.contains('hidden')) {
+                mobileMenuDropdown.classList.add('hidden');
+            }
+        });
+
         // START NON-BLOCKING BACKGROUND TASKS
         Promise.all([fetchGuiVersion(), fetchUcpVersion()]).then(([guiVer, ucpVer]) => {
             appState.versions = { gui: guiVer, ucp: ucpVer };
