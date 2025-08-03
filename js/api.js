@@ -120,33 +120,24 @@ function fetchInstallerUrl() {
 function fetchOverviewMarkdown(lang) {
     const defaultUrl = 'md/overview-en.md';
     const localizedUrl = `md/overview-${lang}.md`;
+    const fetchOptions = { cache: 'reload' }; // Add this line
 
     // Try to fetch the localized version first, if it fails, fetch the English default.
-    return fetch(localizedUrl)
+    return fetch(localizedUrl, fetchOptions) // Add fetchOptions here
         .then(response => {
-            if (!response.ok) return fetch(defaultUrl);
+            if (!response.ok) return fetch(defaultUrl, fetchOptions); // And here
             return response;
         })
         .then(response => response.text())
-        .catch(() => fetch(defaultUrl).then(res => res.text()));
+        .catch(() => fetch(defaultUrl, fetchOptions).then(res => res.text())); // And here
 }
 
 /* -------------------------------------------------------------
     NEWS & CREDIT HELPERS
 ------------------------------------------------------------- */
-function fetchNewsMarkdown(lang) {
-    // We'll assume you create local news files like you did for the overview
-    const defaultUrl = 'md/news-en.md';
-    const localizedUrl = `md/news-${lang}.md`;
-
-    // This logic is similar to the new overview function
-    return fetch(localizedUrl)
-        .then(response => {
-            if (!response.ok) return fetch(defaultUrl);
-            return response;
-        })
-        .then(response => response.text())
-        .catch(() => fetch(defaultUrl).then(res => res.text()));
+function fetchNewsMarkdown() {
+    const url = GITHUB_RAW_BASE + REPOS.NEWS + "/HEAD/" + PATHS.NEWS;
+    return fetchRawText(url);
 }
 
 function fetchCredits() {
