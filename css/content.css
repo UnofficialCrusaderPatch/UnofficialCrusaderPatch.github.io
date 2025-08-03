@@ -165,6 +165,20 @@
     padding: 1rem 0px;
 }
 
+.store-list-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Hide the new collapse button by default on large screens */
+#store-list-toggle {
+    display: none;
+}
+#store-list-toggle {
+    display: none;
+}
+
 .ucp-tag-menu {
     position: absolute;
     background: var(--ucp-brown);
@@ -317,22 +331,18 @@
     min-height: 0;
 }
 
-#wiki-sidebar.is-collapsed .parchment-content-wrapper #wiki-sidebar-content,
-#wiki-sidebar.is-collapsed .custom-scrollbar {
-    display: none; /* Hides content when collapsed */
-}
-
 .wiki-sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem 0.5rem 0; /* Adjust padding */
+    padding: 0.5rem 0 0.5rem 0;
     flex-shrink: 0;
 }
 .wiki-sidebar-header .ucp-header-font {
     margin: 0;
 }
 #wiki-sidebar-toggle {
+    display: none; 
     padding: 0.2rem 0.6rem; /* Make button smaller */
     font-size: 0.8rem;
 }
@@ -390,50 +400,6 @@
 }
 #wiki-toc-content .indent {
     padding-left: 1rem;
-}
-
-
-/* --- WIKI RESPONSIVE BREAKPOINTS --- */
-
-/* Medium screens (tablets) */
-@media (max-width: 1024px) {
-    .main-content:has(.wiki-container) {
-        max-width: 100%;
-        padding: 1rem;
-    }
-
-    .wiki-container {
-        /* Switch to vertical stacking */
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr; /* Sidebar row, Content row */
-    }
-
-    #wiki-toc {
-        display: none; /* Right sidebar vanishes */
-    }
-    
-    #wiki-sidebar {
-        /* Take up 1/3rd of the viewport height */
-        max-height: 33vh;
-        min-height: 120px; /* Minimum height for header/button */
-    }
-
-    #wiki-sidebar.is-collapsed {
-        max-height: 60px; /* Height of just the header */
-        min-height: 60px;
-    }
-}
-
-/* Small screens (phones) */
-@media (max-width: 768px) {
-    .main-content:has(.wiki-container) {
-        padding: 0.5rem;
-    }
-    
-    #wiki-sidebar {
-        /* Take up 1/2 of the viewport height */
-        max-height: 50vh;
-    }
 }
 
 /* --- CUSTOM CHAIN SCROLLBAR V3 (FINAL) --- */
@@ -516,4 +482,88 @@
     content: '•';          /* The bullet character */
     margin-right: 0.75rem; /* Space between the bullet and the text */
     color: var(--ucp-text);
+}
+
+
+/* --- WIKI RESPONSIVE BREAKPOINTS --- */
+@media (max-width: 1280px) {
+    #wiki-toc {
+        display: none;
+    }
+
+    .wiki-container {
+        grid-template-columns: 280px 1fr;
+    }
+}
+
+
+/* Medium screens (tablets) */
+@media (max-width: 1024px) {
+    
+    /* --- Store Tab Rules --- */
+    .store-headers-and-controls > .ucp-header-font,
+    .store-list-header > .ucp-header-font {
+        display: none;
+    }
+    
+    #store-list-toggle {
+        display: block;
+    }
+
+    .store-content-split {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    .store-content-split.list-collapsed {
+        grid-template-rows: 30px 1fr;
+    }
+
+    .store-content-split.list-collapsed #store-list-panel .parchment-content-wrapper,
+    .store-content-split.list-collapsed #store-list-panel .custom-scrollbar {
+        visibility: hidden;
+    }
+
+    /* --- Wiki Tab Rules --- */
+
+    #wiki-sidebar.is-collapsed .parchment-content-wrapper #wiki-sidebar-content,
+    #wiki-sidebar.is-collapsed .custom-scrollbar {
+        display: none;
+    }
+
+    #wiki-sidebar-toggle {
+        display: block;
+    }
+
+    .main-content:has(.wiki-container) {
+        max-width: 100%;
+        padding: 1rem;
+    }
+
+    .wiki-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    #wiki-sidebar {
+        max-height: 33vh;
+        min-height: 120px;
+    }
+
+    #wiki-sidebar.is-collapsed {
+        max-height: 60px;
+        min-height: 60px;
+    }
+}
+
+/* Small screens (phones) */
+@media (max-width: 768px) {
+    .main-content:has(.wiki-container) {
+        padding: 0.5rem;
+    }
+    
+    #wiki-sidebar {
+        /* Take up 1/2 of the viewport height */
+        max-height: 50vh;
+    }
 }

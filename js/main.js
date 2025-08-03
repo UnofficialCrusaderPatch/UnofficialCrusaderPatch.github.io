@@ -239,6 +239,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+
+        const toggleBtn = document.getElementById('store-list-toggle');
+        const gridSplit = document.querySelector('.store-content-split');
+
+        if (toggleBtn && gridSplit) {
+            toggleBtn.addEventListener('click', () => {
+                // We toggle a class on the parent grid container
+                gridSplit.classList.toggle('list-collapsed');
+                
+                // Check if it's collapsed and update the button text
+                const isCollapsed = gridSplit.classList.contains('list-collapsed');
+                toggleBtn.textContent = isCollapsed ? 'Expand' : 'Collapse';
+            });
+        }
     }
 
     function renderStoreTab() {
@@ -262,12 +276,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const storeLayoutHTML = `
             <div class="store-container">
                 <div class="store-headers-and-controls">
-                    <h2 class="ucp-header-font">Online Content</h2>
+                    <div class="store-list-header">
+                        <h2 class="ucp-header-font">Online Content</h2>
+                        <button id="store-list-toggle" class="ucp-button-small">Collapse</button>
+                    </div>
                     ${controlsHTML}
                     <h2 class="ucp-header-font">Description</h2>
                 </div>
                 <div class="store-content-split">
-                    <div class="parchment-box ucp-store-list-container">
+                    <div id="store-list-panel" class="parchment-box ucp-store-list-container">
                         <div class="parchment-content-wrapper">
                             <div class="ucp-store-list-items"></div>
                         </div>

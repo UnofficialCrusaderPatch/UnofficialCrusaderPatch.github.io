@@ -49,7 +49,7 @@ body {
     background-color: var(--ucp-top-bg);
     background-image: url('../assets/backgrounds/awesomebackdrop_wide.webp');
     background-size: cover;
-    background-position: center bottom;
+    background-position: center center;
     padding: 1rem 1.5rem 0 1.5rem;
     flex-shrink: 0;
     position: relative;
