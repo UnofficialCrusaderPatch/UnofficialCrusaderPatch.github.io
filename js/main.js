@@ -392,9 +392,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const hash = window.location.hash.substring(1);
         let targetPage = 'Home';
         if (hash.startsWith('wiki/')) {
-            targetPage = hash.substring(5);
+            // Decode URI component to handle spaces or special chars in filenames
+            targetPage = decodeURIComponent(hash.substring(5));
         }
 
+        // First-time load: fetch the file tree and the initial page
         if (!appState.wiki.sidebarTree) {
             renderLoading(tabContentArea, T);
             try {
@@ -407,22 +409,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 tabContentArea.innerHTML = renderWiki(null, `Error loading page: ${targetPage}`, T);
                 return;
             }
-        } else if (appState.wiki.currentPage !== targetPage) {
-            appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage);
-            appState.wiki.currentPage = targetPage;
+        }
+        // Subsequent load: if the page is different, fetch only the new page
+        else if (appState.wiki.currentPage !== targetPage) {
+            try {
+                appState.wiki.mainMd = await fetchWikiPageMarkdown(targetPage);
+                appState.wiki.currentPage = targetPage;
+            } catch (e) {
+                console.error(`Failed to fetch wiki page: ${targetPage}`, e);
+                appState.wiki.mainMd = `<p style="color:red">Could not load page: ${targetPage}</p>`;
+            }
         }
 
+        // Render the page structure
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T);
         generateTableOfContents();
         initializeAllCustomScrollbars();
 
+        // Attach the master event listener only once
         if (tabContentArea.dataset.wikiListenerAttached === 'true') return;
         tabContentArea.dataset.wikiListenerAttached = 'true';
 
         tabContentArea.addEventListener('click', async (e) => {
+            // Only run logic if the wiki tab is active
             if (tabNav.querySelector('.active')?.dataset.tab !== 'wiki') return;
-            
+
+            // Handle sidebar collapse/expand button
             const toggleButton = e.target.closest('#wiki-sidebar-toggle');
             if (toggleButton) {
                 const sidebar = document.getElementById('wiki-sidebar');
@@ -430,32 +443,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleButton.textContent = sidebar.classList.contains('is-collapsed') ? 'Expand' : 'Collapse';
                 return;
             }
-            
+
+            // --- NEW, ROBUST LINK HANDLING LOGIC ---
             const link = e.target.closest('a');
-            if (!link || link.target === '_blank' || link.protocol.startsWith('http')) return;
+            if (!link) return; // Click was not on a link
 
             const href = link.getAttribute('href');
+            if (!href) return; // Link has no href
 
-            // This is a true on-page anchor link (e.g., in the Table of Contents)
+            // Allow external links (starting with http/https/mailto) and new tabs to work normally
+            if (href.startsWith('http') || href.startsWith('mailto:') || link.target === '_blank') {
+                return;
+            }
+
+            // Allow on-page anchors (from Table of Contents) to scroll the page
             if (href.startsWith('#') && !href.startsWith('#wiki/')) {
                 return;
             }
 
-            // --- At this point, it's an internal link we must handle ---
+            // If we've reached this point, it's an internal link our app must handle.
+            // Prevent the browser from navigating away.
             e.preventDefault();
 
             let pagePath;
             if (href.startsWith('#wiki/')) {
-                // It's a sidebar link with a full hash path
-                pagePath = href.substring(6);
+                // A pre-formatted link from the left sidebar
+                pagePath = decodeURIComponent(href.substring(6));
             } else {
-                // It's an in-content link with a relative path
-                pagePath = href.replace('.md', '');
+                // A relative link from within the markdown content, like "Page.md" or "Folder/Page.md"
+                // The links in your wiki are root-relative (to the `docs` folder), so we just clean them up.
+                pagePath = href.replace(/\.md$/, ''); // Remove .md extension
             }
 
-            const targetHash = `#wiki/${pagePath}`;
-            if (targetHash === window.location.hash) return;
+            // Construct the final URL hash
+            const targetHash = `#wiki/${encodeURIComponent(pagePath)}`;
 
+            // Don't re-process if we're already on this page
+            if (window.location.hash === targetHash) {
+                return;
+            }
+
+            // Update the URL and load the new page content
             history.pushState(null, '', targetHash);
             await loadWikiPage(pagePath);
         });
