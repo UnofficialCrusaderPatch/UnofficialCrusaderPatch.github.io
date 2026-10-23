@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const creditsBtn = document.getElementById('creditsBtn');
     const closeCreditsBtn = document.getElementById('closeCreditsBtn');
     const creditsContent = document.getElementById('creditsContent');
+    const downloadBtn = document.getElementById("downloadBtn");
 
     const T = (key) => appState.translations[key] || `[${key}]`;
 
@@ -594,6 +595,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 creditsModal.classList.add('hidden');
             }
             isPotentialOverlayClick = false;
+        });
+
+        downloadBtn.addEventListener("click", async () => {
+            downloadBtn.disabled = true;
+            const url = await fetchInstallerUrl();
+            downloadBtn.disabled = false;
+            if (url) window.open(url, "_blank");
         });
 
         // --- Video Click Handler ---
