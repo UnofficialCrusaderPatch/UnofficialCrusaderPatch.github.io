@@ -88,16 +88,16 @@ function fetchUcpVersion() {
 }
 
 function fetchInstallerUrl() {
+    const cacheKey = "guiVer";
     const url = "https://api.github.com/repos/UnofficialCrusaderPatch/UCP3-GUI/releases/latest";
 
-    // Share the GUI release cache used by the version display.
-    return fetchWithCache("guiVer", url, true).then(data => {
+    return fetchWithCache(cacheKey, url, true).then(data => {
         if (!data || !data.assets || data.assets.length === 0) {
             console.error("No assets found in the latest release.");
             return null;
         }
 
-        const installerAsset = data.assets.find(asset =>
+        const installerAsset = data.assets.find(asset => 
             asset.name.toLowerCase().endsWith('.exe')
         );
 
@@ -168,7 +168,6 @@ function fetchWikiPageMarkdown(pageName, lang) {
     const localizedUrl = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${lang}/${pageName}.md`;
     const defaultUrl = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${pageName}.md`;
 
-    if (lang === 'en') return fetchRawText(defaultUrl);
     return fetchRawText(localizedUrl)
         .catch(() => fetchRawText(defaultUrl));
 }
