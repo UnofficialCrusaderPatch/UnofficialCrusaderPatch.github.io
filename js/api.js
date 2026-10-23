@@ -88,8 +88,8 @@ function fetchUcpVersion() {
 }
 
 function fetchInstallerUrl() {
-    const cacheKey = "installerUrl";
-    const url = "https://api.github.com/repos/UnofficialCrusaderPatch/UnofficialCrusaderPatch/releases/latest";
+    const cacheKey = "guiVer";
+    const url = "https://api.github.com/repos/UnofficialCrusaderPatch/UCP3-GUI/releases/latest";
 
     return fetchWithCache(cacheKey, url, true).then(data => {
         if (!data || !data.assets || data.assets.length === 0) {
