@@ -1,4 +1,4 @@
-# [Unofficial Crusader Patch - Website](https://unofficialcrusaderpatch.github.io/ucp-website-test/)
+# [Unofficial Crusader Patch - Website](https://unofficialcrusaderpatch.com/)
 
 This repository contains the source code for the official website of the Unofficial Crusader Patch (UCP). The site is designed to be a modern, dynamic, and community-driven resource, built to mirror the look and feel of the UCP3 GUI.
 
@@ -44,7 +44,7 @@ Open the `languages.json` file in the root directory. Add your new language to t
 {
     "en": "English",
     "de": "Deutsch",
-    "fr": "Français" // Add this line
+    "fr": "Français"
 }
 ```
 
@@ -57,13 +57,9 @@ Open the `languages.json` file in the root directory. Add your new language to t
 
 ### Step 3: Translate Content Files
 
-The website also uses language-specific files for larger content sections like the FAQ and AI Format pages.
+The Overview and FAQ tabs load Markdown from `md/overview-<language>.md` and `md/faq-<language>.md`. Copy the English file, translate it, and keep links working. Missing translations fall back to English.
 
-1.  In the `/lang/` directory, make copies of `faq-en.json` and `aic-en.json`.
-2.  Rename them to match your language code (e.g., `faq-fr.json` and `aic-fr.json`).
-3.  Translate the content within these new files.
-
-**Fallback System:** If a translation file for a specific language is not found (e.g., `faq-fr.json` doesn't exist), the website will automatically fall back to the English (`en`) version for that content. This ensures the site always remains functional even if translations are incomplete.
+Wiki pages come from the separate [UCP-Wiki repository](https://github.com/UnofficialCrusaderPatch/UCP-Wiki), under `docs/`. They are not maintained in this website repository. The website checks `docs/<language>/` for translated wiki pages and falls back to the default page.
 
 ---
 
@@ -81,13 +77,16 @@ The project is organized to separate structure (HTML), styling (CSS), logic (JS)
 -   `/lang/`: Contains all localization and data files.
 -   `/languages.json`: The central manifest of all supported languages.
 
-### Next Steps to Complete the Website
+## Wiki navigation and checks
 
-1.  **Populate the `/assets/` Folder:** The most critical step is to copy all the necessary image files from the UCP3 GUI into the `/assets/ucp3/` folder. The `css/style.css` file is already set up to use them, which will correctly render the borders, tabs, and backgrounds.
+Write wiki page links relative to their source Markdown file, with the `.md` extension. The site converts them into `#wiki/<page>` routes while preserving section fragments. Relative wiki images resolve against the same source directory. Internal links therefore remain readable on GitHub as well as on the website.
 
-2.  **Complete Data Files:** Finish translating and populating the content for all languages in the `/lang/` directory, especially for the `aic-xx.json` and `faq-xx.json` files.
+The sidebar is generated from the files in UCP-Wiki's `docs/` tree. To expand a subject, update its existing page and section index first. Add a new page when it covers a distinct topic, and link it from the relevant guide.
 
-3.  **Add New Tabs:** To add a new content tab (e.g., "Features" or "Contributing"), you will need to:
-    * Add a new button to the `<nav>` in `index.html`.
-    * Add a new `case` to the `switchTab` function in `js/main.js`.
-    * Create a new render function in `js/ui.js` to generate the HTML for the new tab's content.
+Run the focused URL and download-source regression checks with Node.js:
+
+```bash
+node --test tests/*.test.cjs
+```
+
+Serve the site locally to check real Markdown navigation, browser Back/Forward, language changes, Content selection and mobile layout. Verify documentation changes alongside the matching UCP-Wiki revision; the deployed site otherwise reads the wiki's `main` branch.

@@ -7,7 +7,7 @@ Es ist sehr viel Arbeit, benutzerdefinierte Kartengrößen ohne Zugriff auf den 
 
 ***
 ### Könnt ihr ein neues Feature einbauen?
-Bitte sieh dir zuerst unsere [Roadmap & Ideen-Seite](#wiki/Project/Roadmap-Ideas) an, um zu sehen, was geplant ist. Wenn deine Idee dort nicht aufgeführt ist, kannst du dich gerne auf unserem Discord melden. Wenn einem Entwickler die Idee gefällt, wird er sie sich vielleicht ansehen, aber es werden keine Versprechungen gemacht.
+Bitte sieh dir zuerst unsere [Roadmap & Ideen-Seite](#wiki/Project) an, um zu sehen, was geplant ist. Wenn deine Idee dort nicht aufgeführt ist, kannst du dich gerne auf unserem Discord melden. Wenn einem Entwickler die Idee gefällt, wird er sie sich vielleicht ansehen, aber es werden keine Versprechungen gemacht.
 
 ***
 ### Ich bin Programmierer, wie kann ich mitmachen?
@@ -23,11 +23,13 @@ Selbstverständlich!
 
 ***
 ### Wo bekomme ich von der Community entwickelte KIs?
-Einige sind im Installer enthalten, und viele weitere findest du in den Content-Creation-Kanälen auf unserem Discord-Server.
+Installiere KI-Pakete über den Store des Launchers, aktiviere sie unter Content und wähle ihre Bestandteile in AI Swapper aus. Die [Inhaltsübersicht der Website](#store) zeigt verfügbare Pakete und ihre Beschreibungen. Neue Inhalte kannst du auch auf unserem Discord-Server besprechen.
 
 ***
 ### Gibt es ein Tutorial, wie ich meine eigenen KIs erstellen kann?
-Es gibt einige Anleitungen. Für einen schnellen Video-Einstieg kannst du dir dieses exzellente Tutorial von Krarilotus ansehen.
+Beginne mit der [Plugin-Anleitung](#wiki/Modding-with-UCP/Creating-Extensions/Creating-a-Plugin) und dem [UCP3-KI-Tutorial](#wiki/Stronghold-Crusader-Wiki/AI-Lords/AI-Editing-Tutorial). Dort findest du die Dateistruktur und die Auswahl über AI Swapper.
+
+Für einen Video-Einstieg in das KI-Verhalten kannst du dir dieses Tutorial von Krarilotus ansehen.
 
 **Englisch: SHC AI character design basics with UCP (ft wolfkiller rat)**
 <div class="video-container-static" data-video-id="8WgSMmWNzvQ">

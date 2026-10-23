@@ -7,7 +7,7 @@ It is a lot of work to support custom map sizes without having access to the gam
 
 ***
 ### Can you include a new feature?
-Please check our [Roadmap & Ideas page](#wiki/Project/Roadmap-Ideas) first to see what is planned. If your idea isn't there, you are welcome to get in touch on our Discord. If a developer likes the idea they may look into it, but no promises are made.
+Please check our [Roadmap & Ideas page](#wiki/Project) first to see what is planned. If your idea isn't there, you are welcome to get in touch on our Discord. If a developer likes the idea they may look into it, but no promises are made.
 
 ***
 ### I'm a programmer, how can I get involved?
@@ -23,11 +23,13 @@ Of course!
 
 ***
 ### Where can I get community-developed AIs?
-A few are bundled with the installer, and you can find many more in the content creation channels on our Discord server.
+Browse the launcher's Store to install AI packs, activate them in Content, then select their components through AI Swapper. The website's [Content browser](#store) shows available packs and their descriptions. You can also discuss new content on our Discord server.
 
 ***
 ### Is there a tutorial on how to make my own AIs?
-There are a few tutorials available. For a video quickstart, feel free to watch this excellent tutorial made by Krarilotus.
+Start with the [plugin creation guide](#wiki/Modding-with-UCP/Creating-Extensions/Creating-a-Plugin) and the [UCP3 AI editing tutorial](#wiki/Stronghold-Crusader-Wiki/AI-Lords/AI-Editing-Tutorial) for packaging your character and selecting it through AI Swapper.
+
+For a video introduction to personality design, watch this tutorial by Krarilotus.
 
 **English: SHC AI character design basics with UCP (ft wolfkiller rat)**
 <div class="video-container-static" data-video-id="8WgSMmWNzvQ">

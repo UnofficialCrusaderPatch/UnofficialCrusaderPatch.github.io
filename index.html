@@ -29,10 +29,12 @@
                 <i class="fas fa-users mr-1"></i><span data-i18n="btn_credits">Credits</span>
             </button>
         </div>
-        <button id="downloadBtn" class="ucp-button-download">
+        <a id="downloadBtn" class="ucp-button-download"
+            href="https://github.com/UnofficialCrusaderPatch/UCP3-GUI/releases/latest"
+            target="_blank" rel="noopener noreferrer">
             <img src="assets/ucp3/ucp3_logo_gro_v3.png" alt="UCP Shield Logo" class="download-logo-overlay">
             <span data-i18n="btn_download">Download Now</span>
-        </button>
+        </a>
         <div class="header-right">
             <div class="language-select-wrapper">
                 <i class="fas fa-globe"></i>
@@ -99,12 +101,13 @@
 
 <!-- SCRIPTS: Load libraries first, then your application code. No 'defer'. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
 
 <!-- Main JavaScript files -->
 <!-- <script src="js/config.js"></script> -->
 <script src="js/api.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/wiki-links.js"></script>
 <script src="js/main.js"></script>
 
 </body>

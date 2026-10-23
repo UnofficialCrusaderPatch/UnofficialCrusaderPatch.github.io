@@ -23,28 +23,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    const escapeAttribute = value => String(value || '').replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
     const wikiRenderer = new marked.Renderer();
     wikiRenderer.image = function(href, title, text) {
-        const url = (typeof href === 'object' && href !== null) ? href.href : href;
-
-        // Now, perform the null/empty check on the extracted URL string
-        if (!url) {
-            return text;
-        }
-
-        // Proceed with the logic, but using the 'url' variable
-        if (!/^(https?:)?\/\//.test(url)) {
-            const currentPagePath = appState.wiki.currentPage || '';
-            const lastSlash = currentPagePath.lastIndexOf('/');
-            const basePath = (lastSlash > -1) ? currentPagePath.substring(0, lastSlash) : '';
-            
-            const absoluteHref = `${GITHUB_RAW_BASE}${REPOS.WIKI}/main/docs/${basePath ? basePath + '/' : ''}${url.replace('./', '')}`;
-            
-            return `<img src="${absoluteHref}" alt="${text}"${title ? ` title="${title}"` : ''}>`;
-        }
-        
-        return `<img src="${url}" alt="${text}"${title ? ` title="${title}"` : ''}>`;
+        const token = typeof href === 'object' && href !== null ? href : { href, title, text };
+        if (!token.href) return escapeAttribute(token.text);
+        const source = WikiLinks.resource(token.href, appState.wiki.currentPage);
+        return `<img src="${escapeAttribute(source)}" alt="${escapeAttribute(token.text)}"${token.title ? ` title="${escapeAttribute(token.title)}"` : ''}>`;
     };
+
+    function prepareWikiContent() {
+        const mainPane = document.querySelector('#wiki-main-content-wrapper .parchment-content-wrapper');
+        if (!mainPane) return;
+        mainPane.querySelectorAll('a[href]').forEach(link => {
+            link.setAttribute('href', WikiLinks.link(link.getAttribute('href'), appState.wiki.currentPage));
+        });
+        const usedIds = new Map();
+        mainPane.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+            const base = header.id || WikiLinks.slug(header.textContent) || 'section';
+            const count = usedIds.get(base) || 0;
+            usedIds.set(base, count + 1);
+            header.id = count ? `${base}-${count}` : base;
+        });
+    }
+
+    function scrollWikiFragment(fragment) {
+        if (fragment) document.getElementById(fragment)?.scrollIntoView({ block: 'start' });
+    }
 
     let storeDataPromise = null;
 
@@ -56,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const creditsBtn = document.getElementById('creditsBtn');
     const closeCreditsBtn = document.getElementById('closeCreditsBtn');
     const creditsContent = document.getElementById('creditsContent');
-    const downloadBtn = document.getElementById("downloadBtn");
 
     const T = (key) => appState.translations[key] || `[${key}]`;
 
@@ -182,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         const rows = filteredItems.map(ext =>
-            `<div class="ucp-store-row" data-id="${ext.definition.name}">${ext.definition["display-name"] || ext.definition.name}</div>`
+            `<div class="ucp-store-row" data-id="${ext.definition.name}@${ext.definition.version}">${ext.definition["display-name"] || ext.definition.name}</div>`
         ).join("");
 
         const listContainer = document.querySelector('.ucp-store-list-items');
@@ -202,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.addEventListener("click", async (e) => {
                 document.querySelectorAll(".ucp-store-row").forEach(r => r.classList.remove("sel"));
                 row.classList.add("sel");
-                const ext = items.find(item => item.definition.name === row.dataset.id);
+                const ext = items.find(item => `${item.definition.name}@${item.definition.version}` === row.dataset.id);
                 const descContainer = document.getElementById("store-desc");
                 descContainer.innerHTML = `<p>${T('loading')}</p>`; // This will now work correctly
 
@@ -216,9 +222,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     const urls = buildDescriptionUrl(ext, appState.currentLang);
                     let md = "";
+                    let descriptionUrl = "";
                     for (const u of urls) {
                         md = await fetchRawText(u).catch(() => null);
-                        if (md) break;
+                        if (md) {
+                            descriptionUrl = u;
+                            break;
+                        }
                     }
                     if (!md) md = "_No description available._";
                     
@@ -233,6 +243,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
 
                     descContainer.innerHTML = `${descriptionHeader}<div class="prose">${marked.parse(md)}</div>`;
+                    if (descriptionUrl) {
+                        descContainer.querySelectorAll('.prose [src], .prose a[href]').forEach(element => {
+                            const attribute = element.hasAttribute('src') ? 'src' : 'href';
+                            const value = element.getAttribute(attribute);
+                            if (value && !value.startsWith('#')) {
+                                element.setAttribute(attribute, new URL(value, descriptionUrl).href);
+                            }
+                        });
+                    }
                     descContainer.closest('.parchment-content-wrapper')?.dispatchEvent(new Event('scroll'));
                 } catch (err) {
                     descContainer.innerHTML = `<p style="color:red">Could not load details for this item.</p>`;
@@ -350,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += '</li>';
             } else {
                 // WICHTIG: Das href-Attribut MUSS mit #wiki/ beginnen
-                html += `<li><a href="#wiki/${item.path}" data-path="${item.path}">${item.name.replace(/-/g, ' ')}</a></li>`;
+                html += `<li><a href="${WikiLinks.route(item.path)}" data-path="${item.path}">${item.name.replace(/-/g, ' ')}</a></li>`;
             }
         }
         html += '</ul>';
@@ -365,24 +384,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const tocPane = document.getElementById('wiki-toc-content'); // <-- UPDATED ID
         if (!mainPane || !tocPane) return;
 
-        // ... rest of the function is the same
         const headers = mainPane.querySelectorAll('h2, h3');
         if (headers.length < 2) {
             tocPane.innerHTML = '';
             return;
         }
         let tocHtml = '<ul>';
-        headers.forEach((header, index) => {
-            const id = `header-${index}`;
-            header.id = id;
+        headers.forEach(header => {
+            const id = header.id;
             const indentClass = header.tagName === 'H3' ? 'indent' : '';
-            tocHtml += `<li class="${indentClass}"><a href="#${id}">${header.textContent}</a></li>`;
+            tocHtml += `<li class="${indentClass}"><a href="${WikiLinks.route(appState.wiki.currentPage, id)}">${header.textContent}</a></li>`;
         });
         tocHtml += '</ul>';
         tocPane.innerHTML = tocHtml;
     }
 
-    async function loadWikiPage(pagePath) {
+    async function loadWikiPage(pagePath, fragment = '') {
         // This is the main <main> element which IS the parchment box
         const mainParchmentBox = document.getElementById('wiki-main-content-wrapper'); 
         
@@ -408,21 +425,19 @@ document.addEventListener('DOMContentLoaded', () => {
             // UPDATE only the inner HTML with the new, parsed content
             mainContentArea.innerHTML = marked.parse(newMd, { renderer: wikiRenderer }); // Use our custom renderer
             
+            prepareWikiContent();
             generateTableOfContents();
-            initializeAllCustomScrollbars(); // Re-check scrollbars as content height changed
-            mainContentArea.scrollTop = 0; // Scroll to top
+            initializeAllCustomScrollbars();
+            mainContentArea.scrollTop = 0;
+            scrollWikiFragment(fragment);
         } catch (err) {
             mainContentArea.innerHTML = `<p style="color:red">Could not load page: ${pagePath}</p>`;
         }
     }
 
     async function renderWikiTab() {
-        const hash = window.location.hash.substring(1);
-        let targetPage = 'Home';
-        if (hash.startsWith('wiki/')) {
-            // Decode URI component to handle spaces or special chars in filenames
-            targetPage = decodeURIComponent(hash.substring(5));
-        }
+        const target = WikiLinks.parseHash(window.location.hash) || { page: 'Home', fragment: '' };
+        const targetPage = target.page;
 
         // First-time load: fetch the file tree and the initial page
         if (!appState.wiki.sidebarTree) {
@@ -455,8 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render the page structure
         const sidebarHtml = renderSidebarFromTree(appState.wiki.sidebarTree);
         tabContentArea.innerHTML = renderWiki(sidebarHtml, appState.wiki.mainMd, T, wikiRenderer);
+        prepareWikiContent();
         generateTableOfContents();
         initializeAllCustomScrollbars();
+        scrollWikiFragment(target.fragment);
 
         // Attach the master event listener only once
         if (tabContentArea.dataset.wikiListenerAttached === 'true') return;
@@ -475,48 +492,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // --- NEW, ROBUST LINK HANDLING LOGIC ---
             const link = e.target.closest('a');
-            if (!link) return; // Click was not on a link
-
-            const href = link.getAttribute('href');
-            if (!href) return; // Link has no href
-
-            // Allow external links (starting with http/https/mailto) and new tabs to work normally
-            if (href.startsWith('http') || href.startsWith('mailto:') || link.target === '_blank') {
-                return;
-            }
-
-            // Allow on-page anchors (from Table of Contents) to scroll the page
-            if (href.startsWith('#') && !href.startsWith('#wiki/')) {
-                return;
-            }
-
-            // If we've reached this point, it's an internal link our app must handle.
-            // Prevent the browser from navigating away.
+            if (!link || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey ||
+                link.target === '_blank') return;
+            const target = WikiLinks.parseHash(link.getAttribute('href') || '');
+            if (!target) return;
             e.preventDefault();
-
-            let pagePath;
-            if (href.startsWith('#wiki/')) {
-                // A pre-formatted link from the left sidebar
-                pagePath = decodeURIComponent(href.substring(6));
+            const hash = WikiLinks.route(target.page, target.fragment);
+            if (window.location.hash !== hash) history.pushState(null, '', hash);
+            if (appState.wiki.currentPage !== target.page) {
+                await loadWikiPage(target.page, target.fragment);
             } else {
-                // A relative link from within the markdown content, like "Page.md" or "Folder/Page.md"
-                // The links in your wiki are root-relative (to the `docs` folder), so we just clean them up.
-                pagePath = href.replace(/\.md$/, ''); // Remove .md extension
+                scrollWikiFragment(target.fragment);
             }
-
-            // Construct the final URL hash
-            const targetHash = `#wiki/${encodeURIComponent(pagePath)}`;
-
-            // Don't re-process if we're already on this page
-            if (window.location.hash === targetHash) {
-                return;
-            }
-
-            // Update the URL and load the new page content
-            history.pushState(null, '', targetHash);
-            await loadWikiPage(pagePath);
         });
     }
 
@@ -563,7 +551,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        langSelector.addEventListener('change', (e) => loadLanguage(e.target.value));
+        langSelector.addEventListener('change', async (e) => {
+            await loadLanguage(e.target.value);
+            const tabId = tabNav.querySelector('.active')?.dataset.tab || 'overview';
+            if (tabId === 'wiki') appState.wiki.currentPage = null;
+            await switchTab(tabId, false);
+        });
 
         creditsBtn.addEventListener('click', async () => {
             creditsModal.classList.remove('hidden');
@@ -601,13 +594,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 creditsModal.classList.add('hidden');
             }
             isPotentialOverlayClick = false;
-        });
-
-        downloadBtn.addEventListener("click", async () => {
-            downloadBtn.disabled = true;
-            const url = await fetchInstallerUrl(); 
-            downloadBtn.disabled = false;
-            if (url) window.open(url, "_blank");
         });
 
         // --- Video Click Handler ---
